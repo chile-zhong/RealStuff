@@ -25,4 +25,4 @@ Android 4.4+
 * [@xingrz](https://github.com/xingrz)的开源项目[干·妹纸](https://github.com/xingrz/GankMeizhi)
 
 ## 预览
-![image](http://github.com/IvorHu/RealStuff/raw/master/screenshoots/meizhi.png)
+![image](http://github.com/IvorHu/RealStuff/raw/master/screenshoots/Meizhi.png)
