@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:titleEnabled="false">
+
+            <LinearLayout
+                android:id="@+id/introduction"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:fitsSystemWindows="true"
+                android:orientation="vertical"
+                android:padding="32dp"
+                app:layout_collapseMode="parallax">
+
+                <TextView
+                    android:id="@+id/intro_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="60dp"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center_horizontal"
+                    android:textSize="16sp"
+                    android:text="每日分享 妹子图 和 技术干货" />
+
+                <TextView
+                    android:id="@+id/api_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center_horizontal"
+                    android:autoLink="web"
+                    android:text="@string/str_api" />
+
+                <TextView
+                    android:id="@+id/github_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center_horizontal"
+                    android:autoLink="web"
+                    android:text="@string/str_repository" />
+
+                <!--<ImageView-->
+                <!--android:id="@+id/icon"-->
+                <!--android:layout_width="80dp"-->
+                <!--android:layout_height="80dp"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="80dp"-->
+                <!--android:contentDescription="@string/app_name"-->
+                <!--android:src="@mipmap/ic_launcher" />-->
+
+                <!--<TextView-->
+                <!--android:id="@+id/name"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@id/icon"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="6dp"-->
+                <!--android:text="@string/app_name"-->
+                <!--android:textSize="18sp" />-->
+
+                <!--<TextView-->
+                <!--android:id="@+id/version"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@id/name"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="6dp"-->
+                <!--android:text="V 1.0"-->
+                <!--android:textColor="@android:color/white"-->
+                <!--android:textSize="12sp" />-->
+            </LinearLayout>
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/about_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/about_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fitsSystemWindows="true"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</android.support.design.widget.CoordinatorLayout>
