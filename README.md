@@ -1,5 +1,6 @@
 # RealStuff
-一个看妹纸与开发资讯的Android APP，新手向大神学习的练手项目，来自代码家的API http://gank.io。
+一个看妹纸与开发资讯的Android APP，具有本地缓存、分享与添加收藏的功能，新手向大神学习的练手项目，来自代码家的API http://gank.io。
+
 
 ## 项目支持的Android特性
 * CardView
