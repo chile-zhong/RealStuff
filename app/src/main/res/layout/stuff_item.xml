@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    android:foreground="?selectableItemBackground"
     card_view:cardBackgroundColor="@color/cardview_light_background"
     card_view:cardCornerRadius="2dp"
     card_view:cardElevation="4dp">
@@ -14,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/background_activated"
+        android:foreground="?selectableItemBackground"
         android:orientation="vertical"
         android:padding="10dp">
 

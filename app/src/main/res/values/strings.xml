@@ -26,7 +26,7 @@
     <string name="nav_collections">Collections</string>
     <string name="str_share_msg">This message is from APP RealStuff!</string>
     <string name="url_api" translatable="false">http://gank.io</string>
-    <string name="url_repository" translatable="false">https://github.com/IvorHu</string>
+    <string name="url_repository" translatable="false">https://github.com/IvorHu/RealStuff</string>
     <string name="str_api">API http://gank.io</string>
-    <string name="str_repository">Repository http://github.com/IvorHu/RealStuff</string>
+    <string name="str_repository">Repository https://github.com/IvorHu/RealStuff</string>
 </resources>
