@@ -27,5 +27,5 @@
     <string name="nav_collections">收藏</string>
     <string name="str_share_msg">一条来自APP干货的消息。</string>
     <string name="str_api">来自代码家API http://gank.io</string>
-    <string name="str_repository">项目地址 http://github.com/IvorHu/RealStuff</string>
+    <string name="str_repository">项目地址 https://github.com/IvorHu/RealStuff</string>
 </resources>

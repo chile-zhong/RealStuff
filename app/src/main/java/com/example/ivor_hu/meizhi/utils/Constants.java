@@ -6,7 +6,7 @@ import com.example.ivor_hu.meizhi.R;
  * Created by Ivor on 2016/2/15.
  */
 public class Constants {
-//    public static final String BASE_URL = "http://gank.avosapps.com/api/";
+    //    public static final String BASE_URL = "http://gank.avosapps.com/api/";
     public static final String NEW_BASE_URL = "http://gank.io/api/";
     public static final String LATEST_GIRLS_URL = NEW_BASE_URL + "data/%E7%A6%8F%E5%88%A9/10/1";
     public static final String LATEST_ANDROID_URL = NEW_BASE_URL + "data/Android/20/1";
@@ -15,7 +15,7 @@ public class Constants {
     public static final String LATEST_WEB_URL = NEW_BASE_URL + "data/%E5%89%8D%E7%AB%AF/20/1";
     public static final String LATEST_OTHERS_URL = NEW_BASE_URL + "data/%E6%8B%93%E5%B1%95%E8%B5%84%E6%BA%90/20/1";
     public static final String LATEST_FUN_URL = NEW_BASE_URL + "data/%E7%9E%8E%E6%8E%A8%E8%8D%90/20/1";
-//    public static final String BEFORE_DATE_URL = BASE_URL + "get/10/before/";
+    //    public static final String BEFORE_DATE_URL = BASE_URL + "get/10/before/";
 //    public static final String AFTER_DATE_URL = BASE_URL + "get/20/since/";
     //    public static final String DAYLY_DATA_URL = BASE_URL + "day/";
     public static final String DAYLY_DATA_URL = NEW_BASE_URL + "day/";
@@ -29,12 +29,13 @@ public class Constants {
     public static final String TYPE_FUN = "Fun";
     public static final String TYPE_APP = "App";
 
+    public static final String[] TYPES = {TYPE_GIRLS, TYPE_ANDROID, TYPE_IOS, TYPE_WEB, TYPE_APP, TYPE_FUN, TYPE_OTHERS, TYPE_COLLECTIONS};
 
 
     private Constants() {
     }
 
-    public static String getLatestUrlFromType(String type) throws IllegalArgumentException{
+    public static String getLatestUrlFromType(String type) throws IllegalArgumentException {
         String url;
         switch (type) {
             case TYPE_ANDROID:
@@ -61,7 +62,7 @@ public class Constants {
         return url;
     }
 
-    public static String getTypeNameFromType(String type) throws IllegalArgumentException{
+    public static String getTypeNameFromType(String type) throws IllegalArgumentException {
         String typeName;
         switch (type) {
             case TYPE_ANDROID:
@@ -90,7 +91,7 @@ public class Constants {
 
     public static String handleTypeStr(String typeInJSON) {
         String type;
-        switch (typeInJSON){
+        switch (typeInJSON) {
             case "拓展资源":
                 type = TYPE_OTHERS;
                 break;
@@ -110,7 +111,7 @@ public class Constants {
         return type;
     }
 
-    public static int getResIdFromType(String type) throws IllegalArgumentException{
+    public static int getResIdFromType(String type) throws IllegalArgumentException {
         int resId;
         switch (type) {
             case TYPE_GIRLS:

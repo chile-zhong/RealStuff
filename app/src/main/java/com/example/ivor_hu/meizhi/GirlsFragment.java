@@ -82,17 +82,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
                 }
             }
 
-//            @Override
-//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    int lastVisiablePos = getLastVisiblePos(mLayoutManager);
-//                    MainActivity activity = ((MainActivity) getActivity());
-//                    if (lastVisiablePos > 12 && !activity.isFabShown())
-//                        activity.showFab();
-//                    else if (lastVisiablePos < 12 && activity.isFabShown())
-//                        activity.hideFab();
-//                }
-//            }
         });
 
         mAdapter.setOnItemClickListener(new GirlsAdapter.OnItemClickListener() {
@@ -163,6 +152,7 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "onActivityCreated: ");
         mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -171,8 +161,10 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
             }
         };
         mRefreshLayout.setOnRefreshListener(listener);
-        listener.onRefresh();
+        if (savedInstanceState == null)
+            listener.onRefresh();
 
+        // another way to call onRefresh
 //        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 //            @Override
 //            public void onGlobalLayout() {
@@ -180,7 +172,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
 //                mRefreshLayout.setRefreshing(true);
 //            }
 //        });
-        Log.d(TAG, "onActivityCreated: ");
 //        restoreStateFromArguments();
     }
 
@@ -202,59 +193,9 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
         mRealm.removeAllChangeListeners();
         mRealm.close();
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-//        saveStateToArguments();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d(TAG, "onSaveInstanceState: " + outState.toString());
-//        saveStateToArguments();
-    }
-
-//    private void saveStateToArguments() {
-//        savedState = saveState();
-//        if (savedState != null) {
-//            Bundle b = getArguments();
-//            b.putBundle(STATE_BUNDLE, savedState);
-//        }
-//    }
-//
-//    private boolean restoreStateFromArguments() {
-//        Bundle b = getArguments();
-//        savedState = b.getBundle(STATE_BUNDLE);
-//        if (savedState != null) {
-//            restoreState();
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    // 取出状态数据
-//    private void restoreState() {
-//        if (savedState != null) {
-//            int pos = savedState.getInt(STATE_POSITION, 0);
-//            Log.d(TAG, "restoreState: pos -- " + pos);
-//        }
-//    }
-//
-//    // 保存状态数据
-//    private Bundle saveState() {
-//        Bundle state = new Bundle();
-//        int pos = mLayoutManager.findFirstCompletelyVisibleItemPositions(new int[mLayoutManager.getSpanCount()])[0];
-//        state.putInt(STATE_POSITION, pos);
-//        Log.d(TAG, "saveState: pos -- " + pos);
-//        return state;
-//    }
-
 
     private int getLastVisiblePos(StaggeredGridLayoutManager layoutManager) {
         int position;
@@ -283,9 +224,8 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
         mRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                Log.d(TAG, "onPreDraw: supportStartPostponedEnterTransition");
                 mRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
-                ((MainActivity) getActivity()).supportStartPostponedEnterTransition();
+                getActivity().supportStartPostponedEnterTransition();
                 return true;
             }
         });

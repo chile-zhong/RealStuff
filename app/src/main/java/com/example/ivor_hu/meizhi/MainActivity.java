@@ -27,6 +27,7 @@ import com.example.ivor_hu.meizhi.utils.Constants;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.ivor_hu.meizhi.utils.Constants.TYPES;
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_ANDROID;
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_APP;
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_COLLECTIONS;
@@ -39,12 +40,11 @@ import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_WEB;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
+    private static final String CURR_TYPE = "curr_fragment_type";
 
     FloatingActionButton mFab;
     private Toolbar mToolbar;
-
     private Fragment mCurrFragment;
-
     private String mCurrFragmentType;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -123,6 +123,35 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(CURR_TYPE, mCurrFragmentType);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mCurrFragmentType = savedInstanceState.getString(CURR_TYPE);
+        hideAllExcept(mCurrFragmentType);
+        mToolbar.setTitle(Constants.getResIdFromType(mCurrFragmentType));
+    }
+
+    private void hideAllExcept(String mCurrFragmentType) {
+        FragmentManager manager = getSupportFragmentManager();
+        for (String type : TYPES) {
+            Fragment fragment = manager.findFragmentByTag(type);
+            if (type.equals(mCurrFragmentType)) {
+                manager.beginTransaction().show(fragment).commit();
+                mCurrFragment = fragment;
+            } else {
+                if (fragment != null) {
+                    manager.beginTransaction().hide(fragment).commit();
+                }
+            }
+        }
     }
 
     @Override

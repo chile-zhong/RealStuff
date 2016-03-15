@@ -36,6 +36,7 @@ import io.realm.Realm;
 public class StuffFragment extends Fragment {
     private static final String TAG = "StuffFragment";
     public static final String SERVICE_TYPE = "service_type";
+    private static final String TYPE = "type";
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -51,7 +52,7 @@ public class StuffFragment extends Fragment {
 
     public static StuffFragment newInstance(String type) {
         Bundle args = new Bundle();
-        args.putString("type", type);
+        args.putString(TYPE, type);
 
         StuffFragment fragment = new StuffFragment();
         fragment.setArguments(args);
@@ -60,9 +61,8 @@ public class StuffFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
-        mType = getArguments().getString("type");
+        mType = getArguments().getString(TYPE);
         mRealm = Realm.getDefaultInstance();
         if (!mType.equals(Constants.TYPE_COLLECTIONS))
             updateResultReceiver = new UpdateResultReceiver();
@@ -105,7 +105,6 @@ public class StuffFragment extends Fragment {
 
             @Override
             public void onItemLongClick(final View view, final int pos) {
-                Log.d(TAG, "onItemLongClick: " + pos);
                 view.setActivated(true);
                 getActivity().startActionMode(new AbsListView.MultiChoiceModeListener() {
                     @Override
@@ -153,7 +152,6 @@ public class StuffFragment extends Fragment {
 
         if (!mType.equals(Constants.TYPE_COLLECTIONS))
             mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-        Log.d(TAG, "onCreateView: ");
         return view;
     }
 
@@ -203,7 +201,6 @@ public class StuffFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d(TAG, "onActivityCreated: ");
         mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -212,7 +209,8 @@ public class StuffFragment extends Fragment {
             }
         };
         mRefreshLayout.setOnRefreshListener(listener);
-        listener.onRefresh();
+        if (savedInstanceState == null)
+            listener.onRefresh();
     }
 
     @Override
@@ -238,7 +236,6 @@ public class StuffFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
         mRealm.removeAllChangeListeners();
         mRealm.close();
     }

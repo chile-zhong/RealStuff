@@ -1,16 +1,12 @@
 package com.example.ivor_hu.meizhi;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +25,6 @@ public class AboutActivity extends AppCompatActivity {
     private static final String TAG = "AboutActivity";
     private Toolbar mToolbar;
     private RecyclerView mRecyclerView;
-    private TextView introText, apiText, githubText;
     private ArrayMap<String, String> mLibsList;
     private List<String> mFeasList;
 
