@@ -111,7 +111,6 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
             holder.likeBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     toggleLikeBtn((ImageButton) v, position);
                 }
             });
@@ -135,13 +134,17 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
 
         public Viewholder(final View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.stuff_title);
-            author = (TextView) itemView.findViewById(R.id.stuff_author);
-            date = (TextView) itemView.findViewById(R.id.stuff_date);
-            stuff = (LinearLayout) itemView.findViewById(R.id.stuff);
-            likeBtn = (ImageButton) itemView.findViewById(R.id.like_btn);
+            title = $(itemView, R.id.stuff_title);
+            author = $(itemView, R.id.stuff_author);
+            date = $(itemView, R.id.stuff_date);
+            stuff = $(itemView, R.id.stuff);
+            likeBtn = $(itemView, R.id.like_btn);
         }
 
+    }
+
+    private <T extends View> T $(View view, int resId) {
+        return (T) view.findViewById(resId);
     }
 
     private void deleteItem(int position) {
@@ -181,7 +184,5 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     public Stuff getStuffAt(int pos) {
         return mStuffs.get(pos);
     }
-
-
 
 }

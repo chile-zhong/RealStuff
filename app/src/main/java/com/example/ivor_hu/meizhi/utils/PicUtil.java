@@ -60,14 +60,7 @@ public class PicUtil {
             String filepath = SavePath + getLastStringFromUrl(url);
             File file = new File(filepath);
             if (!file.exists()) {
-//                if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                        != PackageManager.PERMISSION_GRANTED) {
-//                    //申请WRITE_EXTERNAL_STORAGE权限
-//                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                            WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
-//                }else {
-                    file.createNewFile();
-//                }
+                file.createNewFile();
             }
             FileOutputStream fos = new FileOutputStream(file);
             if (null != fos) {
@@ -108,8 +101,4 @@ public class PicUtil {
         return getSDCardPath() + IMAGE_SAVE_PATH + getLastStringFromUrl(url);
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//
-//    }
 }

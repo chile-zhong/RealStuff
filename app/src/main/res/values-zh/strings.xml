@@ -7,8 +7,8 @@
     <string name="action_save">保存</string>
     <string name="action_share">分享</string>
     <string name="action_send">发送</string>
-    <string name="feas_used">支持的特性</string>
-    <string name="libs_used">使用的开源库</string>
+    <string name="about_feas_used">支持的特性</string>
+    <string name="about_libs_used">使用的开源库</string>
     <string name="nav_android">Android</string>
     <string name="nav_app">APP</string>
     <string name="nav_fun">瞎推荐</string>
@@ -18,14 +18,15 @@
     <string name="nav_web">前端</string>
     <string name="navigation_drawer_close">关闭抽屉导航</string>
     <string name="navigation_drawer_open">打开抽屉导航</string>
-    <string name="str_double_taps">被双击</string>
-    <string name="str_load_more">加载更多</string>
-    <string name="str_long_clicked">被长按</string>
-    <string name="str_refreshed">已更新</string>
-    <string name="str_no_more">无更多</string>
-    <string name="str_isfetching">正在加载图片，请稍后查看</string>
+    <string name="main_double_taps">被双击</string>
+    <string name="fragment_load_more">加载更多</string>
+    <string name="fragment_long_clicked">被长按</string>
+    <string name="fragment_refreshed">已更新</string>
+    <string name="fragment_no_more">无更多</string>
+    <string name="fragment_isfetching">正在加载图片，请稍后查看</string>
     <string name="nav_collections">收藏</string>
-    <string name="str_share_msg">一条来自APP干货的消息。</string>
-    <string name="str_api">来自代码家API http://gank.io</string>
-    <string name="str_repository">项目地址 https://github.com/IvorHu/RealStuff</string>
+    <string name="share_msg">一条来自APP干货的消息。</string>
+    <string name="about_api">来自代码家API http://gank.io</string>
+    <string name="about_repository_url">项目地址 https://github.com/IvorHu/RealStuff</string>
+    <string name="pic_saved">已保存至</string>
 </resources>

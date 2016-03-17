@@ -7,11 +7,9 @@ import android.graphics.Point;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
-import com.example.ivor_hu.meizhi.GirlsFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
 import com.example.ivor_hu.meizhi.utils.Constants;
@@ -98,7 +96,7 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
 
 
     private int fetchLatest(final Realm realm) throws InterruptedException, ExecutionException, ParseException, JSONException {
-        RequestFuture<JSONObject> future = VolleyUtil.getInstance(this).getJSONSync(Constants.LATEST_GIRLS_URL, GirlsFragment.VOLLEY_TAG);
+        RequestFuture<JSONObject> future = VolleyUtil.getInstance(this).getJSONSync(Constants.LATEST_GIRLS_URL, Constants.TYPE_GIRLS);
         return updateImages(realm, future);
     }
 
@@ -117,14 +115,13 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
     private int fetch(Realm realm, String baseline, List<String> dates) throws InterruptedException, ExecutionException, JSONException, ParseException {
         int fetched = 0;
         for (String date : dates) {
-            Log.d(TAG, "fetchRefresh: " + date);
             if (date == null)
                 return fetched;
 
             if (date.equals(baseline))
                 continue;
 
-            RequestFuture<JSONObject> imgFuture = VolleyUtil.getInstance(this).getJSONSync(Constants.DAYLY_DATA_URL + date, GirlsFragment.VOLLEY_TAG);
+            RequestFuture<JSONObject> imgFuture = VolleyUtil.getInstance(this).getJSONSync(Constants.DAYLY_DATA_URL + date, Constants.TYPE_GIRLS);
             JSONObject imgResponse = imgFuture.get();
             if (imgResponse.getBoolean("error"))
                 continue;

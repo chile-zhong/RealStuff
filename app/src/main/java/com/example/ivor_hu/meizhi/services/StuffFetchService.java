@@ -5,13 +5,12 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 import com.example.ivor_hu.meizhi.utils.VolleyUtil;
-import com.example.ivor_hu.meizhi.StuffFragment;
+import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;

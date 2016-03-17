@@ -21,8 +21,8 @@ import org.json.JSONObject;
  */
 public class VolleyUtil {
     private static final String TAG = "VolleyUtil";
-    private static VolleyUtil mInstance;
-    private static Context mCtx;
+    private static VolleyUtil sInstance;
+    private Context mCtx;
     private RequestQueue mRequestQueue;
 
     public interface OnJSONResponse {
@@ -35,10 +35,10 @@ public class VolleyUtil {
     }
 
     public static synchronized VolleyUtil getInstance(Context context) {
-        if (mInstance == null) {
-            mInstance = new VolleyUtil(context);
+        if (sInstance == null) {
+            sInstance = new VolleyUtil(context);
         }
-        return mInstance;
+        return sInstance;
     }
 
     public RequestQueue getRequestQueue() {

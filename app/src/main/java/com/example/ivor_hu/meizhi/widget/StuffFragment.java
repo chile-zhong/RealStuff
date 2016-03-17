@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi;
+package com.example.ivor_hu.meizhi.widget;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,12 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
+import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.services.StuffFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.VolleyUtil;
-import com.example.ivor_hu.meizhi.widget.StuffAdapter;
 
 import io.realm.Realm;
 
@@ -87,7 +87,7 @@ public class StuffFragment extends Fragment {
                         int lastVisiblePos = mLayoutManager.findLastVisibleItemPosition();
                         if (!mIsNoMore && lastVisiblePos + 1 == mAdapter.getItemCount()) {
                             loadingMore();
-                            CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.str_load_more), Snackbar.LENGTH_SHORT);
+                            CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_load_more), Snackbar.LENGTH_SHORT);
                         }
                     }
                 }
@@ -105,48 +105,7 @@ public class StuffFragment extends Fragment {
 
             @Override
             public void onItemLongClick(final View view, final int pos) {
-                view.setActivated(true);
-                getActivity().startActionMode(new AbsListView.MultiChoiceModeListener() {
-                    @Override
-                    public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
-                    }
-
-                    @Override
-                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        mode.getMenuInflater().inflate(R.menu.context_menu, menu);
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.context_menu_share:
-                                Stuff stuff = mAdapter.getStuffAt(pos);
-                                String textShared = stuff.getTitle() + "    " + stuff.getUrl()+" -- "+getString(R.string.str_share_msg);
-                                Intent intent = new Intent(Intent.ACTION_SEND);
-                                intent.setType("text/plain");
-                                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.str_share_msg));
-                                intent.putExtra(Intent.EXTRA_TEXT, textShared);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                getActivity().startActivity(intent);
-                                mode.finish();
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }
-
-                    @Override
-                    public void onDestroyActionMode(ActionMode mode) {
-                        view.setActivated(false);
-                    }
-                });
+                getActivity().startActionMode(new ShareListener(getActivity(), mAdapter.getStuffAt(pos), view));
             }
         });
 
@@ -257,6 +216,58 @@ public class StuffFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
+    public class ShareListener implements AbsListView.MultiChoiceModeListener {
+        private Context context;
+        private Stuff stuff;
+        private View view;
+
+        public ShareListener(Context context, Stuff stuff, View view) {
+            this.context = context;
+            this.stuff = stuff;
+            this.view = view;
+        }
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.context_menu, menu);
+            view.setActivated(true);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.context_menu_share:
+                    String textShared = stuff.getTitle() + "    " + stuff.getUrl() + " -- " + context.getString(R.string.share_msg);
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_msg));
+                    intent.putExtra(Intent.EXTRA_TEXT, textShared);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            view.setActivated(false);
+        }
+    }
+
     private class UpdateResultReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -270,14 +281,14 @@ public class StuffFragment extends Fragment {
 
             Log.d(TAG, "fetched " + fetched + ", triggered by " + trigger);
             if (fetched == 0 && trigger.equals(StuffFetchService.ACTION_FETCH_MORE)) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.str_no_more), Snackbar.LENGTH_SHORT);
+                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_no_more), Snackbar.LENGTH_SHORT);
                 mIsNoMore = true;
             }
 
             setRefreshLayout(false);
             if (mIsRefreshing) {
                 mIsRefreshing = false;
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.str_refreshed), Snackbar.LENGTH_SHORT);
+                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 mRecyclerView.smoothScrollToPosition(0);
             }
             if (mIsLoadingMore)

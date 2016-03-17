@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,7 +95,7 @@ public class AboutActivity extends AppCompatActivity {
                     ((ItemViewHolder) holder).textView.setClickable(false);
                 }
             } else {
-                ((HeaderViewHolder) holder).textView.setText(position == 0 ? R.string.libs_used : R.string.feas_used);
+                ((HeaderViewHolder) holder).textView.setText(position == 0 ? R.string.about_libs_used : R.string.about_feas_used);
             }
 
         }
@@ -138,7 +137,6 @@ public class AboutActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     final int pos = getAdapterPosition();
                     if (pos < mLibsList.size() + 1 && pos != 0) {
-                        Log.d(TAG, "onClick: " + mLibsList.valueAt(pos - 1));
                         CommonUtil.openUrl(AboutActivity.this, mLibsList.valueAt(pos - 1));
                     }
                 }

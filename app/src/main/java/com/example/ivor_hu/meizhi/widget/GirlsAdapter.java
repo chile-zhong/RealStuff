@@ -44,17 +44,6 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
         mOnItemClickListener = onItemClickListener;
     }
 
-//    public void updateInsertedData(int numImages, boolean isMore) {
-//        if (isMore) {
-//            notifyItemRangeInserted(lastImagesNum - 1, numImages);
-//            Log.d(TAG, "updateInsertedData: from " + (lastImagesNum - 1) + " by " + numImages);
-//        } else {
-//            notifyItemRangeInserted(0, numImages);
-//            Log.d(TAG, "updateInsertedData: from 0 to " + numImages);
-//        }
-//        lastImagesNum += numImages;
-//    }
-
     public void updateInsertedDataFirstTime(int numImages) {
         if (lastImagesNum > 0 )
             return;
@@ -82,7 +71,6 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
         holder.imageView.setOriginalSize(image.getWidth(), image.getHeight());
         Glide.with(mContext)
                 .load(image.getUrl())
-//                .placeholder(R.color.cardview_light_background)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imageView);
         ViewCompat.setTransitionName(holder.imageView, image.getUrl());
@@ -91,16 +79,14 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int pos = holder.getLayoutPosition();
-                    mOnItemClickListener.onItemClick(v, pos);
+                    mOnItemClickListener.onItemClick(v, holder.getLayoutPosition());
                 }
             });
 
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    int pos = holder.getLayoutPosition();
-                    mOnItemClickListener.onItemLongClick(v, pos);
+                    mOnItemClickListener.onItemLongClick(v, holder.getLayoutPosition());
                     return true;
                 }
             });

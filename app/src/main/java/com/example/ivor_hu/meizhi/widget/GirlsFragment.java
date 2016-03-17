@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi;
+package com.example.ivor_hu.meizhi.widget;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,12 +18,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import com.example.ivor_hu.meizhi.R;
+import com.example.ivor_hu.meizhi.ViewerActivity;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.VolleyUtil;
-import com.example.ivor_hu.meizhi.widget.GirlsAdapter;
 
 import io.realm.Realm;
 
@@ -33,7 +34,6 @@ import io.realm.Realm;
  */
 public class GirlsFragment extends android.support.v4.app.Fragment {
     public static final String TAG = "GirlsFragment";
-    public static final String VOLLEY_TAG = "girlsfragment";
     public static final String POSTION = "viewer_position";
 
     private RecyclerView mRecyclerView;
@@ -77,18 +77,17 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
                     int lastVisiblePos = getLastVisiblePos(mLayoutManager);
                     if (lastVisiblePos + 1 == mAdapter.getItemCount()) {
                         loadingMore();
-                        CommonUtil.makeSnackBar(mRefreshLayout, getResources().getString(R.string.str_load_more), Snackbar.LENGTH_SHORT);
+                        CommonUtil.makeSnackBar(mRefreshLayout, getResources().getString(R.string.fragment_load_more), Snackbar.LENGTH_SHORT);
                     }
                 }
             }
-
         });
 
         mAdapter.setOnItemClickListener(new GirlsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
                 if (mIsLoadingMore || mIsRefreshing) {
-                    CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.str_isfetching), Snackbar.LENGTH_LONG);
+                    CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_isfetching), Snackbar.LENGTH_LONG);
                     return;
                 }
 
@@ -103,7 +102,7 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onItemLongClick(View view, int pos) {
-                CommonUtil.makeSnackBar(mRefreshLayout, pos + getString(R.string.str_long_clicked), Snackbar.LENGTH_SHORT);
+                CommonUtil.makeSnackBar(mRefreshLayout, pos + getString(R.string.fragment_long_clicked), Snackbar.LENGTH_SHORT);
             }
         });
 
@@ -152,7 +151,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d(TAG, "onActivityCreated: ");
         mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -172,7 +170,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
 //                mRefreshLayout.setRefreshing(true);
 //            }
 //        });
-//        restoreStateFromArguments();
     }
 
     @Override
@@ -186,7 +183,7 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: ");
-        VolleyUtil.getInstance(getActivity()).getRequestQueue().cancelAll(VOLLEY_TAG);
+        VolleyUtil.getInstance(getActivity()).getRequestQueue().cancelAll(mType);
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
 
@@ -198,15 +195,13 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     }
 
     private int getLastVisiblePos(StaggeredGridLayoutManager layoutManager) {
-        int position;
         int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
-        position = getMaxPosition(lastPositions);
-        return position;
+        return getMaxPosition(lastPositions);
     }
 
     private int getMaxPosition(int[] positions) {
-        int size = positions.length;
         int maxPosition = 0;
+        int size = positions.length;
         for (int i = 0; i < size; i++) {
             maxPosition = Math.max(maxPosition, positions[i]);
         }
@@ -246,14 +241,13 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
         public void onReceive(Context context, Intent intent) {
             int fetched = intent.getIntExtra(ImageFetchService.EXTRA_FETCHED, 0);
             String trigger = intent.getStringExtra(ImageFetchService.EXTRA_TRIGGER);
-            Log.d(TAG, "fetched " + fetched
-                    + ", triggered by " + trigger);
+            Log.d(TAG, "fetched " + fetched + ", triggered by " + trigger);
 
             setRefreshLayout(false);
 
             if (mIsRefreshing) {
                 mIsRefreshing = false;
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.str_refreshed), Snackbar.LENGTH_SHORT);
+                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 mRecyclerView.smoothScrollToPosition(0);
             }
 

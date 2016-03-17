@@ -8,8 +8,8 @@
     <string name="action_send">Send</string>
     <string name="about">About</string>
     <string name="action_about">About</string>
-    <string name="libs_used">Libraries used</string>
-    <string name="feas_used">Features supported</string>
+    <string name="about_libs_used">Libraries used</string>
+    <string name="about_feas_used">Features supported</string>
     <string name="nav_girls">Grils</string>
     <string name="nav_android">Android</string>
     <string name="nav_ios">iOS</string>
@@ -17,16 +17,17 @@
     <string name="nav_app">APP</string>
     <string name="nav_others">Others</string>
     <string name="nav_fun">Fun</string>
-    <string name="str_double_taps">Double Taps!</string>
-    <string name="str_refreshed">Refreshed.</string>
-    <string name="str_long_clicked">long clicked.</string>
-    <string name="str_load_more">Load more.</string>
-    <string name="str_no_more">No more.</string>
-    <string name="str_isfetching">Fetching background. Please view it later.</string>
     <string name="nav_collections">Collections</string>
-    <string name="str_share_msg">This message is from APP RealStuff!</string>
+    <string name="main_double_taps">Double Taps!</string>
+    <string name="fragment_refreshed">Refreshed.</string>
+    <string name="fragment_long_clicked">long clicked.</string>
+    <string name="fragment_load_more">Load more.</string>
+    <string name="fragment_no_more">No more.</string>
+    <string name="fragment_isfetching">Fetching background. Please view it later.</string>
+    <string name="share_msg">This message is from APP RealStuff!</string>
     <string name="url_api" translatable="false">http://gank.io</string>
     <string name="url_repository" translatable="false">https://github.com/IvorHu/RealStuff</string>
-    <string name="str_api">API http://gank.io</string>
-    <string name="str_repository">Repository https://github.com/IvorHu/RealStuff</string>
+    <string name="about_api">API http://gank.io</string>
+    <string name="about_repository_url">Repository https://github.com/IvorHu/RealStuff</string>
+    <string name="pic_saved">Picture saved at </string>
 </resources>

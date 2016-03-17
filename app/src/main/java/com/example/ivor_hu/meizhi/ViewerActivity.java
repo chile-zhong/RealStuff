@@ -3,7 +3,6 @@ package com.example.ivor_hu.meizhi;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,29 +12,23 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.NavUtils;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.Explode;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Toast;
+import android.widget.FrameLayout;
 
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.PicUtil;
+import com.example.ivor_hu.meizhi.widget.GirlsFragment;
+import com.example.ivor_hu.meizhi.widget.ViewerFragment;
 
 import java.io.File;
 import java.util.List;
@@ -50,14 +43,13 @@ import io.realm.RealmChangeListener;
  */
 public class ViewerActivity extends AppCompatActivity {
     public static final String TAG = "ViewerActivity";
-
     private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 111;
     private final Handler msgHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
                 case PicUtil.SAVE_DONE_TOAST:
                     String filepath = msg.getData().getString(PicUtil.FILEPATH);
-                    CommonUtil.makeSnackBar(mViewPager, "已保存至" + filepath, Snackbar.LENGTH_LONG);
+                    CommonUtil.makeSnackBar(mViewPager, getString(R.string.pic_saved) + filepath, Snackbar.LENGTH_LONG);
                     break;
                 default:
                     break;
@@ -67,6 +59,7 @@ public class ViewerActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
+    private int mSavedPicPos = -1;
     private Toolbar mToolbar;
     private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
@@ -92,6 +85,12 @@ public class ViewerActivity extends AppCompatActivity {
 
         mImages = Image.all(mRealm);
         mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
+        mViewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         mViewPager.setAdapter(mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -115,7 +114,6 @@ public class ViewerActivity extends AppCompatActivity {
         setEnterSharedElementCallback(new SharedElementCallback() {
             @Override
             public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-//                Log.d(TAG, "onMapSharedElements: " + mViewPager.getCurrentItem());
                 Image image = mImages.get(mViewPager.getCurrentItem());
                 sharedElements.clear();
                 sharedElements.put(image.getUrl(), ((ViewerFragment) mAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem())).getSharedElement());
@@ -145,25 +143,14 @@ public class ViewerActivity extends AppCompatActivity {
                 supportFinishAfterTransition();
                 return true;
             case R.id.img_save:
+                mSavedPicPos = mViewPager.getCurrentItem();
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     //申请WRITE_EXTERNAL_STORAGE权限
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
                 } else {
-                    final String url = mImages.get(mViewPager.getCurrentItem()).getUrl();
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, msgHandler);
-                            } catch (ExecutionException e) {
-                                e.printStackTrace();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
+                    savePicAt(mSavedPicPos);
                 }
                 return true;
             case R.id.img_share:
@@ -171,7 +158,7 @@ public class ViewerActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        shareMsg(getString(R.string.str_share_msg), null, url);
+                        shareMsg(getString(R.string.share_msg), null, url);
                     }
                 }).start();
                 return true;
@@ -180,9 +167,27 @@ public class ViewerActivity extends AppCompatActivity {
         }
     }
 
+    private void savePicAt(int pos) {
+        if (pos < 0)
+            return;
+
+        final String url = mImages.get(pos).getUrl();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, msgHandler);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
     @Override
     public void supportFinishAfterTransition() {
-//        Log.d(TAG, "supportFinishAfterTransition: finish");
         Intent data = new Intent();
         data.putExtra("index", mViewPager.getCurrentItem());
         setResult(RESULT_OK, data);
@@ -195,6 +200,7 @@ public class ViewerActivity extends AppCompatActivity {
         mToolbar.setTitle(R.string.nav_girls);
         mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
+        mToolbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         setSupportActionBar(mToolbar);
     }
 
@@ -236,7 +242,8 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     public void hideToolbar() {
-        mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2));
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mToolbar.getLayoutParams();
+        mToolbar.animate().translationY(-(mToolbar.getHeight() + lp.topMargin)).setInterpolator(new AccelerateInterpolator(2));
         mIsHidden = true;
     }
 
@@ -248,10 +255,10 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
-//            PicUtil.saveBitmapFromUrl(ScalableImageActivity.this, mUrls.get(mViewPager.getCurrentItem()));
-//    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+            savePicAt(mSavedPicPos);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 }

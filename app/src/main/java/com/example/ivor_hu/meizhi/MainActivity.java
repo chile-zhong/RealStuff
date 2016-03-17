@@ -2,7 +2,6 @@ package com.example.ivor_hu.meizhi;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -14,7 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,34 +21,28 @@ import android.view.View;
 
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
+import com.example.ivor_hu.meizhi.widget.GirlsFragment;
+import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPES;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_ANDROID;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_APP;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_COLLECTIONS;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_FUN;
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_GIRLS;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_IOS;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_OTHERS;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_WEB;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     private static final String CURR_TYPE = "curr_fragment_type";
 
-    FloatingActionButton mFab;
+    private FloatingActionButton mFab;
     private Toolbar mToolbar;
     private Fragment mCurrFragment;
     private String mCurrFragmentType;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            Log.d(TAG, "onDoubleTap");
-            CommonUtil.makeSnackBar(mFab, getResources().getString(R.string.str_double_taps), Snackbar.LENGTH_LONG);
+            CommonUtil.makeSnackBar(mToolbar, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);
             return true;
         }
     });
@@ -61,7 +53,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.nav_girls);
         setSupportActionBar(mToolbar);
@@ -195,20 +186,9 @@ public class MainActivity extends AppCompatActivity
         FragmentManager manager = getSupportFragmentManager();
         if (id == R.id.nav_girls) {
             swithTo(manager, TYPE_GIRLS, new GirlsFragment());
-        } else if (id == R.id.nav_android) {
-            swithTo(manager, TYPE_ANDROID, StuffFragment.newInstance(TYPE_ANDROID));
-        } else if (id == R.id.nav_ios) {
-            swithTo(manager, TYPE_IOS, StuffFragment.newInstance(TYPE_IOS));
-        } else if (id == R.id.nav_web) {
-            swithTo(manager, TYPE_WEB, StuffFragment.newInstance(TYPE_WEB));
-        } else if (id == R.id.nav_fun) {
-            swithTo(manager, TYPE_FUN, StuffFragment.newInstance(TYPE_FUN));
-        } else if (id == R.id.nav_app) {
-            swithTo(manager, TYPE_APP, StuffFragment.newInstance(TYPE_APP));
-        } else if (id == R.id.nav_others) {
-            swithTo(manager, TYPE_OTHERS, StuffFragment.newInstance(TYPE_OTHERS));
-        } else if (id == R.id.nav_collections) {
-            swithTo(manager, TYPE_COLLECTIONS, StuffFragment.newInstance(TYPE_COLLECTIONS));
+        } else {
+            String type = Constants.getTypeFromResId(id);
+            swithTo(manager, type, StuffFragment.newInstance(type));
         }
 //        else if (id == R.id.nav_test) {
 //            Log.d(TAG, "onNavigationItemSelected: test");
@@ -222,7 +202,6 @@ public class MainActivity extends AppCompatActivity
     private void swithTo(FragmentManager manager, String type, Fragment addedFragment) {
         Fragment fragment = manager.findFragmentByTag(type);
         if (null != fragment) {
-            Log.d(TAG, type + " is not null.");
             hideAndShow(manager, fragment, type);
         } else {
             hideAndAdd(manager, addedFragment, type);
@@ -247,9 +226,8 @@ public class MainActivity extends AppCompatActivity
     private void updateLikedData(Fragment newFragment, String fragmentIdx) {
         if (fragmentIdx.equals(TYPE_GIRLS)) {
             return;
-        } else {
-            ((StuffFragment) newFragment).updateData();
         }
+        ((StuffFragment) newFragment).updateData();
     }
 
     @Override
@@ -262,16 +240,14 @@ public class MainActivity extends AppCompatActivity
             reenterState = new Bundle(data.getExtras());
 
             final int index = reenterState.getInt("index", 0);
-//            Log.d(TAG, "onActivityReenter: " + index);
             ((GirlsFragment) mCurrFragment).onActivityReenter(index);
         }
     }
 
 //    public void hideFab() {
 //        if (mFab != null && isFabShown) {
-////            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mFab.getLayoutParams();
-////            mFab.animate().translationY(mFab.getHeight() + lp.bottomMargin).setInterpolator(new AccelerateInterpolator(2));
-//            mFab.animate().translationY(screenHeight - mFab.getY()).setInterpolator(new AccelerateInterpolator(2));
+//            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mFab.getLayoutParams();
+//            mFab.animate().translationY(mFab.getHeight() + lp.bottomMargin).setInterpolator(new AccelerateInterpolator(2));
 //            isFabShown = false;
 //        }
 //    }

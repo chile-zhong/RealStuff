@@ -17,7 +17,7 @@ public class Constants {
     public static final String LATEST_FUN_URL = NEW_BASE_URL + "data/%E7%9E%8E%E6%8E%A8%E8%8D%90/20/1";
     //    public static final String BEFORE_DATE_URL = BASE_URL + "get/10/before/";
 //    public static final String AFTER_DATE_URL = BASE_URL + "get/20/since/";
-    //    public static final String DAYLY_DATA_URL = BASE_URL + "day/";
+//    public static final String DAYLY_DATA_URL = BASE_URL + "day/";
     public static final String DAYLY_DATA_URL = NEW_BASE_URL + "day/";
 
     public static final String TYPE_COLLECTIONS = "Collections";
@@ -142,5 +142,38 @@ public class Constants {
                 throw new IllegalArgumentException(type + " is a illegal argument!");
         }
         return resId;
+    }
+
+    public static String getTypeFromResId(int resId) throws IllegalArgumentException {
+        String type;
+        switch (resId) {
+            case R.id.nav_girls:
+                type = TYPE_GIRLS;
+                break;
+            case R.id.nav_android:
+                type = TYPE_ANDROID;
+                break;
+            case R.id.nav_ios:
+                type = TYPE_IOS;
+                break;
+            case R.id.nav_app:
+                type = TYPE_APP;
+                break;
+            case R.id.nav_fun:
+                type = TYPE_FUN;
+                break;
+            case R.id.nav_web:
+                type = TYPE_WEB;
+                break;
+            case R.id.nav_others:
+                type = TYPE_OTHERS;
+                break;
+            case R.id.nav_collections:
+                type = TYPE_COLLECTIONS;
+                break;
+            default:
+                throw new IllegalArgumentException(resId + " is a illegal argument!");
+        }
+        return type;
     }
 }
