@@ -68,7 +68,7 @@ public class PicUtil {
                 fos.flush();
                 fos.close();
 
-                Message message = new Message();
+                Message message = Message.obtain();
                 message.arg1 = SAVE_DONE_TOAST;
                 Bundle bundle = new Bundle();
                 bundle.putString(FILEPATH, filepath);

@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity
             public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
                 if (reenterState != null && mCurrFragmentType == TYPE_GIRLS) {
                     GirlsFragment girlsFragment = (GirlsFragment) mCurrFragment;
-                    int i = reenterState.getInt("index", 0);
+                    int i = reenterState.getInt(ViewerActivity.INDEX, 0);
 //                    Log.d(TAG, "onMapSharedElements: reenter from " + i);
 
                     sharedElements.clear();
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity
 
             reenterState = new Bundle(data.getExtras());
 
-            final int index = reenterState.getInt("index", 0);
+            final int index = reenterState.getInt(ViewerActivity.INDEX, 0);
             ((GirlsFragment) mCurrFragment).onActivityReenter(index);
         }
     }

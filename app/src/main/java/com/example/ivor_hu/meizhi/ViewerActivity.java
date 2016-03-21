@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -43,8 +44,13 @@ import io.realm.RealmChangeListener;
  */
 public class ViewerActivity extends AppCompatActivity {
     public static final String TAG = "ViewerActivity";
+    public static final String INDEX = "index";
     private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 111;
-    private final Handler msgHandler = new Handler() {
+    private static final String MSG_URL = "msg_url";
+    private static final String SHARE_TITLE = "share_title";
+    private static final String SHARE_TEXT = "share_text";
+    private static final String SHARE_URL = "share_url";
+    private final Handler mMsgHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
                 case PicUtil.SAVE_DONE_TOAST:
@@ -64,6 +70,9 @@ public class ViewerActivity extends AppCompatActivity {
     private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
     private boolean mIsHidden = false;
+    private HandlerThread mThread;
+    private Handler mSavePicHandler;
+    private Handler mShareHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +129,31 @@ public class ViewerActivity extends AppCompatActivity {
             }
         });
 
+        mThread = new HandlerThread("save-and-share");
+        mThread.start();
+        mSavePicHandler = new Handler(mThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                final String url = msg.getData().getString(MSG_URL);
+                try {
+                    PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, mMsgHandler);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        mShareHandler = new Handler(mThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                final String title = msg.getData().getString(SHARE_TITLE);
+                final String text = msg.getData().getString(SHARE_TEXT);
+                final String url = msg.getData().getString(SHARE_URL);
+                shareMsg(title, text, url);
+            }
+        };
     }
 
     @Override
@@ -127,6 +161,7 @@ public class ViewerActivity extends AppCompatActivity {
         super.onDestroy();
         mRealm.removeAllChangeListeners();
         mRealm.close();
+        mThread.quit();
     }
 
     @Override
@@ -154,42 +189,23 @@ public class ViewerActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.img_share:
-                final String url = mImages.get(mViewPager.getCurrentItem()).getUrl();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        shareMsg(getString(R.string.share_msg), null, url);
-                    }
-                }).start();
+                Message message = Message.obtain();
+                Bundle bundle = new Bundle();
+                bundle.putString(SHARE_TITLE, getString(R.string.share_msg));
+                bundle.putString(SHARE_TEXT, null);
+                bundle.putString(SHARE_URL, mImages.get(mViewPager.getCurrentItem()).getUrl());
+                message.setData(bundle);
+                mShareHandler.sendMessage(message);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void savePicAt(int pos) {
-        if (pos < 0)
-            return;
-
-        final String url = mImages.get(pos).getUrl();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, msgHandler);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
     @Override
     public void supportFinishAfterTransition() {
         Intent data = new Intent();
-        data.putExtra("index", mViewPager.getCurrentItem());
+        data.putExtra(INDEX, mViewPager.getCurrentItem());
         setResult(RESULT_OK, data);
 
         super.supportFinishAfterTransition();
@@ -204,6 +220,17 @@ public class ViewerActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
     }
 
+    private void savePicAt(int pos) {
+        if (pos < 0)
+            return;
+
+        Message message = Message.obtain();
+        String url = mImages.get(pos).getUrl();
+        Bundle bundle = new Bundle();
+        bundle.putString(MSG_URL, url);
+        message.setData(bundle);
+        mSavePicHandler.sendMessage(message);
+    }
 
     public void shareMsg(String msgTitle, String msgText, String url) {
         String imgPath = PicUtil.getImgPathFromUrl(url);
@@ -215,7 +242,7 @@ public class ViewerActivity extends AppCompatActivity {
             File file = new File(imgPath);
             if (!file.exists()) {
                 try {
-                    PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, msgHandler);
+                    PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, mMsgHandler);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
