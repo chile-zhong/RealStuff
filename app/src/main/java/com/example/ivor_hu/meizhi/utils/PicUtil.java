@@ -18,9 +18,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by Ivor on 2016/1/27.
  */
-public class PicUtil {
+public final class PicUtil {
     public static final String TAG = "PicUtil";
-    private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
     public static final int SAVE_DONE_TOAST = 666;
     public static final String IMAGE_SAVE_PATH = "/Meizhi/";
     public static final String FILEPATH = "file_path";

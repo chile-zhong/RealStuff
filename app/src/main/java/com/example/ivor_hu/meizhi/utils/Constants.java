@@ -5,7 +5,7 @@ import com.example.ivor_hu.meizhi.R;
 /**
  * Created by Ivor on 2016/2/15.
  */
-public class Constants {
+public final class Constants {
     //    public static final String BASE_URL = "http://gank.avosapps.com/api/";
     public static final String NEW_BASE_URL = "http://gank.io/api/";
     public static final String LATEST_GIRLS_URL = NEW_BASE_URL + "data/%E7%A6%8F%E5%88%A9/10/1";
