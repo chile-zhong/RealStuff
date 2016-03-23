@@ -248,16 +248,15 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
             if (mIsRefreshing) {
                 mIsRefreshing = false;
                 CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
-                mRecyclerView.smoothScrollToPosition(0);
+                if (fetched > 0) {
+                    mAdapter.updateRefreshed(fetched);
+                    mRecyclerView.smoothScrollToPosition(0);
+                }
             }
 
             if (mIsLoadingMore) {
                 mIsLoadingMore = false;
             }
-
-            if (null == mAdapter || fetched == 0)
-                return;
-            mAdapter.updateInsertedDataFirstTime(fetched);
         }
     }
 }
