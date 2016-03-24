@@ -21,7 +21,6 @@ import java.util.List;
  * Created by Ivor on 2016/2/25.
  */
 public class AboutActivity extends AppCompatActivity {
-    private static final String TAG = "AboutActivity";
     private Toolbar mToolbar;
     private RecyclerView mRecyclerView;
     private ArrayMap<String, String> mLibsList;

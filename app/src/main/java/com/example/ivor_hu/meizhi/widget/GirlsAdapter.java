@@ -28,7 +28,6 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
     private Context mContext;
     private RealmResults<Image> mImages;
-    private Realm realm;
     private OnItemClickListener mOnItemClickListener;
     private int lastImagesNum;
 
