@@ -27,9 +27,6 @@ import com.example.ivor_hu.meizhi.widget.StuffFragment;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPES;
-import static com.example.ivor_hu.meizhi.utils.Constants.TYPE_GIRLS;
-
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
@@ -47,6 +44,66 @@ public class MainActivity extends AppCompatActivity
         }
     });
     private Bundle reenterState;
+
+    public enum TYPE {
+        GIRLS("GIRLS", "Girls", R.string.nav_girls, R.id.nav_girls, Constants.LATEST_GIRLS_URL),
+        ANDROID("ANDROID", "Android", R.string.nav_android, R.id.nav_android, Constants.LATEST_ANDROID_URL),
+        IOS("IOS", "iOS", R.string.nav_ios, R.id.nav_ios, Constants.LATEST_IOS_URL),
+        WEB("WEB", "前端", R.string.nav_web, R.id.nav_web, Constants.LATEST_WEB_URL),
+        APP("APP", "App", R.string.nav_app, R.id.nav_app, Constants.LATEST_APP_URL),
+        FUN("FUN", "瞎推荐", R.string.nav_fun, R.id.nav_fun, Constants.LATEST_FUN_URL),
+        OTHERS("OTHERS", "拓展资源", R.string.nav_others, R.id.nav_others, Constants.LATEST_OTHERS_URL),
+        COLLECTIONS("COLLECTIONS", "Collections", R.string.nav_collections, R.id.nav_collections, "");
+
+        public static String getTypeFromAPIName(String typeStr) {
+            String typeId = "";
+            for (TYPE type : TYPE.values()) {
+                if (typeStr.equals(type.getApiName())) {
+                    return type.getId();
+                }
+            }
+            return typeId;
+        }
+
+        private final String id;
+        private final String apiName;
+        private final int strId;
+        private final int resId;
+        private final String latestUrl;
+
+        TYPE(String id, String apiName, int strId, int resId, String latestUrl) {
+            this.id = id;
+            this.apiName = apiName;
+            this.strId = strId;
+            this.resId = resId;
+            this.latestUrl = latestUrl;
+        }
+
+        @Override
+        public String toString() {
+            return id;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getApiName() {
+            return apiName;
+        }
+
+        public int getStrId() {
+            return strId;
+        }
+
+        public int getResId() {
+            return resId;
+        }
+
+        public String getLatestUrl() {
+            return latestUrl;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,26 +124,22 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
-            fragment = new GirlsFragment();
+            fragment = GirlsFragment.newInstance(TYPE.GIRLS.getId());
             fm.beginTransaction()
-                    .add(R.id.fragment_container, fragment, TYPE_GIRLS)
+                    .add(R.id.fragment_container, fragment, TYPE.GIRLS.getId())
                     .commit();
             mCurrFragment = fragment;
-            mCurrFragmentType = TYPE_GIRLS;
+            mCurrFragmentType = TYPE.GIRLS.getId();
         }
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switch (mCurrFragmentType) {
-                    case TYPE_GIRLS:
-                        ((GirlsFragment) mCurrFragment).smoothScrollToTop();
-                        break;
-                    default:
-                        ((StuffFragment) mCurrFragment).smoothScrollToTop();
-                        break;
-                }
+                if (TYPE.GIRLS.getId().equals(mCurrFragmentType))
+                    ((GirlsFragment) mCurrFragment).smoothScrollToTop();
+                else
+                    ((StuffFragment) mCurrFragment).smoothScrollToTop();
             }
         });
 
@@ -102,7 +155,7 @@ public class MainActivity extends AppCompatActivity
         setExitSharedElementCallback(new SharedElementCallback() {
             @Override
             public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                if (reenterState != null && mCurrFragmentType == TYPE_GIRLS) {
+                if (reenterState != null && TYPE.GIRLS.getId().equals(mCurrFragmentType)) {
                     GirlsFragment girlsFragment = (GirlsFragment) mCurrFragment;
                     int i = reenterState.getInt(ViewerActivity.INDEX, 0);
 //                    Log.d(TAG, "onMapSharedElements: reenter from " + i);
@@ -127,13 +180,14 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
         mCurrFragmentType = savedInstanceState.getString(CURR_TYPE);
         hideAllExcept(mCurrFragmentType);
-        mToolbar.setTitle(Constants.getResIdFromType(mCurrFragmentType));
+//        mToolbar.setTitle(Constants.getResIdFromType(mCurrFragmentType));
+        mToolbar.setTitle(TYPE.valueOf(mCurrFragmentType).getStrId());
     }
 
     private void hideAllExcept(String mCurrFragmentType) {
         FragmentManager manager = getSupportFragmentManager();
-        for (String type : TYPES) {
-            Fragment fragment = manager.findFragmentByTag(type);
+        for (TYPE type : TYPE.values()) {
+            Fragment fragment = manager.findFragmentByTag(type.getId());
             if (type.equals(mCurrFragmentType)) {
                 manager.beginTransaction().show(fragment).commit();
                 mCurrFragment = fragment;
@@ -184,11 +238,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager manager = getSupportFragmentManager();
-        if (id == R.id.nav_girls) {
-            swithTo(manager, TYPE_GIRLS, new GirlsFragment());
+        if (id == TYPE.GIRLS.getResId()) {
+            swithTo(manager, TYPE.GIRLS.getId(), GirlsFragment.newInstance(TYPE.GIRLS.getId()));
         } else {
-            String type = Constants.getTypeFromResId(id);
-            swithTo(manager, type, StuffFragment.newInstance(type));
+            for (TYPE type : TYPE.values()) {
+                if (type.getResId() == id) {
+                    swithTo(manager, type.getId(), StuffFragment.newInstance(type.getId()));
+                    break;
+                }
+            }
         }
 //        else if (id == R.id.nav_test) {
 //            Log.d(TAG, "onNavigationItemSelected: test");
@@ -212,7 +270,7 @@ public class MainActivity extends AppCompatActivity
         manager.beginTransaction().hide(mCurrFragment).add(R.id.fragment_container, newFragment, fragmentIdx).commit();
         mCurrFragment = newFragment;
         mCurrFragmentType = fragmentIdx;
-        mToolbar.setTitle(Constants.getResIdFromType(fragmentIdx));
+        mToolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
     }
 
     private void hideAndShow(FragmentManager manager, Fragment newFragment, String fragmentIdx) {
@@ -220,11 +278,11 @@ public class MainActivity extends AppCompatActivity
         updateLikedData(newFragment, fragmentIdx);
         mCurrFragment = newFragment;
         mCurrFragmentType = fragmentIdx;
-        mToolbar.setTitle(Constants.getResIdFromType(fragmentIdx));
+        mToolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
     }
 
     private void updateLikedData(Fragment newFragment, String fragmentIdx) {
-        if (fragmentIdx.equals(TYPE_GIRLS)) {
+        if (fragmentIdx.equals(TYPE.GIRLS.getId())) {
             return;
         }
         ((StuffFragment) newFragment).updateData();
@@ -234,7 +292,7 @@ public class MainActivity extends AppCompatActivity
     public void onActivityReenter(int resultCode, Intent data) {
         super.onActivityReenter(resultCode, data);
 
-        if (mCurrFragmentType == TYPE_GIRLS) {
+        if (TYPE.GIRLS.getId().equals(mCurrFragmentType)) {
             supportPostponeEnterTransition();
 
             reenterState = new Bundle(data.getExtras());

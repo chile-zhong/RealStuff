@@ -6,6 +6,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.android.volley.toolbox.RequestFuture;
+import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
@@ -53,9 +54,9 @@ public class StuffFetchService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         type = intent.getStringExtra(StuffFragment.SERVICE_TYPE);
-        Log.d(TAG, "onHandleIntent: " + type);
-        latestUrl = Constants.getLatestUrlFromType(type);
-        typeName = Constants.getTypeNameFromType(type);
+        latestUrl = MainActivity.TYPE.valueOf(type).getLatestUrl();
+        typeName = MainActivity.TYPE.valueOf(type).getApiName();
+        Log.d(TAG, "onHandleIntent: " + type + " " + latestUrl + " " + typeName);
 
         Realm realm = Realm.getDefaultInstance();
 
@@ -94,7 +95,7 @@ public class StuffFetchService extends IntentService {
         Intent broadcast = new Intent(ACTION_UPDATE_RESULT);
         broadcast.putExtra(EXTRA_FETCHED, fetched);
         broadcast.putExtra(EXTRA_TRIGGER, intent.getAction());
-        broadcast.putExtra(EXTRA_TYPE,type);
+        broadcast.putExtra(EXTRA_TYPE, type);
 
         localBroadcastManager.sendBroadcast(broadcast);
     }
@@ -120,7 +121,7 @@ public class StuffFetchService extends IntentService {
             id = androidObj.getString("_id");
             author = androidObj.getString("who");
             title = androidObj.getString("desc");
-            type = Constants.handleTypeStr(androidObj.getString("type"));
+            type = MainActivity.TYPE.getTypeFromAPIName(androidObj.getString("type"));
 
             stuff = new Stuff(id, type, title, url, author, DateUtil.parse(date));
             if (!saveToDb(realm, stuff)) {
@@ -172,7 +173,7 @@ public class StuffFetchService extends IntentService {
 
                 if (!saveToDb(realm, new Stuff(
                         stuff.getString("_id"),
-                        Constants.handleTypeStr(stuff.getString("type")),
+                        MainActivity.TYPE.getTypeFromAPIName(stuff.getString("type")),
                         stuff.getString("desc"),
                         stuff.getString("url"),
                         stuff.getString("who"),

@@ -23,7 +23,6 @@ import com.example.ivor_hu.meizhi.ViewerActivity;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.VolleyUtil;
 
 import io.realm.Realm;
@@ -35,6 +34,7 @@ import io.realm.Realm;
 public class GirlsFragment extends android.support.v4.app.Fragment {
     public static final String TAG = "GirlsFragment";
     public static final String POSTION = "viewer_position";
+    private static final String TYPE = "girls_type";
 
     private RecyclerView mRecyclerView;
     private LocalBroadcastManager mLocalBroadcastManager;
@@ -45,7 +45,16 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     private boolean mIsLoadingMore = false;
     private boolean mIsRefreshing = false;
     private Realm mRealm;
-    private String mType = Constants.TYPE_GIRLS;
+    private String mType;
+
+    public static GirlsFragment newInstance(String type) {
+        Bundle args = new Bundle();
+        args.putString(TYPE, type);
+
+        GirlsFragment fragment = new GirlsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +63,7 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     }
 
     private void initData() {
+        mType = getArguments().getString(TYPE);
         mRealm = Realm.getDefaultInstance();
     }
 
