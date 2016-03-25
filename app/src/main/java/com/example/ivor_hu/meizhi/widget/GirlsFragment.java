@@ -38,14 +38,14 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
 
     private RecyclerView mRecyclerView;
     private LocalBroadcastManager mLocalBroadcastManager;
-    private UpdateResultReceiver updateResultReceiver = new UpdateResultReceiver();
+    private final UpdateResultReceiver updateResultReceiver = new UpdateResultReceiver();
     private GirlsAdapter mAdapter;
     private StaggeredGridLayoutManager mLayoutManager;
     private SwipeRefreshLayout mRefreshLayout;
     private boolean mIsLoadingMore = false;
     private boolean mIsRefreshing = false;
     private Realm mRealm;
-    private String mType = Constants.TYPE_GIRLS;
+    private final String mType = Constants.TYPE_GIRLS;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

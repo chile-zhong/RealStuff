@@ -217,9 +217,9 @@ public class StuffFragment extends Fragment {
     }
 
     public class ShareListener implements AbsListView.MultiChoiceModeListener {
-        private Context context;
-        private Stuff stuff;
-        private View view;
+        private final Context context;
+        private final Stuff stuff;
+        private final View view;
 
         public ShareListener(Context context, Stuff stuff, View view) {
             this.context = context;
