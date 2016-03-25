@@ -33,7 +33,7 @@ public final class PicUtil {
      * @return
      */
     public static String getSDCardPath() {
-        File sdcardDir = null;
+        File sdcardDir;
         // 判断SDCard是否存在
         boolean sdcardExist = Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED);

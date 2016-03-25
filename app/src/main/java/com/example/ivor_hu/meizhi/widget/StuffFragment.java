@@ -44,11 +44,11 @@ public class StuffFragment extends Fragment {
     private StuffAdapter mAdapter;
     private LocalBroadcastManager mLocalBroadcastManager;
     private UpdateResultReceiver updateResultReceiver;
-    private boolean mIsLoadingMore = false;
-    private boolean mIsRefreshing = false;
+    private boolean mIsLoadingMore;
+    private boolean mIsRefreshing;
     private Realm mRealm;
     private String mType;
-    private boolean mIsNoMore = false;
+    private boolean mIsNoMore;
 
     public static StuffFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -77,7 +77,8 @@ public class StuffFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView = $(view, R.id.stuff_recyclerview);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter = new StuffAdapter(getActivity(), mRealm, mType));
+        mAdapter = new StuffAdapter(getActivity(), mRealm, mType);
+        mRecyclerView.setAdapter(mAdapter);
         if (!mType.equals(Constants.TYPE_COLLECTIONS)) {
             mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override

@@ -42,8 +42,8 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     private GirlsAdapter mAdapter;
     private StaggeredGridLayoutManager mLayoutManager;
     private SwipeRefreshLayout mRefreshLayout;
-    private boolean mIsLoadingMore = false;
-    private boolean mIsRefreshing = false;
+    private boolean mIsLoadingMore;
+    private boolean mIsRefreshing;
     private Realm mRealm;
     private String mType = Constants.TYPE_GIRLS;
 
@@ -68,7 +68,8 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setAdapter(mAdapter = new GirlsAdapter(getActivity(), mRealm));
+        mAdapter = new GirlsAdapter(getActivity(), mRealm);
+        mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
