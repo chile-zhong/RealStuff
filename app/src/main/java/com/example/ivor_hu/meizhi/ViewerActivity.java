@@ -63,7 +63,7 @@ public class ViewerActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
-    private boolean mIsHidden = false;
+    private boolean mIsHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +91,7 @@ public class ViewerActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        mViewPager.setAdapter(mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
+        mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 return ViewerFragment.newInstance(
@@ -103,7 +103,8 @@ public class ViewerActivity extends AppCompatActivity {
             public int getCount() {
                 return mImages.size();
             }
-        });
+        };
+        mViewPager.setAdapter(mAdapter);
         mViewPager.setCurrentItem(mPos);
 
         // 避免图片在进行 Shared Element Transition 时盖过 Toolbar

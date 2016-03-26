@@ -114,9 +114,9 @@ public class TouchImageView extends ImageView {
 
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
-    private GestureDetector.OnDoubleTapListener doubleTapListener = null;
-    private OnTouchListener userTouchListener = null;
-    private OnTouchImageViewListener touchImageViewListener = null;
+    private GestureDetector.OnDoubleTapListener doubleTapListener;
+    private OnTouchListener userTouchListener;
+    private OnTouchImageViewListener touchImageViewListener;
 
     public TouchImageView(Context context) {
         super(context);
