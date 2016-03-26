@@ -33,7 +33,6 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
     public GirlsAdapter(Context mContext, Realm realm) {
         this.mContext = mContext;
-        this.realm = realm;
         mImages = Image.all(realm);
         lastImagesNum = mImages.size();
         setHasStableIds(true);
