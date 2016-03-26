@@ -26,8 +26,8 @@ import io.realm.RealmResults;
 public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder> {
     private static final String TAG = "GirlsAdapter";
 
-    private Context mContext;
-    private RealmResults<Image> mImages;
+    private final Context mContext;
+    private final RealmResults<Image> mImages;
     private OnItemClickListener mOnItemClickListener;
     private int lastImagesNum;
 
