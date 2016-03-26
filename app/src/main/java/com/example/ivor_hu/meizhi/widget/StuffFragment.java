@@ -21,11 +21,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
+import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.services.StuffFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.VolleyUtil;
 
 import io.realm.Realm;
@@ -48,6 +48,7 @@ public class StuffFragment extends Fragment {
     private boolean mIsRefreshing;
     private Realm mRealm;
     private String mType;
+    private boolean mIsCollections;
     private boolean mIsNoMore;
 
     public static StuffFragment newInstance(String type) {
@@ -64,7 +65,8 @@ public class StuffFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mType = getArguments().getString(TYPE);
         mRealm = Realm.getDefaultInstance();
-        if (!mType.equals(Constants.TYPE_COLLECTIONS))
+        mIsCollections = MainActivity.TYPE.COLLECTIONS.getId().equals(mType) ? true : false;
+        if (!mIsCollections)
             updateResultReceiver = new UpdateResultReceiver();
     }
 
@@ -79,7 +81,7 @@ public class StuffFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new StuffAdapter(getActivity(), mRealm, mType);
         mRecyclerView.setAdapter(mAdapter);
-        if (!mType.equals(Constants.TYPE_COLLECTIONS)) {
+        if (!mIsCollections) {
             mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -110,7 +112,7 @@ public class StuffFragment extends Fragment {
             }
         });
 
-        if (!mType.equals(Constants.TYPE_COLLECTIONS))
+        if (!mIsCollections)
             mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         return view;
     }
@@ -132,7 +134,7 @@ public class StuffFragment extends Fragment {
             return;
         }
 
-        if (mType.equals(Constants.TYPE_COLLECTIONS)) {
+        if (mIsCollections) {
             setRefreshLayout(false);
             updateData();
             return;
@@ -177,7 +179,7 @@ public class StuffFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-        if (!mType.equals(Constants.TYPE_COLLECTIONS))
+        if (!mIsCollections)
             mLocalBroadcastManager.registerReceiver(updateResultReceiver, new IntentFilter(StuffFetchService.ACTION_UPDATE_RESULT));
         else
             updateData();
@@ -187,7 +189,7 @@ public class StuffFragment extends Fragment {
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: ");
-        if (mType.equals(Constants.TYPE_COLLECTIONS))
+        if (mIsCollections)
             return;
         VolleyUtil.getInstance(getActivity()).getRequestQueue().cancelAll(mType);
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);

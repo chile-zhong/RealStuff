@@ -10,16 +10,15 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
-import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * Created by Ivor on 2016/2/28.
@@ -32,6 +31,7 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     private int lastStuffsNum;
     private final Realm realm;
     private final String mType;
+    private boolean mIsCollections;
 
     public void updateInsertedData(int numImages, boolean isMore) {
         if (isMore) {
@@ -58,11 +58,9 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         this.mContext = mContext;
         this.realm = realm;
         this.mType = type;
-        if (mType.equals(Constants.TYPE_COLLECTIONS)) {
-            mStuffs = realm
-                    .where(Stuff.class)
-                    .equalTo("isLiked", true)
-                    .findAllSorted("lastChanged", Sort.DESCENDING);
+        this.mIsCollections = MainActivity.TYPE.COLLECTIONS.getId().equals(mType) ? true : false;
+        if (mIsCollections) {
+            mStuffs = Stuff.collections(realm);
         } else {
             mStuffs = Stuff.all(realm, mType);
         }
@@ -98,7 +96,7 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
             });
         }
         holder.likeBtn.setTag(position);
-        if (mType.equals(Constants.TYPE_COLLECTIONS)) {
+        if (mIsCollections) {
             holder.likeBtn.setImageResource(R.drawable.like);
             holder.likeBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -106,7 +104,7 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
                     deleteItem(position);
                 }
             });
-        }else{
+        } else {
             holder.likeBtn.setImageResource(mStuffs.get(position).isLiked() ? R.drawable.like : R.drawable.unlike);
             holder.likeBtn.setOnClickListener(new View.OnClickListener() {
                 @Override

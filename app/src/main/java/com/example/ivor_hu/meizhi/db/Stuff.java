@@ -39,6 +39,12 @@ public class Stuff extends RealmObject {
                 .findAllSorted("publishedAt", Sort.DESCENDING);
     }
 
+    public static RealmResults<Stuff> collections(Realm realm) {
+        return realm.where(Stuff.class)
+                .equalTo("isLiked", true)
+                .findAllSorted("lastChanged", Sort.DESCENDING);
+    }
+
     public boolean isLiked() {
         return isLiked;
     }

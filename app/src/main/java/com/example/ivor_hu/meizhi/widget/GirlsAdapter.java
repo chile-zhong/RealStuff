@@ -29,12 +29,10 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
     private final Context mContext;
     private final RealmResults<Image> mImages;
     private OnItemClickListener mOnItemClickListener;
-    private int lastImagesNum;
 
     public GirlsAdapter(Context mContext, Realm realm) {
         this.mContext = mContext;
         mImages = Image.all(realm);
-        lastImagesNum = mImages.size();
         setHasStableIds(true);
     }
 
@@ -42,11 +40,8 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
         mOnItemClickListener = onItemClickListener;
     }
 
-    public void updateInsertedDataFirstTime(int numImages) {
-        if (lastImagesNum > 0 )
-            return;
+    public void updateRefreshed(int numImages) {
         notifyItemRangeInserted(0, numImages);
-        lastImagesNum = mImages.size();
         Log.d(TAG, "updateInsertedData: from 0 to " + numImages);
     }
 
