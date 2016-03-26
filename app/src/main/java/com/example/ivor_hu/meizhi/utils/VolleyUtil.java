@@ -22,7 +22,7 @@ import org.json.JSONObject;
 public final class VolleyUtil {
     private static final String TAG = "VolleyUtil";
     private static VolleyUtil sInstance;
-    private Context mCtx;
+    private final Context mCtx;
     private RequestQueue mRequestQueue;
 
     public interface OnJSONResponse {
