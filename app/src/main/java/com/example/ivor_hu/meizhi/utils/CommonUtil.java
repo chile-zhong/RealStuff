@@ -18,7 +18,6 @@ import java.security.NoSuchAlgorithmException;
  * Created by Ivor on 2016/2/6.
  */
 public class CommonUtil {
-    private static final String TAG = "CommonUtil";
     private CommonUtil(){}
 
     public static void toast(Context context, String str, int lengthShort) {
@@ -68,7 +67,7 @@ public class CommonUtil {
         for (byte b : digest) {
             String hex = Integer.toHexString(0xff & b);
             if (hex.length() == 1) {
-                builder.append("0");
+                builder.append('0');
             }
             builder.append(hex);
         }

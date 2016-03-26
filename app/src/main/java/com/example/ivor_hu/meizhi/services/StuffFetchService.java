@@ -112,7 +112,7 @@ public class StuffFetchService extends IntentService {
         JSONArray array = response.getJSONArray("results");
         int len = array.length();
         JSONObject androidObj;
-        String url, date, id, author, title, type;
+        String url, date, id, author, title, typeLocal;
         Stuff stuff;
         for (int i = 0; i < len; i++) {
             androidObj = array.getJSONObject(i);
@@ -121,9 +121,9 @@ public class StuffFetchService extends IntentService {
             id = androidObj.getString("_id");
             author = androidObj.getString("who");
             title = androidObj.getString("desc");
-            type = MainActivity.TYPE.getTypeFromAPIName(androidObj.getString("type"));
+            typeLocal = MainActivity.TYPE.getTypeFromAPIName(androidObj.getString("type"));
 
-            stuff = new Stuff(id, type, title, url, author, DateUtil.parse(date));
+            stuff = new Stuff(id, typeLocal, title, url, author, DateUtil.parse(date));
             if (!saveToDb(realm, stuff)) {
                 return i;
             }

@@ -114,9 +114,9 @@ public class TouchImageView extends ImageView {
 
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
-    private GestureDetector.OnDoubleTapListener doubleTapListener = null;
-    private OnTouchListener userTouchListener = null;
-    private OnTouchImageViewListener touchImageViewListener = null;
+    private GestureDetector.OnDoubleTapListener doubleTapListener;
+    private OnTouchListener userTouchListener;
+    private OnTouchImageViewListener touchImageViewListener;
 
     public TouchImageView(Context context) {
         super(context);
@@ -849,7 +849,7 @@ public class TouchImageView extends ImageView {
         //
         // Remember last point position for dragging
         //
-        private PointF last = new PointF();
+        private final PointF last = new PointF();
 
         @Override
         @SuppressLint("ClickableViewAccessibility")
@@ -990,14 +990,14 @@ public class TouchImageView extends ImageView {
      */
     private class DoubleTapZoom implements Runnable {
 
-        private long startTime;
+        private final long startTime;
         private static final float ZOOM_TIME = 500;
-        private float startZoom, targetZoom;
-        private float bitmapX, bitmapY;
-        private boolean stretchImageToSuper;
-        private AccelerateDecelerateInterpolator interpolator = new AccelerateDecelerateInterpolator();
-        private PointF startTouch;
-        private PointF endTouch;
+        private final float startZoom, targetZoom;
+        private final float bitmapX, bitmapY;
+        private final boolean stretchImageToSuper;
+        private final AccelerateDecelerateInterpolator interpolator = new AccelerateDecelerateInterpolator();
+        private final PointF startTouch;
+        private final PointF endTouch;
 
         DoubleTapZoom(float targetZoom, float focusX, float focusY, boolean stretchImageToSuper) {
             setState(State.ANIMATE_ZOOM);

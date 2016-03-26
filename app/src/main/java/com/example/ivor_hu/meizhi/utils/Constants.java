@@ -3,7 +3,7 @@ package com.example.ivor_hu.meizhi.utils;
 /**
  * Created by Ivor on 2016/2/15.
  */
-public class Constants {
+public final class Constants {
     public static final String NEW_BASE_URL = "http://gank.io/api/";
     public static final String LATEST_GIRLS_URL = NEW_BASE_URL + "data/%E7%A6%8F%E5%88%A9/10/1";
     public static final String LATEST_ANDROID_URL = NEW_BASE_URL + "data/Android/20/1";

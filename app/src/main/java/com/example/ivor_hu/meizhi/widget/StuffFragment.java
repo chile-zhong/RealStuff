@@ -44,12 +44,12 @@ public class StuffFragment extends Fragment {
     private StuffAdapter mAdapter;
     private LocalBroadcastManager mLocalBroadcastManager;
     private UpdateResultReceiver updateResultReceiver;
-    private boolean mIsLoadingMore = false;
-    private boolean mIsRefreshing = false;
+    private boolean mIsLoadingMore;
+    private boolean mIsRefreshing;
     private Realm mRealm;
     private String mType;
     private boolean mIsCollections;
-    private boolean mIsNoMore = false;
+    private boolean mIsNoMore;
 
     public static StuffFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -79,7 +79,8 @@ public class StuffFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView = $(view, R.id.stuff_recyclerview);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter = new StuffAdapter(getActivity(), mRealm, mType));
+        mAdapter = new StuffAdapter(getActivity(), mRealm, mType);
+        mRecyclerView.setAdapter(mAdapter);
         if (!mIsCollections) {
             mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -219,9 +220,9 @@ public class StuffFragment extends Fragment {
     }
 
     public class ShareListener implements AbsListView.MultiChoiceModeListener {
-        private Context context;
-        private Stuff stuff;
-        private View view;
+        private final Context context;
+        private final Stuff stuff;
+        private final View view;
 
         public ShareListener(Context context, Stuff stuff, View view) {
             this.context = context;

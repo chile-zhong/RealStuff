@@ -25,12 +25,12 @@ import io.realm.RealmResults;
  */
 public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> {
     private static final String TAG = "StuffAdapter";
-    private Context mContext;
+    private final Context mContext;
     private RealmResults<Stuff> mStuffs;
     private OnItemClickListener mOnItemClickListener;
     private int lastStuffsNum;
-    private Realm realm;
-    private String mType;
+    private final Realm realm;
+    private final String mType;
     private boolean mIsCollections;
 
     public void updateInsertedData(int numImages, boolean isMore) {

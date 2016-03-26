@@ -29,7 +29,6 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String TAG = "MainActivity";
     private static final String CURR_TYPE = "curr_fragment_type";
 
     private FloatingActionButton mFab;

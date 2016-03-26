@@ -19,10 +19,10 @@ import org.json.JSONObject;
 /**
  * Created by Ivor on 2016/2/6.
  */
-public class VolleyUtil {
+public final class VolleyUtil {
     private static final String TAG = "VolleyUtil";
     private static VolleyUtil sInstance;
-    private Context mCtx;
+    private final Context mCtx;
     private RequestQueue mRequestQueue;
 
     public interface OnJSONResponse {
