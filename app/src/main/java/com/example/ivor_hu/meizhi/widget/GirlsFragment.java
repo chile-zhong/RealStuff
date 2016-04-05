@@ -23,7 +23,6 @@ import com.example.ivor_hu.meizhi.ViewerActivity;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.VolleyUtil;
 
 import io.realm.Realm;
 
@@ -66,7 +65,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
         mType = getArguments().getString(TYPE);
         mRealm = Realm.getDefaultInstance();
     }
-
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
@@ -194,7 +192,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: ");
-        VolleyUtil.getInstance(getActivity()).getRequestQueue().cancelAll(mType);
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
 

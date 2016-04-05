@@ -58,7 +58,7 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         this.mContext = mContext;
         this.realm = realm;
         this.mType = type;
-        this.mIsCollections = MainActivity.TYPE.COLLECTIONS.getId().equals(mType) ? true : false;
+        this.mIsCollections = MainActivity.TYPE.COLLECTIONS.getApiName().equals(mType) ? true : false;
         if (mIsCollections) {
             mStuffs = Stuff.collections(realm);
         } else {
@@ -76,8 +76,8 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     @Override
     public void onBindViewHolder(final Viewholder holder, final int position) {
         final Stuff stuff = mStuffs.get(position);
-        holder.author.setText(stuff.getAuthor());
-        holder.title.setText(stuff.getTitle());
+        holder.author.setText(stuff.getWho());
+        holder.title.setText(stuff.getDesc());
         holder.date.setText(DateUtil.format(stuff.getPublishedAt()));
         if (null != mOnItemClickListener) {
             holder.stuff.setOnClickListener(new View.OnClickListener() {

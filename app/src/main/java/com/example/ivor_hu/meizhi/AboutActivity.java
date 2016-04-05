@@ -64,6 +64,7 @@ public class AboutActivity extends AppCompatActivity {
         mLibsList.put("Google / Volley", "https://android.googlesource.com/platform/frameworks/volley");
         mLibsList.put("Mike Ortiz / TouchImageView", "https://github.com/MikeOrtiz/TouchImageView");
         mLibsList.put("Realm", "https://realm.io");
+        mLibsList.put("Square / Retrofit", "https://github.com/square/retrofit");
         mFeasList = new ArrayList<>();
         mFeasList.add("CardView");
         mFeasList.add("CollapsingToolbarLayout");

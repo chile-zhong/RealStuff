@@ -29,4 +29,5 @@
     <string name="about_api">来自代码家API http://gank.io</string>
     <string name="about_repository_url">项目地址 https://github.com/IvorHu/RealStuff</string>
     <string name="pic_saved">已保存至</string>
+    <string name="about_icon_source">部分图标来源 https://icons8.com</string>
 </resources>

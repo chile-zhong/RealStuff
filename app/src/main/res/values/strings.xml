@@ -29,5 +29,6 @@
     <string name="url_repository" translatable="false">https://github.com/IvorHu/RealStuff</string>
     <string name="about_api">API http://gank.io</string>
     <string name="about_repository_url">Repository https://github.com/IvorHu/RealStuff</string>
+    <string name="about_icon_source">App icon by https://icons8.com</string>
     <string name="pic_saved">Picture saved at </string>
 </resources>
