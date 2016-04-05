@@ -61,7 +61,6 @@ public class AboutActivity extends AppCompatActivity {
     private void initData() {
         mLibsList = new ArrayMap<>();
         mLibsList.put("bumptech / Glide", "https://github.com/bumptech/glide");
-        mLibsList.put("Google / Volley", "https://android.googlesource.com/platform/frameworks/volley");
         mLibsList.put("Mike Ortiz / TouchImageView", "https://github.com/MikeOrtiz/TouchImageView");
         mLibsList.put("Realm", "https://realm.io");
         mLibsList.put("Square / Retrofit", "https://github.com/square/retrofit");
