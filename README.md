@@ -12,9 +12,9 @@
 
 ## 项目使用以下开源库
 * [bumptech / Glide](https://github.com/bumptech/glide)
-* [Google / Volley](https://android.googlesource.com/platform/frameworks/volley)
 * [Mike Ortiz / TouchImageView](https://github.com/MikeOrtiz/TouchImageView)
 * [Realm](https://realm.io)
+* [Square / Retrofit](https://github.com/square/retrofit)
 
 ## 使用要求
 Android 4.4+
