@@ -7,22 +7,15 @@ import android.graphics.Point;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.android.volley.toolbox.RequestFuture;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
-import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.net.GankAPI;
+import com.example.ivor_hu.meizhi.net.GankAPIService;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
-import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
-import com.example.ivor_hu.meizhi.utils.VolleyUtil;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +33,30 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
     public static final String EXTRA_TRIGGER = "girls_trigger";
     public static final String ACTION_FETCH_REFRESH = "com.ivor.meizhi.girls_fetch_refresh";
     public static final String ACTION_FETCH_MORE = "com.ivor.meizhi.girls_fetch_more";
+
     private LocalBroadcastManager localBroadcastManager;
+
+//    private final Gson gson = new GsonBuilder()
+//            .setDateFormat(DateUtil.DATE_FORMAT_WHOLE)
+//            .setExclusionStrategies(new ExclusionStrategy() {
+//                @Override
+//                public boolean shouldSkipField(FieldAttributes f) {
+//                    return f.getDeclaringClass().equals(RealmObject.class);
+//                }
+//
+//                @Override
+//                public boolean shouldSkipClass(Class<?> clazz) {
+//                    return false;
+//                }
+//            })
+//            .create();
+//
+//    private final Retrofit girlsRetrofit = new Retrofit.Builder()
+//            .baseUrl(GankAPI.BASE_URL)
+//            .addConverterFactory(GsonConverterFactory.create(gson))
+//            .build();
+//
+//    private final GankAPI girlsApi = girlsRetrofit.create(GankAPI.class);
 
     public ImageFetchService() {
         super(TAG);
@@ -70,13 +86,7 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
                 Log.d(TAG, "earliest fetch: " + latest.last().getPublishedAt());
                 fetched = fetchMore(realm, latest.last().getPublishedAt());
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -96,71 +106,52 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
     }
 
 
-    private int fetchLatest(final Realm realm) throws InterruptedException, ExecutionException, ParseException, JSONException {
-        RequestFuture<JSONObject> future = VolleyUtil.getInstance(this).getJSONSync(MainActivity.TYPE.GIRLS.getLatestUrl(), MainActivity.TYPE.GIRLS.getId());
-        return updateImages(realm, future);
+    private int fetchLatest(final Realm realm) throws IOException {
+        GankAPI.Result<List<Image>> result = GankAPIService.getInstance().latestGirls(10).execute().body();
+
+        if (result.error)
+            return 0;
+
+        int resultSize = result.results.size();
+        for (int i = 0; i < resultSize; i++) {
+            if (!saveToDb(realm, result.results.get(i)))
+                return i;
+        }
+
+        return resultSize;
     }
 
-    private int fetchRefresh(Realm realm, Date publishedAt) throws InterruptedException, ExecutionException, ParseException, JSONException {
+    private int fetchRefresh(Realm realm, Date publishedAt) throws IOException {
         String after = DateUtil.format(publishedAt);
         List<String> dates = DateUtil.generateSequenceDateTillToday(publishedAt);
         return fetch(realm, after, dates);
     }
 
-    private int fetchMore(Realm realm, Date publishedAt) throws InterruptedException, ExecutionException, JSONException, ParseException {
+    private int fetchMore(Realm realm, Date publishedAt) throws IOException {
         String before = DateUtil.format(publishedAt);
         List<String> dates = DateUtil.generateSequenceDateBefore(publishedAt, 20);
         return fetch(realm, before, dates);
     }
 
-    private int fetch(Realm realm, String baseline, List<String> dates) throws InterruptedException, ExecutionException, JSONException, ParseException {
+    private int fetch(Realm realm, String baseline, List<String> dates) throws IOException {
         int fetched = 0;
-        for (String date : dates) {
-            if (date == null)
-                return fetched;
 
+        for (String date : dates) {
             if (date.equals(baseline))
                 continue;
 
-            RequestFuture<JSONObject> imgFuture = VolleyUtil.getInstance(this).getJSONSync(Constants.DAYLY_DATA_URL + date, MainActivity.TYPE.GIRLS.getId());
-            JSONObject imgResponse = imgFuture.get();
-            if (imgResponse.getBoolean("error"))
+            GankAPI.Result<GankAPI.Girls> girlsResult = GankAPIService.getInstance().dayGirls(date).execute().body();
+
+            if (girlsResult.error || null == girlsResult.results || null == girlsResult.results.images)
                 continue;
 
-            JSONObject results = imgResponse.getJSONObject("results");
-            if (!results.has("福利"))
-                continue;
-            JSONObject img = results.getJSONArray("福利").getJSONObject(0);
-            if (img == null)
-                continue;
+            for (Image image : girlsResult.results.images) {
+                if (!saveToDb(realm, image))
+                    return fetched;
 
-            if (!saveToDb(realm, new Image(img.getString("_id"), img.getString("url"), DateUtil.parse(img.getString("publishedAt"))))) {
-                return fetched;
+                fetched++;
             }
-            fetched++;
         }
-        return fetched;
-    }
-
-    private int updateImages(Realm realm, RequestFuture<JSONObject> future) throws JSONException, ExecutionException, InterruptedException, ParseException {
-        int fetched = 0;
-        JSONObject response = future.get();
-        if (response.getBoolean("error"))
-            return 0;
-
-        JSONArray array = response.getJSONArray("results");
-        int len = array.length();
-        String url, date, id;
-        for (int i = 0; i < len; i++) {
-            url = array.getJSONObject(i).getString("url");
-            date = array.getJSONObject(i).getString("publishedAt");
-            id = array.getJSONObject(i).getString("_id");
-            if (!saveToDb(realm, new Image(id, url, DateUtil.parse(date)))) {
-                return i;
-            }
-            fetched++;
-        }
-
         return fetched;
     }
 

@@ -26,7 +26,6 @@ import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.services.StuffFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.VolleyUtil;
 
 import io.realm.Realm;
 
@@ -65,7 +64,7 @@ public class StuffFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mType = getArguments().getString(TYPE);
         mRealm = Realm.getDefaultInstance();
-        mIsCollections = MainActivity.TYPE.COLLECTIONS.getId().equals(mType) ? true : false;
+        mIsCollections = MainActivity.TYPE.COLLECTIONS.getApiName().equals(mType) ? true : false;
         if (!mIsCollections)
             updateResultReceiver = new UpdateResultReceiver();
     }
@@ -191,7 +190,6 @@ public class StuffFragment extends Fragment {
         Log.d(TAG, "onPause: ");
         if (mIsCollections)
             return;
-        VolleyUtil.getInstance(getActivity()).getRequestQueue().cancelAll(mType);
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
 
@@ -251,7 +249,7 @@ public class StuffFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.context_menu_share:
-                    String textShared = stuff.getTitle() + "    " + stuff.getUrl() + " -- " + context.getString(R.string.share_msg);
+                    String textShared = stuff.getDesc() + "    " + stuff.getUrl() + " -- " + context.getString(R.string.share_msg);
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setType("text/plain");
                     intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_msg));

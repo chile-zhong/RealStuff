@@ -26,18 +26,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="230dp"
                 android:fitsSystemWindows="true"
+                android:gravity="center"
                 android:orientation="vertical"
                 android:padding="32dp"
-                android:gravity="center"
                 app:layout_collapseMode="parallax">
 
                 <TextView
                     android:id="@+id/intro_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="?attr/actionBarSize"
                     android:contentDescription="@string/app_name"
                     android:gravity="center_horizontal"
-                    android:layout_marginTop="?attr/actionBarSize"
                     android:text="每日分享 妹子图 和 技术干货"
                     android:textSize="16sp" />
 
@@ -50,6 +50,15 @@
                     android:contentDescription="@string/app_name"
                     android:gravity="center_horizontal"
                     android:text="@string/about_api" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:autoLink="web"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center_horizontal"
+                    android:text="@string/about_icon_source" />
 
                 <TextView
                     android:id="@+id/github_text"

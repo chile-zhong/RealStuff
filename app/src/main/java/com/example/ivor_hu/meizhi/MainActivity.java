@@ -20,7 +20,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
@@ -45,37 +44,25 @@ public class MainActivity extends AppCompatActivity
     private Bundle reenterState;
 
     public enum TYPE {
-        GIRLS("GIRLS", "Girls", R.string.nav_girls, R.id.nav_girls, Constants.LATEST_GIRLS_URL),
-        ANDROID("ANDROID", "Android", R.string.nav_android, R.id.nav_android, Constants.LATEST_ANDROID_URL),
-        IOS("IOS", "iOS", R.string.nav_ios, R.id.nav_ios, Constants.LATEST_IOS_URL),
-        WEB("WEB", "前端", R.string.nav_web, R.id.nav_web, Constants.LATEST_WEB_URL),
-        APP("APP", "App", R.string.nav_app, R.id.nav_app, Constants.LATEST_APP_URL),
-        FUN("FUN", "瞎推荐", R.string.nav_fun, R.id.nav_fun, Constants.LATEST_FUN_URL),
-        OTHERS("OTHERS", "拓展资源", R.string.nav_others, R.id.nav_others, Constants.LATEST_OTHERS_URL),
-        COLLECTIONS("COLLECTIONS", "Collections", R.string.nav_collections, R.id.nav_collections, "");
-
-        public static String getTypeFromAPIName(String typeStr) {
-            String typeId = "";
-            for (TYPE type : TYPE.values()) {
-                if (typeStr.equals(type.getApiName())) {
-                    return type.getId();
-                }
-            }
-            return typeId;
-        }
+        GIRLS("GIRLS", "Girls", R.string.nav_girls, R.id.nav_girls),
+        ANDROID("ANDROID", "Android", R.string.nav_android, R.id.nav_android),
+        IOS("IOS", "iOS", R.string.nav_ios, R.id.nav_ios),
+        WEB("WEB", "前端", R.string.nav_web, R.id.nav_web),
+        APP("APP", "App", R.string.nav_app, R.id.nav_app),
+        FUN("FUN", "瞎推荐", R.string.nav_fun, R.id.nav_fun),
+        OTHERS("OTHERS", "拓展资源", R.string.nav_others, R.id.nav_others),
+        COLLECTIONS("COLLECTIONS", "Collections", R.string.nav_collections, R.id.nav_collections);
 
         private final String id;
         private final String apiName;
         private final int strId;
         private final int resId;
-        private final String latestUrl;
 
-        TYPE(String id, String apiName, int strId, int resId, String latestUrl) {
+        TYPE(String id, String apiName, int strId, int resId) {
             this.id = id;
             this.apiName = apiName;
             this.strId = strId;
             this.resId = resId;
-            this.latestUrl = latestUrl;
         }
 
         @Override
@@ -99,9 +86,6 @@ public class MainActivity extends AppCompatActivity
             return resId;
         }
 
-        public String getLatestUrl() {
-            return latestUrl;
-        }
     }
 
     @Override
@@ -179,7 +163,6 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
         mCurrFragmentType = savedInstanceState.getString(CURR_TYPE);
         hideAllExcept(mCurrFragmentType);
-//        mToolbar.setTitle(Constants.getResIdFromType(mCurrFragmentType));
         mToolbar.setTitle(TYPE.valueOf(mCurrFragmentType).getStrId());
     }
 
@@ -238,11 +221,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         FragmentManager manager = getSupportFragmentManager();
         if (id == TYPE.GIRLS.getResId()) {
-            swithTo(manager, TYPE.GIRLS.getId(), GirlsFragment.newInstance(TYPE.GIRLS.getId()));
+            swithTo(manager, TYPE.GIRLS.getId(), GirlsFragment.newInstance(TYPE.GIRLS.getApiName()));
         } else {
             for (TYPE type : TYPE.values()) {
                 if (type.getResId() == id) {
-                    swithTo(manager, type.getId(), StuffFragment.newInstance(type.getId()));
+                    swithTo(manager, type.getId(), StuffFragment.newInstance(type.getApiName()));
                     break;
                 }
             }

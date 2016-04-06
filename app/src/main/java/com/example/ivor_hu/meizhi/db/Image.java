@@ -3,6 +3,7 @@ package com.example.ivor_hu.meizhi.db;
 import android.graphics.Point;
 
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
 import java.util.Date;
@@ -19,6 +20,7 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Image extends RealmObject {
     @PrimaryKey
+    @SerializedName("_id")
     private String id;
     private String url;
     private int width;

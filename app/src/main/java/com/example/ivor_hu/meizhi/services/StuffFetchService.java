@@ -5,22 +5,16 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.android.volley.toolbox.RequestFuture;
 import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.db.Stuff;
-import com.example.ivor_hu.meizhi.utils.Constants;
+import com.example.ivor_hu.meizhi.net.GankAPI;
+import com.example.ivor_hu.meizhi.net.GankAPIService;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
-import com.example.ivor_hu.meizhi.utils.VolleyUtil;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.ParseException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -38,7 +32,7 @@ public class StuffFetchService extends IntentService {
     public static final String ACTION_FETCH_REFRESH = "com.ivor.meizhi.fetch_refresh";
     public static final String ACTION_FETCH_MORE = "com.ivor.meizhi.fetch_more";
 
-    private String type, latestUrl, typeName;
+    private String type;
     private LocalBroadcastManager localBroadcastManager;
 
     public StuffFetchService() {
@@ -54,9 +48,7 @@ public class StuffFetchService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         type = intent.getStringExtra(StuffFragment.SERVICE_TYPE);
-        latestUrl = MainActivity.TYPE.valueOf(type).getLatestUrl();
-        typeName = MainActivity.TYPE.valueOf(type).getApiName();
-        Log.d(TAG, "onHandleIntent: " + type + " " + latestUrl + " " + typeName);
+        Log.d(TAG, "onHandleIntent: " + type);
 
         Realm realm = Realm.getDefaultInstance();
 
@@ -74,13 +66,7 @@ public class StuffFetchService extends IntentService {
                 Log.d(TAG, "earliest fetch: " + latest.last().getPublishedAt());
                 fetched = fetchMore(realm, latest.last().getPublishedAt());
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -101,98 +87,140 @@ public class StuffFetchService extends IntentService {
     }
 
 
-    private int fetchLatest(final Realm realm) throws InterruptedException, ExecutionException, ParseException, JSONException {
-        RequestFuture<JSONObject> future = VolleyUtil.getInstance(this).getJSONSync(latestUrl, type);
+    private int fetchLatest(final Realm realm) throws IOException {
+        GankAPI.Result<List<Stuff>> result = GankAPIService.getInstance().latestStuff(type, 20).execute().body();
 
-        int fetched = 0;
-        JSONObject response = future.get();
-        if (response.getBoolean("error"))
+        if (result.error)
             return 0;
 
-        JSONArray array = response.getJSONArray("results");
-        int len = array.length();
-        JSONObject androidObj;
-        String url, date, id, author, title, typeLocal;
-        Stuff stuff;
-        for (int i = 0; i < len; i++) {
-            androidObj = array.getJSONObject(i);
-            url = androidObj.getString("url");
-            date = androidObj.getString("publishedAt");
-            id = androidObj.getString("_id");
-            author = androidObj.getString("who");
-            title = androidObj.getString("desc");
-            typeLocal = MainActivity.TYPE.getTypeFromAPIName(androidObj.getString("type"));
-
-            stuff = new Stuff(id, typeLocal, title, url, author, DateUtil.parse(date));
-            if (!saveToDb(realm, stuff)) {
+        int stuffSize = result.results.size();
+        for (int i = 0; i < stuffSize; i++) {
+            if (!saveToDb(realm, result.results.get(i)))
                 return i;
-            }
-            fetched++;
         }
-
-        return fetched;
+        return stuffSize;
     }
 
-    private int fetchRefresh(Realm realm, Date publishedAt) throws InterruptedException, ExecutionException, ParseException, JSONException {
+    private int fetchRefresh(Realm realm, Date publishedAt) throws IOException {
         String after = DateUtil.format(publishedAt);
         List<String> dates = DateUtil.generateSequenceDateTillToday(publishedAt);
         return fetch(realm, after, dates);
     }
 
-    private int fetchMore(Realm realm, Date publishedAt) throws InterruptedException, ExecutionException, JSONException, ParseException {
+    private int fetchMore(Realm realm, Date publishedAt) throws IOException {
         String before = DateUtil.format(publishedAt);
         List<String> dates = DateUtil.generateSequenceDateBefore(publishedAt, 10);
         return fetch(realm, before, dates);
     }
 
-    private int fetch(Realm realm, String after, List<String> dates) throws InterruptedException, ExecutionException, JSONException, ParseException {
+    private int fetch(Realm realm, String after, List<String> dates) throws IOException {
         int fetched = 0;
-        for (String date : dates) {
-            if (date == null)
-                return fetched;
-
-            if (date.equals(after))
-                continue;
-
-            RequestFuture<JSONObject> stuffFuture = VolleyUtil.getInstance(this).getJSONSync(Constants.DAYLY_DATA_URL + date, type);
-
-            JSONObject imgResponse = stuffFuture.get();
-            if (imgResponse.getBoolean("error"))
-                continue;
-
-            JSONObject results = imgResponse.getJSONObject("results");
-            if (!results.has(typeName))
-                continue;
-
-            JSONArray stuffs = results.getJSONArray(typeName);
-            int len = stuffs.length();
-            for (int i = 0; i < len; i++) {
-                JSONObject stuff = stuffs.getJSONObject(i);
-                if (stuff == null)
+        if (type.equals(MainActivity.TYPE.ANDROID.getApiName())) {
+            for (String date : dates) {
+                if (date.equals(after))
                     continue;
 
-                if (!saveToDb(realm, new Stuff(
-                        stuff.getString("_id"),
-                        MainActivity.TYPE.getTypeFromAPIName(stuff.getString("type")),
-                        stuff.getString("desc"),
-                        stuff.getString("url"),
-                        stuff.getString("who"),
-                        DateUtil.parse(stuff.getString("publishedAt"))))) {
-                    return fetched;
-                }
-                fetched++;
-            }
+                GankAPI.Result<GankAPI.Androids> stuffsResult = GankAPIService.getInstance().dayAndroids(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                    continue;
 
+                for (Stuff stuff : stuffsResult.results.stuffs) {
+                    if (!saveToDb(realm, stuff))
+                        return fetched;
+
+                    fetched++;
+                }
+            }
+        } else if (type.equals(MainActivity.TYPE.IOS.getApiName())) {
+            for (String date : dates) {
+                if (date.equals(after))
+                    continue;
+
+                GankAPI.Result<GankAPI.IOSs> stuffsResult = GankAPIService.getInstance().dayIOSs(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                    continue;
+
+                for (Stuff stuff : stuffsResult.results.stuffs) {
+                    if (!saveToDb(realm, stuff))
+                        return fetched;
+
+                    fetched++;
+                }
+            }
+        } else if (type.equals(MainActivity.TYPE.APP.getApiName())) {
+            for (String date : dates) {
+                if (date.equals(after))
+                    continue;
+
+                GankAPI.Result<GankAPI.Apps> stuffsResult = GankAPIService.getInstance().dayApps(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                    continue;
+
+                for (Stuff stuff : stuffsResult.results.stuffs) {
+                    if (!saveToDb(realm, stuff))
+                        return fetched;
+
+                    fetched++;
+                }
+            }
+        } else if (type.equals(MainActivity.TYPE.FUN.getApiName())) {
+            for (String date : dates) {
+                if (date.equals(after))
+                    continue;
+
+                GankAPI.Result<GankAPI.Funs> stuffsResult = GankAPIService.getInstance().dayFuns(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                    continue;
+
+                for (Stuff stuff : stuffsResult.results.stuffs) {
+                    if (!saveToDb(realm, stuff))
+                        return fetched;
+
+                    fetched++;
+                }
+            }
+        } else if (type.equals(MainActivity.TYPE.OTHERS.getApiName())) {
+            for (String date : dates) {
+                if (date.equals(after))
+                    continue;
+
+                GankAPI.Result<GankAPI.Others> stuffsResult = GankAPIService.getInstance().dayOthers(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                    continue;
+
+                for (Stuff stuff : stuffsResult.results.stuffs) {
+                    if (!saveToDb(realm, stuff))
+                        return fetched;
+
+                    fetched++;
+                }
+            }
+        } else if (type.equals(MainActivity.TYPE.WEB.getApiName())) {
+            for (String date : dates) {
+                if (date.equals(after))
+                    continue;
+
+                GankAPI.Result<GankAPI.Webs> stuffsResult = GankAPIService.getInstance().dayWebs(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                    continue;
+
+                for (Stuff stuff : stuffsResult.results.stuffs) {
+                    if (!saveToDb(realm, stuff))
+                        return fetched;
+
+                    fetched++;
+                }
+            }
         }
-        return fetched;
-    }
+
+    return fetched;
+}
 
     private boolean saveToDb(Realm realm, Stuff stuff) {
         realm.beginTransaction();
 
         try {
             realm.copyToRealm(stuff);
-            Log.d(TAG, "saveToDb: " + stuff.getPublishedAt());
         } catch (Exception e) {
             Log.e(TAG, "Failed to fetch image", e);
             realm.cancelTransaction();

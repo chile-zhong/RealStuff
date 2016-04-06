@@ -1,5 +1,7 @@
 package com.example.ivor_hu.meizhi.db;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 import io.realm.Realm;
@@ -13,20 +15,21 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Stuff extends RealmObject {
     @PrimaryKey
+    @SerializedName("_id")
     private String id;
-    private String title, url, author, type;
+    private String desc, url, who, type;
     private Date publishedAt, lastChanged;
     private boolean isLiked;
 
     public Stuff() {
     }
 
-    public Stuff(String id, String type, String title, String url, String author, Date publishedAt) {
+    public Stuff(String id, String type, String desc, String url, String who, Date publishedAt) {
         this.id = id;
         this.type = type;
-        this.title = title;
+        this.desc = desc;
         this.url = url;
-        this.author = author;
+        this.who = who;
         this.publishedAt = publishedAt;
         this.lastChanged = publishedAt;
         this.isLiked = false;
@@ -69,12 +72,12 @@ public class Stuff extends RealmObject {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getDesc() {
+        return desc;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     public String getUrl() {
@@ -85,12 +88,12 @@ public class Stuff extends RealmObject {
         this.url = url;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getWho() {
+        return who;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setWho(String who) {
+        this.who = who;
     }
 
     public Date getPublishedAt() {
@@ -108,4 +111,5 @@ public class Stuff extends RealmObject {
     public void setLastChanged(Date lastChanged) {
         this.lastChanged = lastChanged;
     }
+
 }
