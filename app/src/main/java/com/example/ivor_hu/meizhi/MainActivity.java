@@ -2,6 +2,7 @@ package com.example.ivor_hu.meizhi;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
@@ -283,20 +285,5 @@ public class MainActivity extends AppCompatActivity
             ((GirlsFragment) mCurrFragment).onActivityReenter(index);
         }
     }
-
-//    public void hideFab() {
-//        if (mFab != null && isFabShown) {
-//            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mFab.getLayoutParams();
-//            mFab.animate().translationY(mFab.getHeight() + lp.bottomMargin).setInterpolator(new AccelerateInterpolator(2));
-//            isFabShown = false;
-//        }
-//    }
-//
-//    public void showFab() {
-//        if (mFab != null && !isFabShown) {
-//            mFab.animate().translationY(0).setInterpolator(new AccelerateInterpolator(2));
-//            isFabShown = true;
-//        }
-//    }
 
 }
