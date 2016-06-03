@@ -19,23 +19,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
+import com.example.ivor_hu.meizhi.widget.BaseFragment;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.util.List;
 import java.util.Map;
 
+import static com.example.ivor_hu.meizhi.utils.Constants.TYPE;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "MainActivity";
     private static final String CURR_TYPE = "curr_fragment_type";
 
+    private CoordinatorLayout mCoordinatorLayout;
     private FloatingActionButton mFab;
     private Toolbar mToolbar;
-    private Fragment mCurrFragment;
-    private String mCurrFragmentType;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
@@ -43,52 +45,9 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
     });
+    private Fragment mCurrFragment;
+    private String mCurrFragmentType;
     private Bundle reenterState;
-
-    public enum TYPE {
-        GIRLS("GIRLS", "Girls", R.string.nav_girls, R.id.nav_girls),
-        ANDROID("ANDROID", "Android", R.string.nav_android, R.id.nav_android),
-        IOS("IOS", "iOS", R.string.nav_ios, R.id.nav_ios),
-        WEB("WEB", "前端", R.string.nav_web, R.id.nav_web),
-        APP("APP", "App", R.string.nav_app, R.id.nav_app),
-        FUN("FUN", "瞎推荐", R.string.nav_fun, R.id.nav_fun),
-        OTHERS("OTHERS", "拓展资源", R.string.nav_others, R.id.nav_others),
-        COLLECTIONS("COLLECTIONS", "Collections", R.string.nav_collections, R.id.nav_collections);
-
-        private final String id;
-        private final String apiName;
-        private final int strId;
-        private final int resId;
-
-        TYPE(String id, String apiName, int strId, int resId) {
-            this.id = id;
-            this.apiName = apiName;
-            this.strId = strId;
-            this.resId = resId;
-        }
-
-        @Override
-        public String toString() {
-            return id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getApiName() {
-            return apiName;
-        }
-
-        public int getStrId() {
-            return strId;
-        }
-
-        public int getResId() {
-            return resId;
-        }
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,14 +76,12 @@ public class MainActivity extends AppCompatActivity
             mCurrFragmentType = TYPE.GIRLS.getId();
         }
 
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coor_layout);
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (TYPE.GIRLS.getId().equals(mCurrFragmentType))
-                    ((GirlsFragment) mCurrFragment).smoothScrollToTop();
-                else
-                    ((StuffFragment) mCurrFragment).smoothScrollToTop();
+                ((BaseFragment) mCurrFragment).smoothScrollToTop();
             }
         });
 
@@ -172,13 +129,14 @@ public class MainActivity extends AppCompatActivity
         FragmentManager manager = getSupportFragmentManager();
         for (TYPE type : TYPE.values()) {
             Fragment fragment = manager.findFragmentByTag(type.getId());
-            if (type.equals(mCurrFragmentType)) {
+            if (fragment == null)
+                continue;
+
+            if (type.getId().equals(mCurrFragmentType)) {
                 manager.beginTransaction().show(fragment).commit();
                 mCurrFragment = fragment;
             } else {
-                if (fragment != null) {
-                    manager.beginTransaction().hide(fragment).commit();
-                }
+                manager.beginTransaction().hide(fragment).commit();
             }
         }
     }
@@ -222,6 +180,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager manager = getSupportFragmentManager();
+        if (((BaseFragment) mCurrFragment).isFetching()) {
+            CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
+            closeDrawer();
+            return false;
+        }
+
         if (id == TYPE.GIRLS.getResId()) {
             swithTo(manager, TYPE.GIRLS.getId(), GirlsFragment.newInstance(TYPE.GIRLS.getApiName()));
         } else {
@@ -232,13 +196,14 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-//        else if (id == R.id.nav_test) {
-//            Log.d(TAG, "onNavigationItemSelected: test");
-//        }
 
+        closeDrawer();
+        return true;
+    }
+
+    private void closeDrawer() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     private void swithTo(FragmentManager manager, String type, Fragment addedFragment) {

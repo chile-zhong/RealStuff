@@ -5,50 +5,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ActionMode;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.services.StuffFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-
-import io.realm.Realm;
+import com.example.ivor_hu.meizhi.utils.Constants;
 
 /**
  * Created by Ivor on 2016/3/3.
  */
-public class StuffFragment extends Fragment {
-    private static final String TAG = "StuffFragment";
+public class StuffFragment extends BaseFragment {
     public static final String SERVICE_TYPE = "service_type";
+    private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";
 
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
-    private SwipeRefreshLayout mRefreshLayout;
-    private StuffAdapter mAdapter;
-    private LocalBroadcastManager mLocalBroadcastManager;
     private UpdateResultReceiver updateResultReceiver;
-    private boolean mIsLoadingMore;
-    private boolean mIsRefreshing;
-    private Realm mRealm;
-    private String mType;
-    private boolean mIsCollections;
-    private boolean mIsNoMore;
 
     public static StuffFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -57,121 +38,6 @@ public class StuffFragment extends Fragment {
         StuffFragment fragment = new StuffFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mType = getArguments().getString(TYPE);
-        mRealm = Realm.getDefaultInstance();
-        mIsCollections = MainActivity.TYPE.COLLECTIONS.getApiName().equals(mType) ? true : false;
-        if (!mIsCollections)
-            updateResultReceiver = new UpdateResultReceiver();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.stuff_fragment, container, false);
-
-        mRefreshLayout = $(view, R.id.stuff_refresh_layout);
-
-        mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        mRecyclerView = $(view, R.id.stuff_recyclerview);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new StuffAdapter(getActivity(), mRealm, mType);
-        mRecyclerView.setAdapter(mAdapter);
-        if (!mIsCollections) {
-            mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    if (!mIsLoadingMore && dy > 0) {
-                        int lastVisiblePos = mLayoutManager.findLastVisibleItemPosition();
-                        if (!mIsNoMore && lastVisiblePos + 1 == mAdapter.getItemCount()) {
-                            loadingMore();
-                            CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_load_more), Snackbar.LENGTH_SHORT);
-                        }
-                    }
-                }
-            });
-        }
-
-        mAdapter.setOnItemClickListener(new StuffAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing) {
-                    return;
-                }
-                CommonUtil.openUrl(getActivity(), mAdapter.getStuffAt(pos).getUrl());
-            }
-
-            @Override
-            public void onItemLongClick(final View view, final int pos) {
-                getActivity().startActionMode(new ShareListener(getActivity(), mAdapter.getStuffAt(pos), view));
-            }
-        });
-
-        if (!mIsCollections)
-            mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-        return view;
-    }
-
-    private void loadingMore() {
-        if (mIsLoadingMore)
-            return;
-
-        Intent intent = new Intent(getActivity(), StuffFetchService.class);
-        intent.setAction(StuffFetchService.ACTION_FETCH_MORE).putExtra(SERVICE_TYPE, mType);
-        getActivity().startService(intent);
-
-        mIsLoadingMore = true;
-        setRefreshLayout(true);
-    }
-
-    private void refreshStuff() {
-        if (mIsRefreshing) {
-            return;
-        }
-
-        if (mIsCollections) {
-            setRefreshLayout(false);
-            updateData();
-            return;
-        }
-
-        Intent intent = new Intent(getActivity(), StuffFetchService.class);
-        intent.setAction(StuffFetchService.ACTION_FETCH_REFRESH).putExtra(SERVICE_TYPE, mType);
-        getActivity().startService(intent);
-
-        mIsRefreshing = true;
-        setRefreshLayout(true);
-    }
-
-    private void setRefreshLayout(final boolean state) {
-        if (null == mRefreshLayout)
-            return;
-
-        mRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mRefreshLayout.setRefreshing(state);
-            }
-        });
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
-        SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshStuff();
-            }
-        };
-        mRefreshLayout.setOnRefreshListener(listener);
-        if (savedInstanceState == null)
-            listener.onRefresh();
     }
 
     @Override
@@ -190,24 +56,97 @@ public class StuffFragment extends Fragment {
         Log.d(TAG, "onPause: ");
         if (mIsCollections)
             return;
+
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mRealm.removeAllChangeListeners();
-        mRealm.close();
+    protected void initData() {
+        super.initData();
+        mType = getArguments().getString(TYPE);
+        mIsCollections = Constants.TYPE.COLLECTIONS.getApiName().equals(mType);
+        if (!mIsCollections)
+            updateResultReceiver = new UpdateResultReceiver();
     }
 
-    private <T extends View> T $(View view, int resId) {
-        return (T) view.findViewById(resId);
+    @Override
+    protected void loadingMore() {
+        if (mIsLoadingMore)
+            return;
+
+        Intent intent = new Intent(getActivity(), StuffFetchService.class);
+        intent.setAction(StuffFetchService.ACTION_FETCH_MORE).putExtra(SERVICE_TYPE, mType);
+        getActivity().startService(intent);
+
+        mIsLoadingMore = true;
+        setRefreshLayout(true);
     }
 
-    public void smoothScrollToTop() {
-        if (null != mLayoutManager) {
-            mLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);
+    @Override
+    protected void fetchLatest() {
+        if (mIsRefreshing)
+            return;
+
+        if (mIsCollections) {
+            setRefreshLayout(false);
+            updateData();
+            return;
         }
+
+        Intent intent = new Intent(getActivity(), StuffFetchService.class);
+        intent.setAction(StuffFetchService.ACTION_FETCH_REFRESH).putExtra(SERVICE_TYPE, mType);
+        getActivity().startService(intent);
+
+        mIsRefreshing = true;
+        setRefreshLayout(true);
+    }
+
+    @Override
+    protected int getLastVisiblePos() {
+        return ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.stuff_fragment;
+    }
+
+    @Override
+    protected int getRefreshLayoutId() {
+        return R.id.stuff_refresh_layout;
+    }
+
+    @Override
+    protected RecyclerView.Adapter initAdapter() {
+        final StuffAdapter adapter = new StuffAdapter(getActivity(), mRealm, mType);
+        adapter.setOnItemClickListener(new StuffAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int pos) {
+                if (mIsLoadingMore || mIsRefreshing)
+                    return;
+
+                CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
+            }
+
+            @Override
+            public void onItemLongClick(final View view, final int pos) {
+                if (mIsLoadingMore || mIsRefreshing)
+                    return;
+
+                getActivity().startActionMode(new ShareListener(getActivity(), adapter.getStuffAt(pos), view));
+            }
+        });
+        return adapter;
+    }
+
+    @Override
+    protected RecyclerView.LayoutManager getLayoutManager() {
+        return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+    }
+
+    @Override
+    protected int getRecyclerViewId() {
+        return R.id.stuff_recyclerview;
     }
 
     public void updateData() {
@@ -297,7 +236,7 @@ public class StuffFragment extends Fragment {
 
             if (null == mAdapter || fetched == 0)
                 return;
-            mAdapter.updateInsertedData(fetched, trigger.equals(StuffFetchService.ACTION_FETCH_MORE) ? true : false);
+            ((StuffAdapter) mAdapter).updateInsertedData(fetched, trigger.equals(StuffFetchService.ACTION_FETCH_MORE));
         }
     }
 }

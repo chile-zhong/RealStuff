@@ -23,7 +23,7 @@
     <string name="fragment_long_clicked">long clicked.</string>
     <string name="fragment_load_more">Load more.</string>
     <string name="fragment_no_more">No more.</string>
-    <string name="fragment_isfetching">Fetching background. Please view it later.</string>
+    <string name="fetching_pic">Fetching background. Please view it later.</string>
     <string name="share_msg">This message is from APP RealStuff!</string>
     <string name="url_api" translatable="false">http://gank.io</string>
     <string name="url_repository" translatable="false">https://github.com/IvorHu/RealStuff</string>
@@ -31,5 +31,6 @@
     <string name="about_repository_url">Repository https://github.com/IvorHu/RealStuff</string>
     <string name="about_icon_source">App icon by https://icons8.com</string>
     <string name="pic_saved">Picture saved at </string>
-    <string name="about_intro">Share girls pictures and real stuff everyday</string>
+    <string name="about_intro">Sharing real stuff everyday</string>
+    <string name="frag_is_fetching">Fetching data. Please swith later.</string>
 </resources>

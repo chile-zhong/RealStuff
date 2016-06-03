@@ -28,13 +28,13 @@ public final class PicUtil {
     }
 
     /**
-     * 获取SDCard的目录路径功能
+     * Get the directionary of SD card
      *
      * @return
      */
     public static String getSDCardPath() {
         File sdcardDir;
-        // 判断SDCard是否存在
+        // check whether SD card exist
         boolean sdcardExist = Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED);
         if (sdcardExist) {
@@ -47,20 +47,18 @@ public final class PicUtil {
     }
 
     public static File saveBitmapToSDCard(Context context, Bitmap bitmap, String url, Handler handler) {
-        // 图片存储路径
         String SavePath = getSDCardPath() + IMAGE_SAVE_PATH;
-        // 保存Bitmap
+        // save Bitmap
         try {
             File path = new File(SavePath);
-            if (!path.exists()) {
+            if (!path.exists())
                 path.mkdirs();
-            }
-            // 文件
+
             String filepath = SavePath + getLastStringFromUrl(url);
             File file = new File(filepath);
-            if (!file.exists()) {
+            if (!file.exists())
                 file.createNewFile();
-            }
+
             FileOutputStream fos = new FileOutputStream(file);
             if (null != fos) {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);

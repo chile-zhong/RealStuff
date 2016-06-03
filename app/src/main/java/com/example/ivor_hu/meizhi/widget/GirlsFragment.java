@@ -7,15 +7,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.example.ivor_hu.meizhi.R;
@@ -24,27 +19,16 @@ import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 
-import io.realm.Realm;
-
 
 /**
  * Created by Ivor on 2016/2/6.
  */
-public class GirlsFragment extends android.support.v4.app.Fragment {
+public class GirlsFragment extends BaseFragment {
     public static final String TAG = "GirlsFragment";
     public static final String POSTION = "viewer_position";
     private static final String TYPE = "girls_type";
 
-    private RecyclerView mRecyclerView;
-    private LocalBroadcastManager mLocalBroadcastManager;
     private final UpdateResultReceiver updateResultReceiver = new UpdateResultReceiver();
-    private GirlsAdapter mAdapter;
-    private StaggeredGridLayoutManager mLayoutManager;
-    private SwipeRefreshLayout mRefreshLayout;
-    private boolean mIsLoadingMore;
-    private boolean mIsRefreshing;
-    private Realm mRealm;
-    private String mType;
 
     public static GirlsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -53,132 +37,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
         GirlsFragment fragment = new GirlsFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initData();
-    }
-
-    private void initData() {
-        mType = getArguments().getString(TYPE);
-        mRealm = Realm.getDefaultInstance();
-    }
-
-    @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.girls_fragment, container, false);
-
-        mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
-
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.girls_recyclerview_id);
-        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new GirlsAdapter(getActivity(), mRealm);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!mIsLoadingMore && dy > 0) {
-                    int lastVisiblePos = getLastVisiblePos(mLayoutManager);
-                    if (lastVisiblePos + 1 == mAdapter.getItemCount()) {
-                        loadingMore();
-                        CommonUtil.makeSnackBar(mRefreshLayout, getResources().getString(R.string.fragment_load_more), Snackbar.LENGTH_SHORT);
-                    }
-                }
-            }
-        });
-
-        mAdapter.setOnItemClickListener(new GirlsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing) {
-                    CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_isfetching), Snackbar.LENGTH_LONG);
-                    return;
-                }
-
-                Intent intent = new Intent(getActivity(), ViewerActivity.class);
-                intent.putExtra(POSTION, pos);
-                getActivity().startActivity(intent,
-                        ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                getActivity(),
-                                view.findViewById(R.id.network_imageview),
-                                mAdapter.getUrlAt(pos)).toBundle());
-            }
-
-            @Override
-            public void onItemLongClick(View view, int pos) {
-                CommonUtil.makeSnackBar(mRefreshLayout, pos + getString(R.string.fragment_long_clicked), Snackbar.LENGTH_SHORT);
-            }
-        });
-
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-
-        return view;
-    }
-
-    private void refreshImages() {
-        if (mIsRefreshing) {
-            return;
-        }
-
-        Intent intent = new Intent(getActivity(), ImageFetchService.class);
-        intent.setAction(ImageFetchService.ACTION_FETCH_REFRESH);
-        getActivity().startService(intent);
-
-        mIsRefreshing = true;
-        setRefreshLayout(true);
-    }
-
-    private void loadingMore() {
-        if (mIsLoadingMore)
-            return;
-
-        Intent intent = new Intent(getActivity(), ImageFetchService.class);
-        intent.setAction(ImageFetchService.ACTION_FETCH_MORE);
-        getActivity().startService(intent);
-
-        mIsLoadingMore = true;
-        setRefreshLayout(true);
-    }
-
-    private void setRefreshLayout(final boolean state) {
-        if (null == mRefreshLayout)
-            return;
-
-        mRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mRefreshLayout.setRefreshing(state);
-            }
-        });
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
-        SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshImages();
-            }
-        };
-        mRefreshLayout.setOnRefreshListener(listener);
-        if (savedInstanceState == null)
-            listener.onRefresh();
-
-        // another way to call onRefresh
-//        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                mRecyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-//                mRefreshLayout.setRefreshing(true);
-//            }
-//        });
     }
 
     @Override
@@ -196,15 +54,91 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mRealm.removeAllChangeListeners();
-        mRealm.close();
+    protected void initData() {
+        super.initData();
+        mType = getArguments().getString(TYPE);
     }
 
-    private int getLastVisiblePos(StaggeredGridLayoutManager layoutManager) {
+    @Override
+    protected void loadingMore() {
+        if (mIsLoadingMore)
+            return;
+
+        Intent intent = new Intent(getActivity(), ImageFetchService.class);
+        intent.setAction(ImageFetchService.ACTION_FETCH_MORE);
+        getActivity().startService(intent);
+
+        mIsLoadingMore = true;
+        setRefreshLayout(true);
+    }
+
+    @Override
+    protected void fetchLatest() {
+        if (mIsRefreshing) {
+            return;
+        }
+
+        Intent intent = new Intent(getActivity(), ImageFetchService.class);
+        intent.setAction(ImageFetchService.ACTION_FETCH_REFRESH);
+        getActivity().startService(intent);
+
+        mIsRefreshing = true;
+        setRefreshLayout(true);
+    }
+
+    @Override
+    protected int getLastVisiblePos() {
+        StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mLayoutManager;
         int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
         return getMaxPosition(lastPositions);
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.girls_fragment;
+    }
+
+    @Override
+    protected int getRefreshLayoutId() {
+        return R.id.swipe_refresh_layout;
+    }
+
+    @Override
+    protected RecyclerView.Adapter initAdapter() {
+        final GirlsAdapter adapter = new GirlsAdapter(getActivity(), mRealm);
+        adapter.setOnItemClickListener(new GirlsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int pos) {
+                if (mIsLoadingMore || mIsRefreshing) {
+                    CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fetching_pic), Snackbar.LENGTH_LONG);
+                    return;
+                }
+
+                Intent intent = new Intent(getActivity(), ViewerActivity.class);
+                intent.putExtra(POSTION, pos);
+                getActivity().startActivity(intent,
+                        ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                getActivity(),
+                                view.findViewById(R.id.network_imageview),
+                                adapter.getUrlAt(pos)).toBundle());
+            }
+
+            @Override
+            public void onItemLongClick(View view, int pos) {
+                CommonUtil.makeSnackBar(mRefreshLayout, pos + getString(R.string.fragment_long_clicked), Snackbar.LENGTH_SHORT);
+            }
+        });
+        return adapter;
+    }
+
+    @Override
+    protected RecyclerView.LayoutManager getLayoutManager() {
+        return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+    }
+
+    @Override
+    protected int getRecyclerViewId() {
+        return R.id.girls_recyclerview_id;
     }
 
     private int getMaxPosition(int[] positions) {
@@ -214,12 +148,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
             maxPosition = Math.max(maxPosition, positions[i]);
         }
         return maxPosition;
-    }
-
-    public void smoothScrollToTop() {
-        if (mLayoutManager != null) {
-            mLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);
-        }
     }
 
     public void onActivityReenter(final int index) {
@@ -257,7 +185,7 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
                 mIsRefreshing = false;
                 CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 if (fetched > 0) {
-                    mAdapter.updateRefreshed(fetched);
+                    ((GirlsAdapter) mAdapter).updateRefreshed(fetched);
                     mRecyclerView.smoothScrollToPosition(0);
                 }
             }

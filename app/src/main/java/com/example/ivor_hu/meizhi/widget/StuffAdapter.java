@@ -10,9 +10,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.ivor_hu.meizhi.MainActivity;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.util.Date;
@@ -26,12 +26,26 @@ import io.realm.RealmResults;
 public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> {
     private static final String TAG = "StuffAdapter";
     private final Context mContext;
+    private final Realm realm;
+    private final String mType;
     private RealmResults<Stuff> mStuffs;
     private OnItemClickListener mOnItemClickListener;
     private int lastStuffsNum;
-    private final Realm realm;
-    private final String mType;
     private boolean mIsCollections;
+
+    public StuffAdapter(Context mContext, Realm realm, String type) {
+        this.mContext = mContext;
+        this.realm = realm;
+        this.mType = type;
+        this.mIsCollections = Constants.TYPE.COLLECTIONS.getApiName().equals(mType);
+        if (mIsCollections) {
+            mStuffs = Stuff.collections(realm);
+        } else {
+            mStuffs = Stuff.all(realm, mType);
+        }
+        lastStuffsNum = mStuffs.size();
+        setHasStableIds(true);
+    }
 
     public void updateInsertedData(int numImages, boolean isMore) {
         if (isMore) {
@@ -44,28 +58,8 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         lastStuffsNum += numImages;
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(View view, int pos);
-
-        void onItemLongClick(View view, int pos);
-    }
-
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
-    }
-
-    public StuffAdapter(Context mContext, Realm realm, String type) {
-        this.mContext = mContext;
-        this.realm = realm;
-        this.mType = type;
-        this.mIsCollections = MainActivity.TYPE.COLLECTIONS.getApiName().equals(mType) ? true : false;
-        if (mIsCollections) {
-            mStuffs = Stuff.collections(realm);
-        } else {
-            mStuffs = Stuff.all(realm, mType);
-        }
-        lastStuffsNum = mStuffs.size();
-        setHasStableIds(true);
     }
 
     @Override
@@ -125,22 +119,6 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         return mStuffs.get(position).getId().hashCode();
     }
 
-    public class Viewholder extends RecyclerView.ViewHolder {
-        TextView title, author, date;
-        LinearLayout stuff;
-        ImageButton likeBtn;
-
-        public Viewholder(final View itemView) {
-            super(itemView);
-            title = $(itemView, R.id.stuff_title);
-            author = $(itemView, R.id.stuff_author);
-            date = $(itemView, R.id.stuff_date);
-            stuff = $(itemView, R.id.stuff);
-            likeBtn = $(itemView, R.id.like_btn);
-        }
-
-    }
-
     private <T extends View> T $(View view, int resId) {
         return (T) view.findViewById(resId);
     }
@@ -181,6 +159,28 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
 
     public Stuff getStuffAt(int pos) {
         return mStuffs.get(pos);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int pos);
+
+        void onItemLongClick(View view, int pos);
+    }
+
+    public class Viewholder extends RecyclerView.ViewHolder {
+        TextView title, author, date;
+        LinearLayout stuff;
+        ImageButton likeBtn;
+
+        public Viewholder(final View itemView) {
+            super(itemView);
+            title = $(itemView, R.id.stuff_title);
+            author = $(itemView, R.id.stuff_author);
+            date = $(itemView, R.id.stuff_date);
+            stuff = $(itemView, R.id.stuff);
+            likeBtn = $(itemView, R.id.like_btn);
+        }
+
     }
 
 }

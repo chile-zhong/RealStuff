@@ -23,7 +23,7 @@
     <string name="fragment_long_clicked">被长按</string>
     <string name="fragment_refreshed">已更新</string>
     <string name="fragment_no_more">无更多</string>
-    <string name="fragment_isfetching">正在加载图片，请稍后查看</string>
+    <string name="fetching_pic">正在加载图片，请稍后查看</string>
     <string name="nav_collections">收藏</string>
     <string name="share_msg">一条来自APP干货的消息。</string>
     <string name="about_api">来自代码家API http://gank.io</string>
@@ -31,4 +31,5 @@
     <string name="pic_saved">已保存至</string>
     <string name="about_icon_source">部分图标来源 https://icons8.com</string>
     <string name="about_intro">每日分享 妹子图 和 技术干货</string>
+    <string name="frag_is_fetching">正在加载数据，请稍后切换</string>
 </resources>
