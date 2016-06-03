@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -38,7 +39,7 @@
                     android:layout_marginTop="?attr/actionBarSize"
                     android:contentDescription="@string/app_name"
                     android:gravity="center_horizontal"
-                    android:text="每日分享 妹子图 和 技术干货"
+                    android:text="@string/about_intro"
                     android:textSize="16sp" />
 
                 <TextView
@@ -89,6 +90,7 @@
         android:clipToPadding="false"
         android:fitsSystemWindows="true"
         android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/about_item" />
 
 </android.support.design.widget.CoordinatorLayout>
