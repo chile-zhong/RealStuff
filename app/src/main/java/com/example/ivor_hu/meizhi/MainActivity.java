@@ -36,15 +36,15 @@ public class MainActivity extends AppCompatActivity
     private static final String CURR_TYPE = "curr_fragment_type";
 
     private CoordinatorLayout mCoordinatorLayout;
-    private FloatingActionButton mFab;
-    private Toolbar mToolbar;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            CommonUtil.makeSnackBar(mToolbar, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);
+            CommonUtil.makeSnackBar(mCoordinatorLayout, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);
             return true;
         }
     });
+    private FloatingActionButton mFab;
+    private Toolbar mToolbar;
     private Fragment mCurrFragment;
     private String mCurrFragmentType;
     private Bundle reenterState;

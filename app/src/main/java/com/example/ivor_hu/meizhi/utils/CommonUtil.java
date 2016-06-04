@@ -2,6 +2,8 @@ package com.example.ivor_hu.meizhi.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -56,8 +58,8 @@ public class CommonUtil {
     /**
      * Generate md5 key for picture
      *
-     * @param imagePath 图片路径
-     * @return 图片对应的key
+     * @param imagePath
+     * @return
      */
     public static String keyForImage(String imagePath) {
 
@@ -89,5 +91,18 @@ public class CommonUtil {
             builder.append(hex);
         }
         return builder.toString();
+    }
+
+    /**
+     * Get APP version name
+     *
+     * @param context
+     * @return
+     * @throws Exception
+     */
+    public static String getVersionName(Context context) throws Exception {
+        PackageInfo packInfo = context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS);
+        return packInfo.versionName;
     }
 }

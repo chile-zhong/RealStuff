@@ -39,6 +39,13 @@ public class AboutActivity extends AppCompatActivity {
         if (NavUtils.getParentActivityName(this) != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        TextView verTv = $(R.id.version_name);
+        try {
+            verTv.setText(String.format(getString(R.string.version_name), CommonUtil.getVersionName(this)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         initData();
         AboutAdapter adapter = new AboutAdapter();
         mRecyclerView.setAdapter(adapter);
@@ -74,6 +81,13 @@ public class AboutActivity extends AppCompatActivity {
         mFeasList.add("TranslucentBar");
     }
 
+    private <T extends View> T $(int resId) {
+        return (T) findViewById(resId);
+    }
+
+    private <T extends View> T $(View view, int resId) {
+        return (T) view.findViewById(resId);
+    }
 
     class AboutAdapter extends RecyclerView.Adapter<ViewHolder> {
 
@@ -141,13 +155,5 @@ public class AboutActivity extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    private <T extends View> T $(int resId) {
-        return (T) findViewById(resId);
-    }
-
-    private <T extends View> T $(View view, int resId) {
-        return (T) view.findViewById(resId);
     }
 }
