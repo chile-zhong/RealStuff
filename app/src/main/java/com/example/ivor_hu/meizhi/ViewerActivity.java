@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,6 +51,7 @@ public class ViewerActivity extends AppCompatActivity {
     private static final String SHARE_TITLE = "share_title";
     private static final String SHARE_TEXT = "share_text";
     private static final String SHARE_URL = "share_url";
+    private ViewPager mViewPager;
     private final Handler mMsgHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
@@ -62,7 +64,6 @@ public class ViewerActivity extends AppCompatActivity {
             }
         }
     };
-    private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
     private int mSavedPicPos = -1;
@@ -86,7 +87,8 @@ public class ViewerActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
         mRealm.addChangeListener(new RealmChangeListener() {
             @Override
-            public void onChange() {
+            public void onChange(Object element) {
+                Log.d(TAG, "onChange: " + ((Image) element).getId());
                 mImages = Image.all(mRealm);
                 mAdapter.notifyDataSetChanged();
             }

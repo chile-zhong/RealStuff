@@ -34,4 +34,8 @@
     <string name="about_intro">Sharing real stuff everyday</string>
     <string name="frag_is_fetching">Fetching data. Please swith later.</string>
     <string name="version_name">Version: %1$s</string>
+    <string name="action_clear_cache">Clear cache</string>
+    <string name="clear_cache_all">All</string>
+    <string name="clear_type">Clear %1$s?</string>
+    <string name="confirm">Confirm</string>
 </resources>

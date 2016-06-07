@@ -48,6 +48,18 @@ public class Stuff extends RealmObject {
                 .findAllSorted("lastChanged", Sort.DESCENDING);
     }
 
+//    public static boolean clearType(Realm realm, final String type) {
+//        final RealmResults<Stuff> types = realm.where(Stuff.class)
+//                .equalTo("type", type)
+//                .findAll();
+//        realm.executeTransaction(new Realm.Transaction() {
+//            @Override
+//            public void execute(Realm realm) {
+//                realm.c
+//            }
+//        });
+//    }
+
     public boolean isLiked() {
         return isLiked;
     }
@@ -56,12 +68,12 @@ public class Stuff extends RealmObject {
         isLiked = liked;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getId() {

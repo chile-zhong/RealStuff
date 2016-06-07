@@ -42,6 +42,12 @@ public class CommonUtil {
         snackbar.show();
     }
 
+    public static void makeSnackBarWithAction(View parentView, String msg, int length, View.OnClickListener listener, String actionMsg) {
+        final Snackbar snackbar = Snackbar.make(parentView, msg, length);
+        snackbar.setAction(actionMsg, listener);
+        snackbar.show();
+    }
+
     /**
      * Open URL using system browser
      *

@@ -33,4 +33,8 @@
     <string name="about_intro">每日分享 妹子图 和 技术干货</string>
     <string name="frag_is_fetching">正在加载数据，请稍后切换</string>
     <string name="version_name">版本：%1$s</string>
+    <string name="action_clear_cache">清除缓存</string>
+    <string name="clear_cache_all">全部缓存</string>
+    <string name="confirm">确定</string>
+    <string name="clear_type">清除 %1$s?</string>
 </resources>
