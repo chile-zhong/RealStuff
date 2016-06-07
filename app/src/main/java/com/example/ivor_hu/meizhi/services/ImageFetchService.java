@@ -27,13 +27,12 @@ import io.realm.RealmResults;
  * Created by Ivor on 2016/2/12.
  */
 public class ImageFetchService extends IntentService implements ImageFetcher {
-    private static final String TAG = "ImageFetchService";
     public static final String ACTION_UPDATE_RESULT = "com.ivor.meizhi.girls_update_result";
     public static final String EXTRA_FETCHED = "girls_fetched";
     public static final String EXTRA_TRIGGER = "girls_trigger";
     public static final String ACTION_FETCH_REFRESH = "com.ivor.meizhi.girls_fetch_refresh";
     public static final String ACTION_FETCH_MORE = "com.ivor.meizhi.girls_fetch_more";
-
+    private static final String TAG = "ImageFetchService";
     private LocalBroadcastManager localBroadcastManager;
 
 //    private final Gson gson = new GsonBuilder()
@@ -155,19 +154,19 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
         return fetched;
     }
 
-    private boolean saveToDb(Realm realm, Image image) {
-        realm.beginTransaction();
-
+    private boolean saveToDb(Realm realm, final Image image) {
         try {
-            realm.copyToRealm(Image.persist(image, this));
-            Log.d(TAG, "saveToDb: " + image.getPublishedAt());
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.copyToRealm(image);
+                }
+            });
         } catch (Exception e) {
-            Log.e(TAG, "Failed to fetch image", e);
-            realm.cancelTransaction();
+            Log.e(TAG, "Failed to save image", e);
             return false;
         }
 
-        realm.commitTransaction();
         return true;
     }
 

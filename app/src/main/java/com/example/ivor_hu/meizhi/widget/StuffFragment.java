@@ -43,7 +43,7 @@ public class StuffFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+        Log.d(TAG, "onResume: " + mType);
         if (!mIsCollections)
             mLocalBroadcastManager.registerReceiver(updateResultReceiver, new IntentFilter(StuffFetchService.ACTION_UPDATE_RESULT));
         else
@@ -147,13 +147,6 @@ public class StuffFragment extends BaseFragment {
     @Override
     protected int getRecyclerViewId() {
         return R.id.stuff_recyclerview;
-    }
-
-    public void updateData() {
-        if (null == mAdapter)
-            return;
-
-        mAdapter.notifyDataSetChanged();
     }
 
     public class ShareListener implements AbsListView.MultiChoiceModeListener {

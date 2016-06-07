@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +37,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 
 /**
  * Created by Ivor on 2016/2/15.
@@ -85,14 +83,14 @@ public class ViewerActivity extends AppCompatActivity {
 
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
         mRealm = Realm.getDefaultInstance();
-        mRealm.addChangeListener(new RealmChangeListener() {
-            @Override
-            public void onChange(Object element) {
-                Log.d(TAG, "onChange: " + ((Image) element).getId());
-                mImages = Image.all(mRealm);
-                mAdapter.notifyDataSetChanged();
-            }
-        });
+//        mRealm.addChangeListener(new RealmChangeListener() {
+//            @Override
+//            public void onChange(Object element) {
+//                Log.d(TAG, "onChange: " + ((Image) element).getId());
+//                mImages = Image.all(mRealm);
+//                mAdapter.notifyDataSetChanged();
+//            }
+//        });
 
         mImages = Image.all(mRealm);
         mViewPager = (ViewPager) findViewById(R.id.viewer_pager);

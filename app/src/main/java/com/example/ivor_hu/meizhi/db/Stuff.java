@@ -14,6 +14,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by Ivor on 2016/2/28.
  */
 public class Stuff extends RealmObject {
+    private static final String TAG = "Stuff";
     @PrimaryKey
     @SerializedName("_id")
     private String id;
@@ -48,17 +49,29 @@ public class Stuff extends RealmObject {
                 .findAllSorted("lastChanged", Sort.DESCENDING);
     }
 
-//    public static boolean clearType(Realm realm, final String type) {
-//        final RealmResults<Stuff> types = realm.where(Stuff.class)
-//                .equalTo("type", type)
-//                .findAll();
-//        realm.executeTransaction(new Realm.Transaction() {
-//            @Override
-//            public void execute(Realm realm) {
-//                realm.c
-//            }
-//        });
-//    }
+    public static void clearAll(Realm realm) {
+        final RealmResults<Stuff> allStuff = realm.where(Stuff.class)
+                .findAll();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                allStuff.deleteAllFromRealm();
+            }
+        });
+    }
+
+    public static void clearType(Realm realm, final String type) {
+        final RealmResults<Stuff> types = realm.where(Stuff.class)
+                .equalTo("type", type)
+                .findAll();
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                types.deleteAllFromRealm();
+            }
+        });
+    }
 
     public boolean isLiked() {
         return isLiked;

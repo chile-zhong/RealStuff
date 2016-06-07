@@ -124,6 +124,13 @@ public abstract class BaseFragment extends Fragment {
             mLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);
     }
 
+    public void updateData() {
+        if (null == mAdapter)
+            return;
+
+        mAdapter.notifyDataSetChanged();
+    }
+
     public boolean isFetching() {
         return mIsLoadingMore || mIsRefreshing;
     }

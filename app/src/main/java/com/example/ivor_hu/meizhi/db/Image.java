@@ -41,6 +41,17 @@ public class Image extends RealmObject {
                 .findAllSorted("publishedAt", Sort.DESCENDING);
     }
 
+    public static void clearImage(Realm realm) {
+        final RealmResults<Image> images = realm.where(Image.class)
+                .findAll();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                images.deleteAllFromRealm();
+            }
+        });
+    }
+
     public static Image persist(Image image, ImageFetcher imageFetcher)
             throws IOException, InterruptedException, ExecutionException {
         Point size = new Point();
