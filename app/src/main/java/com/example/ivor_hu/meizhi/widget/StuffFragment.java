@@ -204,9 +204,10 @@ public class StuffFragment extends BaseFragment {
     private class UpdateResultReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int fetched = intent.getIntExtra(StuffFetchService.EXTRA_FETCHED, 0);
-            String trigger = intent.getStringExtra(StuffFetchService.EXTRA_TRIGGER);
-            String type = intent.getStringExtra(StuffFetchService.EXTRA_TYPE);
+            final int fetched = intent.getIntExtra(StuffFetchService.EXTRA_FETCHED, 0);
+            final String trigger = intent.getStringExtra(StuffFetchService.EXTRA_TRIGGER);
+            final String type = intent.getStringExtra(StuffFetchService.EXTRA_TYPE);
+            final Constants.NETWORK_EXCEPTION networkException = (Constants.NETWORK_EXCEPTION) intent.getSerializableExtra(StuffFetchService.EXTRA_EXCEPTION_CODE);
 
             if (!type.equals(mType)) {
                 return;
@@ -219,13 +220,19 @@ public class StuffFragment extends BaseFragment {
             }
 
             setRefreshLayout(false);
+
+            if (networkException.getTipsResId() != 0) {
+                // 显示异常提示
+                CommonUtil.makeSnackBar(mRefreshLayout, getString(networkException.getTipsResId()), Snackbar.LENGTH_SHORT);
+                setFetchingFlagsFalse();
+                return;
+            }
+
             if (mIsRefreshing) {
-                mIsRefreshing = false;
                 CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 mRecyclerView.smoothScrollToPosition(0);
             }
-            if (mIsLoadingMore)
-                mIsLoadingMore = false;
+            setFetchingFlagsFalse();
 
             if (null == mAdapter || fetched == 0)
                 return;

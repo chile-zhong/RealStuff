@@ -38,4 +38,9 @@
     <string name="clear_cache_all">All</string>
     <string name="clear_type">Clear %1$s?</string>
     <string name="confirm">Confirm</string>
+    <string name="network_request_error">Error request.</string>
+    <string name="network_server_error">Error in server.</string>
+    <string name="network_not_avaiable">Network not avaiable.</string>
+    <string name="network_timeout">Network timeout.</string>
+    <string name="network_io">Network I/O exception.</string>
 </resources>

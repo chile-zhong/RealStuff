@@ -13,6 +13,8 @@ import com.example.ivor_hu.meizhi.utils.DateUtil;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
@@ -27,11 +29,13 @@ public class StuffFetchService extends IntentService {
     public static final String EXTRA_FETCHED = "fetched";
     public static final String EXTRA_TRIGGER = "trigger";
     public static final String EXTRA_TYPE = "type";
+    public static final String EXTRA_EXCEPTION_CODE = "exception_code";
     public static final String ACTION_FETCH_REFRESH = "com.ivor.meizhi.fetch_refresh";
     public static final String ACTION_FETCH_MORE = "com.ivor.meizhi.fetch_more";
     private static final String TAG = "StuffFetchService";
     private String type;
     private LocalBroadcastManager localBroadcastManager;
+    private Constants.NETWORK_EXCEPTION mExceptionCode;
 
     public StuffFetchService() {
         super(TAG);
@@ -40,6 +44,7 @@ public class StuffFetchService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+        mExceptionCode = Constants.NETWORK_EXCEPTION.DEFAULT;
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
@@ -64,7 +69,13 @@ public class StuffFetchService extends IntentService {
                 Log.d(TAG, "earliest fetch: " + latest.last().getPublishedAt());
                 fetched = fetchMore(realm, latest.last().getPublishedAt());
             }
+        } catch (SocketTimeoutException e) {
+            mExceptionCode = Constants.NETWORK_EXCEPTION.TIMEOUT;
+        } catch (UnknownHostException e) {
+            mExceptionCode = Constants.NETWORK_EXCEPTION.UNKNOWN_HOST;
         } catch (IOException e) {
+            mExceptionCode = Constants.NETWORK_EXCEPTION.IOEXCEPTION;
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -77,9 +88,10 @@ public class StuffFetchService extends IntentService {
         Log.d(TAG, "finished fetching, actual fetched " + fetched);
 
         Intent broadcast = new Intent(ACTION_UPDATE_RESULT);
-        broadcast.putExtra(EXTRA_FETCHED, fetched);
-        broadcast.putExtra(EXTRA_TRIGGER, intent.getAction());
-        broadcast.putExtra(EXTRA_TYPE, type);
+        broadcast.putExtra(EXTRA_FETCHED, fetched)
+                .putExtra(EXTRA_TRIGGER, intent.getAction())
+                .putExtra(EXTRA_EXCEPTION_CODE, mExceptionCode)
+                .putExtra(EXTRA_TYPE, type);
 
         localBroadcastManager.sendBroadcast(broadcast);
     }

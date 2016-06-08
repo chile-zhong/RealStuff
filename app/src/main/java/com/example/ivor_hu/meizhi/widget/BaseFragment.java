@@ -119,6 +119,13 @@ public abstract class BaseFragment extends Fragment {
         });
     }
 
+    public void setFetchingFlagsFalse() {
+        if (mIsRefreshing)
+            mIsRefreshing = false;
+        if (mIsLoadingMore)
+            mIsLoadingMore = false;
+    }
+
     public void smoothScrollToTop() {
         if (mLayoutManager != null)
             mLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);

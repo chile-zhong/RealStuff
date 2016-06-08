@@ -50,4 +50,21 @@ public interface Constants {
             return resId;
         }
     }
+
+    enum NETWORK_EXCEPTION {
+        DEFAULT(0),
+        UNKNOWN_HOST(R.string.network_not_avaiable),
+        TIMEOUT(R.string.network_timeout),
+        IOEXCEPTION(R.string.network_io);
+
+        private int tipsResId;
+
+        NETWORK_EXCEPTION(int tipsResId) {
+            this.tipsResId = tipsResId;
+        }
+
+        public int getTipsResId() {
+            return tipsResId;
+        }
+    }
 }

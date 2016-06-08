@@ -18,6 +18,7 @@ import com.example.ivor_hu.meizhi.ViewerActivity;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
+import com.example.ivor_hu.meizhi.utils.Constants;
 
 
 /**
@@ -71,6 +72,7 @@ public class GirlsFragment extends BaseFragment {
         mIsLoadingMore = true;
         setRefreshLayout(true);
     }
+
 
     @Override
     protected void fetchLatest() {
@@ -172,27 +174,31 @@ public class GirlsFragment extends BaseFragment {
     }
 
     private class UpdateResultReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            int fetched = intent.getIntExtra(ImageFetchService.EXTRA_FETCHED, 0);
-            String trigger = intent.getStringExtra(ImageFetchService.EXTRA_TRIGGER);
+            final int fetched = intent.getIntExtra(ImageFetchService.EXTRA_FETCHED, 0);
+            final String trigger = intent.getStringExtra(ImageFetchService.EXTRA_TRIGGER);
+            final Constants.NETWORK_EXCEPTION networkException = (Constants.NETWORK_EXCEPTION) intent.getSerializableExtra(ImageFetchService.EXTRA_EXCEPTION_CODE);
             Log.d(TAG, "fetched " + fetched + ", triggered by " + trigger);
 
             setRefreshLayout(false);
 
+            if (networkException.getTipsResId() != 0) {
+                // 显示异常提示
+                CommonUtil.makeSnackBar(mRefreshLayout, getString(networkException.getTipsResId()), Snackbar.LENGTH_SHORT);
+                setFetchingFlagsFalse();
+                return;
+            }
+
             if (mIsRefreshing) {
-                mIsRefreshing = false;
                 CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 if (fetched > 0) {
                     ((GirlsAdapter) mAdapter).updateRefreshed(fetched);
                     mRecyclerView.smoothScrollToPosition(0);
                 }
             }
-
-            if (mIsLoadingMore) {
-                mIsLoadingMore = false;
-            }
+            setFetchingFlagsFalse();
         }
+
     }
 }
