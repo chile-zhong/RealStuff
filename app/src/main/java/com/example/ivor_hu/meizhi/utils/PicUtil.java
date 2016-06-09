@@ -46,7 +46,7 @@ public final class PicUtil {
         return sdcardDir.toString();
     }
 
-    public static File saveBitmapToSDCard(Context context, Bitmap bitmap, String url, Handler handler) {
+    public static File saveBitmapToSDCard(Bitmap bitmap, String url, Handler handler) {
         String SavePath = getSDCardPath() + IMAGE_SAVE_PATH;
         // save Bitmap
         try {
@@ -91,7 +91,7 @@ public final class PicUtil {
                 .load(url).asBitmap()
                 .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                 .get();
-        PicUtil.saveBitmapToSDCard(context, bitmap, url, handler);
+        PicUtil.saveBitmapToSDCard(bitmap, url, handler);
     }
 
     public static String getImgPathFromUrl(String url) {

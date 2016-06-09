@@ -56,7 +56,7 @@ public abstract class BaseFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = initAdapter();
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
