@@ -36,6 +36,10 @@ public final class DateUtil {
         return strs[0] + "/" + strs[1] + "/" + strs[2];
     }
 
+    public static String formatSearchDate(String date) throws ParseException {
+        return format(parse(date));
+    }
+
     public static List<String> generateSequenceDateTillToday(Date start){
         List<String> dates = new ArrayList<>();
         Date today = new Date();

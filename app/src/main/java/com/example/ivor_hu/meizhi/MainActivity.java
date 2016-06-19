@@ -1,5 +1,6 @@
 package com.example.ivor_hu.meizhi;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,17 +17,30 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
+import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.widget.BaseFragment;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
+import com.example.ivor_hu.meizhi.widget.SearchFragment;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.util.List;
@@ -42,6 +56,8 @@ public class MainActivity extends AppCompatActivity
     private static final String CURR_TYPE = "curr_fragment_type";
     private static final int CLEAR_DONE = 0x36;
     private static final int CLEAR_ALL = 0x33;
+    private static final String Search_ALL = "All";
+    private static final int PASS_SEARCH_CAT = 0x34;
 
     private CoordinatorLayout mCoordinatorLayout;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
@@ -59,6 +75,8 @@ public class MainActivity extends AppCompatActivity
 
     private Handler mClearCacheHandler;
     private Realm mRealm;
+    private DrawerLayout mDrawer;
+    private String mSearchCat = "all";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,14 +114,93 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View headerView = navigationView.getHeaderView(0);
+        final Spinner searchCatSp = (Spinner) headerView.findViewById(R.id.search_cat_sp);
+        ArrayAdapter<String> searchCatAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.custom_spinner_item,
+                getResources().getStringArray(R.array.search_cat));
+        searchCatAdapter.setDropDownViewResource(R.layout.custom_spinner_dropdown_item);
+        searchCatSp.setPopupBackgroundResource(R.color.colorAccent);
+        searchCatSp.setAdapter(searchCatAdapter);
+        searchCatSp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mSearchCat = getResources().getStringArray(R.array.search_cat_api)[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        final EditText searchEt = (EditText) headerView.findViewById(R.id.query_et);
+        final ImageButton searchBtn = (ImageButton) headerView.findViewById(R.id.search_btn);
+        final ImageButton clearSearchBtn = (ImageButton) headerView.findViewById(R.id.search_clear_btn);
+
+        searchEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (clearSearchBtn == null)
+                    return;
+
+                if (s.toString().length() > 0 && clearSearchBtn.getVisibility() == View.GONE)
+                    clearSearchBtn.setVisibility(View.VISIBLE);
+                else if (s.toString().length() == 0 && clearSearchBtn.getVisibility() == View.VISIBLE)
+                    clearSearchBtn.setVisibility(View.GONE);
+            }
+        });
+        searchEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    searchBtn.callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        clearSearchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchEt.getText().clear();
+            }
+        });
+
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String searchText = searchEt.getText().toString().trim();
+                final String safeText = CommonUtil.stringFilterStrict(searchText);
+                if (safeText == null || safeText.length() == 0 || safeText.length() != searchText.length()) {
+                    CommonUtil.makeSnackBar(navigationView, getString(R.string.search_tips), Snackbar.LENGTH_LONG);
+                } else {
+                    searchEt.getText().clear();
+                    switchToSearchResult(safeText, mSearchCat, 10);
+                    hideSoftKeyboard(searchEt);
+                }
+            }
+        });
 
         setExitSharedElementCallback(new SharedElementCallback() {
             @Override
@@ -169,22 +266,6 @@ public class MainActivity extends AppCompatActivity
         mToolbar.setTitle(TYPE.valueOf(mCurrFragmentType).getStrId());
     }
 
-    private void hideAllExcept(String mCurrFragmentType) {
-        FragmentManager manager = getSupportFragmentManager();
-        for (TYPE type : TYPE.values()) {
-            Fragment fragment = manager.findFragmentByTag(type.getId());
-            if (fragment == null)
-                continue;
-
-            if (type.getId().equals(mCurrFragmentType)) {
-                manager.beginTransaction().show(fragment).commit();
-                mCurrFragment = fragment;
-            } else {
-                manager.beginTransaction().hide(fragment).commit();
-            }
-        }
-    }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -214,49 +295,14 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, AboutActivity.class));
             return true;
         } else if (id == R.id.action_clear_cache) {
-            clearRealmType(mCurrFragmentType);
+            if (((BaseFragment) mCurrFragment).isFetching())
+                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
+            else
+                clearRealmType(mCurrFragmentType);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void clearRealmType(final String typeId) {
-        if (TYPE.COLLECTIONS.getId().equals(typeId)) {
-            clearCacheSnackBar(R.string.clear_cache_all, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Image.clearImage(mRealm);
-                    Stuff.clearAll(mRealm);
-                    mClearCacheHandler.sendEmptyMessage(CLEAR_ALL);
-                }
-            });
-            return;
-        }
-
-        final int strId = TYPE.valueOf(typeId).getStrId();
-        final String apiName = TYPE.valueOf(typeId).getApiName();
-        if (strId != -1) {
-            clearCacheSnackBar(strId, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (TYPE.GIRLS.getApiName().equals(apiName))
-                        Image.clearImage(mRealm);
-                    else
-                        Stuff.clearType(mRealm, apiName);
-                    mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);
-                }
-            });
-        }
-    }
-
-    private void clearCacheSnackBar(int clearTipStrId, View.OnClickListener onClickListener) {
-        CommonUtil.makeSnackBarWithAction(
-                mCoordinatorLayout,
-                String.format(getString(R.string.clear_type), getString(clearTipStrId)),
-                Snackbar.LENGTH_SHORT,
-                onClickListener,
-                getString(R.string.confirm));
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -286,6 +332,75 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onActivityReenter(int resultCode, Intent data) {
+        super.onActivityReenter(resultCode, data);
+
+        if (TYPE.GIRLS.getId().equals(mCurrFragmentType)) {
+            supportPostponeEnterTransition();
+
+            reenterState = new Bundle(data.getExtras());
+
+            final int index = reenterState.getInt(ViewerActivity.INDEX, 0);
+            ((GirlsFragment) mCurrFragment).onActivityReenter(index);
+        }
+    }
+
+    private void clearRealmType(final String typeId) {
+        if (TYPE.COLLECTIONS.getId().equals(typeId)) {
+            clearCacheSnackBar(R.string.clear_cache_all, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Image.clearImage(mRealm);
+                    Stuff.clearAll(mRealm);
+                    mClearCacheHandler.sendEmptyMessage(CLEAR_ALL);
+                }
+            });
+        } else if (TYPE.SEARCH_RESULTS.getId().equals(typeId)) {
+            CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.no_search_cache), Snackbar.LENGTH_SHORT);
+        } else {
+            final int strId = TYPE.valueOf(typeId).getStrId();
+            final String apiName = TYPE.valueOf(typeId).getApiName();
+            if (strId != -1) {
+                clearCacheSnackBar(strId, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (TYPE.GIRLS.getApiName().equals(apiName))
+                            Image.clearImage(mRealm);
+                        else
+                            Stuff.clearType(mRealm, apiName);
+                        mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);
+                    }
+                });
+            }
+        }
+    }
+
+    private void hideAllExcept(String mCurrFragmentType) {
+        FragmentManager manager = getSupportFragmentManager();
+        for (TYPE type : TYPE.values()) {
+            Fragment fragment = manager.findFragmentByTag(type.getId());
+            if (fragment == null)
+                continue;
+
+            if (type.getId().equals(mCurrFragmentType)) {
+                manager.beginTransaction().show(fragment).commit();
+                mCurrFragment = fragment;
+            } else {
+                manager.beginTransaction().hide(fragment).commit();
+            }
+        }
+    }
+
+    private void clearCacheSnackBar(int clearTipStrId, View.OnClickListener onClickListener) {
+        CommonUtil.makeSnackBarWithAction(
+                mCoordinatorLayout,
+                String.format(getString(R.string.clear_type), getString(clearTipStrId)),
+                Snackbar.LENGTH_SHORT,
+                onClickListener,
+                getString(R.string.confirm));
+    }
+
     private void closeDrawer() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -297,6 +412,25 @@ public class MainActivity extends AppCompatActivity
             hideAndShow(manager, fragment, type);
         } else {
             hideAndAdd(manager, addedFragment, type);
+        }
+    }
+
+    private void switchToSearchResult(String keyword, String category, int count) {
+        // close Drawer
+        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
+            mDrawer.closeDrawer(GravityCompat.START);
+        } else {
+            mDrawer.closeDrawer(GravityCompat.END);
+        }
+
+        FragmentManager manager = getSupportFragmentManager();
+        String searchTag = Constants.TYPE.SEARCH_RESULTS.getId();
+        Fragment searchFragment = manager.findFragmentByTag(searchTag);
+        if (searchFragment == null) {
+            hideAndAdd(manager, SearchFragment.newInstance(keyword, category, count), searchTag);
+        } else {
+            hideAndShow(manager, searchFragment, searchTag);
+            ((SearchFragment) searchFragment).search(keyword, category, count);
         }
     }
 
@@ -315,25 +449,16 @@ public class MainActivity extends AppCompatActivity
         mToolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
     }
 
+    private void hideSoftKeyboard(EditText editText) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
     private void updateLikedData(Fragment newFragment, String fragmentIdx) {
-        if (fragmentIdx.equals(TYPE.GIRLS.getId())) {
+        if (fragmentIdx.equals(TYPE.GIRLS.getId()) || fragmentIdx.equals(TYPE.SEARCH_RESULTS.getId())) {
             return;
         }
         ((StuffFragment) newFragment).updateData();
-    }
-
-    @Override
-    public void onActivityReenter(int resultCode, Intent data) {
-        super.onActivityReenter(resultCode, data);
-
-        if (TYPE.GIRLS.getId().equals(mCurrFragmentType)) {
-            supportPostponeEnterTransition();
-
-            reenterState = new Bundle(data.getExtras());
-
-            final int index = reenterState.getInt(ViewerActivity.INDEX, 0);
-            ((GirlsFragment) mCurrFragment).onActivityReenter(index);
-        }
     }
 
 }

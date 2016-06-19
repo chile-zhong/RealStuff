@@ -111,4 +111,15 @@ public class CommonUtil {
                 .getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS);
         return packInfo.versionName;
     }
+
+    /**
+     * Remove useless and unsafe characters.
+     * Only Chinese, numbers, English characters and space are allowed.
+     *
+     * @param searchText
+     * @return
+     */
+    public static String stringFilterStrict(String searchText) {
+        return searchText.replaceAll("[^ a-zA-Z0-9\\u4e00-\\u9fa5]", "");
+    }
 }

@@ -42,4 +42,7 @@
     <string name="network_not_avaiable">请检查网络连接</string>
     <string name="network_timeout">网络连接超时，请重试</string>
     <string name="network_io">网络请求失败，请重试</string>
+    <string name="search_tips">搜索文本仅支持：汉字、数字、字母与空格</string>
+    <string name="search">搜索</string>
+    <string name="no_search_cache">无搜索缓存</string>
 </resources>

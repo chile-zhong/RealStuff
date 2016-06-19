@@ -2,7 +2,6 @@ package com.example.ivor_hu.meizhi.widget;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,13 +47,10 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     }
 
     public void updateInsertedData(int numImages, boolean isMore) {
-        if (isMore) {
-            notifyItemRangeInserted(lastStuffsNum - 1, numImages);
-            Log.d(TAG, "updateInsertedData: from " + (lastStuffsNum - 1) + " by " + numImages);
-        } else {
+        if (isMore)
+            notifyItemRangeInserted(lastStuffsNum, numImages);
+        else
             notifyItemRangeInserted(0, numImages);
-            Log.d(TAG, "updateInsertedData: from 0 to " + numImages);
-        }
         lastStuffsNum += numImages;
     }
 
@@ -123,13 +119,13 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         return (T) view.findViewById(resId);
     }
 
-    private void deleteItem(int position) {
-        realm.beginTransaction();
-        mStuffs.where()
-                .equalTo("id", mStuffs.get(position).getId())
-                .findFirst()
-                .setLiked(false);
-        realm.commitTransaction();
+    private void deleteItem(final int position) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                mStuffs.get(position).setLiked(false);
+            }
+        });
         notifyDataSetChanged();
     }
 
@@ -144,16 +140,15 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         }
     }
 
-    private void changeLiked(int pos, boolean isLiked) {
-        realm.beginTransaction();
-        Stuff stuff = mStuffs
-                .where()
-                .equalTo("id", mStuffs.get(pos).getId())
-                .findFirst();
-
-        stuff.setLiked(isLiked);
-        stuff.setLastChanged(new Date());
-        realm.commitTransaction();
+    private void changeLiked(final int pos, final boolean isLiked) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Stuff stuff = mStuffs.get(pos);
+                stuff.setLiked(isLiked);
+                stuff.setLastChanged(new Date());
+            }
+        });
         notifyItemChanged(pos);
     }
 

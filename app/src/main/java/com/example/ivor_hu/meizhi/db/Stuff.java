@@ -1,7 +1,9 @@
 package com.example.ivor_hu.meizhi.db;
 
+import com.example.ivor_hu.meizhi.utils.DateUtil;
 import com.google.gson.annotations.SerializedName;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import io.realm.Realm;
@@ -37,6 +39,17 @@ public class Stuff extends RealmObject {
 
     }
 
+    public static Stuff fromSearch(SearchBean bean) throws ParseException {
+        return new Stuff(
+                bean.getUrl(),
+                bean.getType(),
+                bean.getDesc(),
+                bean.getUrl(),
+                bean.getWho(),
+                DateUtil.parse(bean.getPublishedAt())
+        );
+    }
+
     public static RealmResults<Stuff> all(Realm realm, String type) {
         return realm.where(Stuff.class)
                 .equalTo("type", type)
@@ -47,6 +60,12 @@ public class Stuff extends RealmObject {
         return realm.where(Stuff.class)
                 .equalTo("isLiked", true)
                 .findAllSorted("lastChanged", Sort.DESCENDING);
+    }
+
+    public static Stuff checkSearch(Realm realm, String url) {
+        return realm.where(Stuff.class)
+                .equalTo("id", url)
+                .findFirst();
     }
 
     public static void clearAll(Realm realm) {
