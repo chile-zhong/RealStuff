@@ -35,6 +35,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
         this.mContext = context;
         this.mSearchBeens = new ArrayList<>();
         this.realm = realm;
+        setHasStableIds(true);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {

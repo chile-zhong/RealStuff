@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.R;
+import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.db.SearchBean;
 import com.example.ivor_hu.meizhi.services.SearchFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;

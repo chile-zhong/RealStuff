@@ -1,19 +1,24 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.base;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.utils.CommonUtil;
+import com.example.ivor_hu.meizhi.db.Stuff;
 
 import io.realm.Realm;
 
@@ -31,7 +36,6 @@ public abstract class BaseFragment extends Fragment {
     protected boolean mIsRefreshing;
     protected Realm mRealm;
     protected String mType;
-    protected boolean mIsCollections;
     protected boolean mIsNoMore;
 
     @Override
@@ -62,16 +66,14 @@ public abstract class BaseFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 if (!mIsLoadingMore && dy > 0) {
                     int lastVisiblePos = getLastVisiblePos();
-                    if (!mIsCollections && !mIsNoMore && lastVisiblePos + 1 == mAdapter.getItemCount()) {
+                    if (!mIsNoMore && lastVisiblePos + 1 == mAdapter.getItemCount()) {
                         loadingMore();
-                        CommonUtil.makeSnackBar(mRefreshLayout, getResources().getString(R.string.fragment_load_more), Snackbar.LENGTH_SHORT);
                     }
                 }
             }
         });
 
-        if (!mIsCollections)
-            mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
 
         return view;
     }

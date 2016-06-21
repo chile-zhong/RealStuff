@@ -15,6 +15,7 @@ import android.view.ViewTreeObserver;
 
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.ViewerActivity;
+import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;

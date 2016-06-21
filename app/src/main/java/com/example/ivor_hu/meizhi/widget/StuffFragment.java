@@ -6,17 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
 import com.example.ivor_hu.meizhi.services.StuffFetchService;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
@@ -24,7 +19,7 @@ import com.example.ivor_hu.meizhi.utils.Constants;
 /**
  * Created by Ivor on 2016/3/3.
  */
-public class StuffFragment extends BaseFragment {
+public class StuffFragment extends StuffBaseFragment {
     public static final String SERVICE_TYPE = "service_type";
     private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";
@@ -44,18 +39,13 @@ public class StuffFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: " + mType);
-        if (!mIsCollections)
-            mLocalBroadcastManager.registerReceiver(updateResultReceiver, new IntentFilter(StuffFetchService.ACTION_UPDATE_RESULT));
-        else
-            updateData();
+        mLocalBroadcastManager.registerReceiver(updateResultReceiver, new IntentFilter(StuffFetchService.ACTION_UPDATE_RESULT));
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: ");
-        if (mIsCollections)
-            return;
 
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
@@ -64,9 +54,7 @@ public class StuffFragment extends BaseFragment {
     protected void initData() {
         super.initData();
         mType = getArguments().getString(TYPE);
-        mIsCollections = Constants.TYPE.COLLECTIONS.getApiName().equals(mType);
-        if (!mIsCollections)
-            updateResultReceiver = new UpdateResultReceiver();
+        updateResultReceiver = new UpdateResultReceiver();
     }
 
     @Override
@@ -87,12 +75,6 @@ public class StuffFragment extends BaseFragment {
         if (mIsRefreshing)
             return;
 
-        if (mIsCollections) {
-            setRefreshLayout(false);
-            updateData();
-            return;
-        }
-
         Intent intent = new Intent(getActivity(), StuffFetchService.class);
         intent.setAction(StuffFetchService.ACTION_FETCH_REFRESH).putExtra(SERVICE_TYPE, mType);
         getActivity().startService(intent);
@@ -102,24 +84,18 @@ public class StuffFragment extends BaseFragment {
     }
 
     @Override
-    protected int getLastVisiblePos() {
-        return ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
-    }
-
-    @Override
-    protected int getLayoutResId() {
-        return R.layout.stuff_fragment;
-    }
-
-    @Override
-    protected int getRefreshLayoutId() {
-        return R.id.stuff_refresh_layout;
-    }
-
-    @Override
     protected RecyclerView.Adapter initAdapter() {
         final StuffAdapter adapter = new StuffAdapter(getActivity(), mRealm, mType);
         adapter.setOnItemClickListener(new StuffAdapter.OnItemClickListener() {
+            @Override
+            public boolean onItemLongClick(View v, int position) {
+                if (mIsLoadingMore || mIsRefreshing)
+                    return true;
+
+                getActivity().startActionMode(new ShareListener(getActivity(), adapter.getStuffAt(position), v));
+                return true;
+            }
+
             @Override
             public void onItemClick(View view, int pos) {
                 if (mIsLoadingMore || mIsRefreshing)
@@ -127,78 +103,8 @@ public class StuffFragment extends BaseFragment {
 
                 CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
             }
-
-            @Override
-            public void onItemLongClick(final View view, final int pos) {
-                if (mIsLoadingMore || mIsRefreshing)
-                    return;
-
-                getActivity().startActionMode(new ShareListener(getActivity(), adapter.getStuffAt(pos), view));
-            }
         });
         return adapter;
-    }
-
-    @Override
-    protected RecyclerView.LayoutManager getLayoutManager() {
-        return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-    }
-
-    @Override
-    protected int getRecyclerViewId() {
-        return R.id.stuff_recyclerview;
-    }
-
-    public class ShareListener implements AbsListView.MultiChoiceModeListener {
-        private final Context context;
-        private final Stuff stuff;
-        private final View view;
-
-        public ShareListener(Context context, Stuff stuff, View view) {
-            this.context = context;
-            this.stuff = stuff;
-            this.view = view;
-        }
-
-        @Override
-        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            mode.getMenuInflater().inflate(R.menu.context_menu, menu);
-            view.setActivated(true);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.context_menu_share:
-                    String textShared = stuff.getDesc() + "    " + stuff.getUrl() + " -- " + context.getString(R.string.share_msg);
-                    Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.setType("text/plain");
-                    intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_msg));
-                    intent.putExtra(Intent.EXTRA_TEXT, textShared);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                    mode.finish();
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            view.setActivated(false);
-        }
     }
 
     private class UpdateResultReceiver extends BroadcastReceiver {

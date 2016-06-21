@@ -34,11 +34,13 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
-import com.example.ivor_hu.meizhi.widget.BaseFragment;
+import com.example.ivor_hu.meizhi.base.BaseFragment;
+import com.example.ivor_hu.meizhi.widget.CollectionFragment;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
 import com.example.ivor_hu.meizhi.widget.SearchFragment;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
@@ -56,8 +58,6 @@ public class MainActivity extends AppCompatActivity
     private static final String CURR_TYPE = "curr_fragment_type";
     private static final int CLEAR_DONE = 0x36;
     private static final int CLEAR_ALL = 0x33;
-    private static final String Search_ALL = "All";
-    private static final int PASS_SEARCH_CAT = 0x34;
 
     private CoordinatorLayout mCoordinatorLayout;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
@@ -319,6 +319,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == TYPE.GIRLS.getResId()) {
             swithTo(manager, TYPE.GIRLS.getId(), GirlsFragment.newInstance(TYPE.GIRLS.getApiName()));
+        } else if (id == TYPE.COLLECTIONS.getResId()) {
+            swithTo(manager, TYPE.COLLECTIONS.getId(), CollectionFragment.newInstance(TYPE.COLLECTIONS.getApiName()));
         } else {
             for (TYPE type : TYPE.values()) {
                 if (type.getResId() == id) {
@@ -458,7 +460,7 @@ public class MainActivity extends AppCompatActivity
         if (fragmentIdx.equals(TYPE.GIRLS.getId()) || fragmentIdx.equals(TYPE.SEARCH_RESULTS.getId())) {
             return;
         }
-        ((StuffFragment) newFragment).updateData();
+        ((StuffBaseFragment) newFragment).updateData();
     }
 
 }
