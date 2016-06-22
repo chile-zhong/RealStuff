@@ -227,17 +227,17 @@ public class StuffFetchService extends IntentService {
     }
 
     private boolean saveToDb(Realm realm, final Stuff stuff) {
+        realm.beginTransaction();
+
         try {
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    realm.copyToRealm(stuff);
-                }
-            });
+            realm.copyToRealm(stuff);
         } catch (Exception e) {
-            Log.e(TAG, "Failed to save stuff", e);
+            Log.e(TAG, "Failed to fetch image", e);
+            realm.cancelTransaction();
             return false;
         }
+
+        realm.commitTransaction();
         return true;
     }
 }

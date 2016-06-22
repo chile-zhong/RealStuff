@@ -168,18 +168,17 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
     }
 
     private boolean saveToDb(Realm realm, final Image image) {
+        realm.beginTransaction();
+
         try {
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    realm.copyToRealm(image);
-                }
-            });
+            realm.copyToRealm(Image.persist(image, this));
         } catch (Exception e) {
-            Log.e(TAG, "Failed to save image", e);
+            Log.e(TAG, "Failed to fetch image", e);
+            realm.cancelTransaction();
             return false;
         }
 
+        realm.commitTransaction();
         return true;
     }
 
