@@ -34,12 +34,12 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
-import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.widget.CollectionFragment;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
 import com.example.ivor_hu.meizhi.widget.SearchFragment;
@@ -353,7 +353,7 @@ public class MainActivity extends AppCompatActivity
             clearCacheSnackBar(R.string.clear_cache_all, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Image.clearImage(mRealm);
+                    Image.clearImage(MainActivity.this, mRealm);
                     Stuff.clearAll(mRealm);
                     mClearCacheHandler.sendEmptyMessage(CLEAR_ALL);
                 }
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(View v) {
                         if (TYPE.GIRLS.getApiName().equals(apiName))
-                            Image.clearImage(mRealm);
+                            Image.clearImage(MainActivity.this, mRealm);
                         else
                             Stuff.clearType(mRealm, apiName);
                         mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);

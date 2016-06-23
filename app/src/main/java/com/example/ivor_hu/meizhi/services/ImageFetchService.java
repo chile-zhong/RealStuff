@@ -40,28 +40,6 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
     private LocalBroadcastManager localBroadcastManager;
     private Constants.NETWORK_EXCEPTION mExceptionCode;
 
-//    private final Gson gson = new GsonBuilder()
-//            .setDateFormat(DateUtil.DATE_FORMAT_WHOLE)
-//            .setExclusionStrategies(new ExclusionStrategy() {
-//                @Override
-//                public boolean shouldSkipField(FieldAttributes f) {
-//                    return f.getDeclaringClass().equals(RealmObject.class);
-//                }
-//
-//                @Override
-//                public boolean shouldSkipClass(Class<?> clazz) {
-//                    return false;
-//                }
-//            })
-//            .create();
-//
-//    private final Retrofit girlsRetrofit = new Retrofit.Builder()
-//            .baseUrl(GankAPI.BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create(gson))
-//            .build();
-//
-//    private final GankAPI girlsApi = girlsRetrofit.create(GankAPI.class);
-
     public ImageFetchService() {
         super(TAG);
     }

@@ -7,7 +7,6 @@ import android.os.Parcelable;
  * Created by ivor on 16-6-17.
  */
 public class SearchBean implements Parcelable {
-
     public static final Parcelable.Creator<SearchBean> CREATOR = new Creator<SearchBean>() {
         @Override
         public SearchBean createFromParcel(Parcel source) {
