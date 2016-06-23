@@ -6,5 +6,5 @@
 + `*` Fix bugs
 
 ## v.1.0
-+ `+` Fetching pictures and development infomation.
-+ `+` Collection, share and about.
++ `+` Fetching pictures and development infomation
++ `+` Collection, share and about
