@@ -25,7 +25,7 @@
     <string name="api_app" translatable="false">App</string>
     <string name="api_fun" translatable="false">瞎推荐</string>
     <string name="api_others" translatable="false">拓展资源</string>
-    <string-array name="search_cat">
+    <string-array name="search_cat" translatable="false">
         <item>All</item>
         <item>@string/nav_android</item>
         <item>@string/nav_ios</item>
@@ -35,7 +35,7 @@
         <item>@string/nav_others</item>
     </string-array>
 
-    <string-array name="search_cat_api">
+    <string-array name="search_cat_api" translatable="false">
         <item>all</item>
         <item>@string/api_android</item>
         <item>@string/api_ios</item>
