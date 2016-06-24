@@ -21,7 +21,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:paddingTop="8dp"
         android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -30,5 +30,49 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="gank.io" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <Spinner
+            android:id="@+id/search_cat_sp"
+            android:layout_width="80dp"
+            android:layout_height="28dp" />
+
+        <EditText
+            android:id="@+id/query_et"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:layout_toRightOf="@+id/search_cat_sp"
+            android:background="@drawable/search_box_bg"
+            android:hint="@string/search"
+            android:imeOptions="actionSearch"
+            android:paddingLeft="10dp"
+            android:paddingRight="75dp"
+            android:singleLine="true"
+            android:textColor="@color/secondaryText"
+            android:textColorHint="@color/secondaryText"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/search_btn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:background="@drawable/search_btn_bg" />
+
+        <ImageButton
+            android:id="@+id/search_clear_btn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/search_btn"
+            android:background="@drawable/clear_text"
+            android:visibility="gone" />
+    </RelativeLayout>
 
 </LinearLayout>

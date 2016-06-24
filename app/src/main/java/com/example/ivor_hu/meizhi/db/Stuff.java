@@ -1,7 +1,9 @@
 package com.example.ivor_hu.meizhi.db;
 
+import com.example.ivor_hu.meizhi.utils.DateUtil;
 import com.google.gson.annotations.SerializedName;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import io.realm.Realm;
@@ -14,6 +16,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by Ivor on 2016/2/28.
  */
 public class Stuff extends RealmObject {
+    private static final String TAG = "Stuff";
     @PrimaryKey
     @SerializedName("_id")
     private String id;
@@ -36,6 +39,17 @@ public class Stuff extends RealmObject {
 
     }
 
+    public static Stuff fromSearch(SearchBean bean) throws ParseException {
+        return new Stuff(
+                bean.getUrl(),
+                bean.getType(),
+                bean.getDesc(),
+                bean.getUrl(),
+                bean.getWho(),
+                DateUtil.parse(bean.getPublishedAt())
+        );
+    }
+
     public static RealmResults<Stuff> all(Realm realm, String type) {
         return realm.where(Stuff.class)
                 .equalTo("type", type)
@@ -48,6 +62,36 @@ public class Stuff extends RealmObject {
                 .findAllSorted("lastChanged", Sort.DESCENDING);
     }
 
+    public static Stuff checkSearch(Realm realm, String url) {
+        return realm.where(Stuff.class)
+                .equalTo("id", url)
+                .findFirst();
+    }
+
+    public static void clearAll(Realm realm) {
+        final RealmResults<Stuff> allStuff = realm.where(Stuff.class)
+                .findAll();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                allStuff.deleteAllFromRealm();
+            }
+        });
+    }
+
+    public static void clearType(Realm realm, final String type) {
+        final RealmResults<Stuff> types = realm.where(Stuff.class)
+                .equalTo("type", type)
+                .findAll();
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                types.deleteAllFromRealm();
+            }
+        });
+    }
+
     public boolean isLiked() {
         return isLiked;
     }
@@ -56,12 +100,12 @@ public class Stuff extends RealmObject {
         isLiked = liked;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getId() {

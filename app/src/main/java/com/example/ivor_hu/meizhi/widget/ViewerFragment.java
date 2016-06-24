@@ -30,11 +30,16 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
     private TouchImageView touchImageView;
     private String mUrl;
     private boolean mInitialShown;
-    private boolean mIsHidden = false;
 
-    private static final int FLAG_IMMERSIVE = View.SYSTEM_UI_FLAG_IMMERSIVE
-            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+    public static Fragment newInstance(String url, boolean initialShown) {
+        Bundle args = new Bundle();
+        args.putSerializable(URL, url);
+        args.putBoolean(INITIAL_SHOWN, initialShown);
+
+        ViewerFragment fragment = new ViewerFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,16 +93,6 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
                 .crossFade(0)
                 .listener(this)
                 .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
-    }
-
-    public static Fragment newInstance(String url, boolean initialShown) {
-        Bundle args = new Bundle();
-        args.putSerializable(URL, url);
-        args.putBoolean(INITIAL_SHOWN, initialShown);
-
-        ViewerFragment fragment = new ViewerFragment();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override

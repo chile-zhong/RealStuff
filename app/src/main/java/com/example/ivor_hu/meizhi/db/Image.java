@@ -1,7 +1,9 @@
 package com.example.ivor_hu.meizhi.db;
 
+import android.content.Context;
 import android.graphics.Point;
 
+import com.bumptech.glide.Glide;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
 import com.google.gson.annotations.SerializedName;
 
@@ -39,6 +41,24 @@ public class Image extends RealmObject {
     public static RealmResults<Image> all(Realm realm) {
         return realm.where(Image.class)
                 .findAllSorted("publishedAt", Sort.DESCENDING);
+    }
+
+    public static void clearImage(final Context context, Realm realm) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Glide.get(context).clearDiskCache();
+            }
+        }).start();
+
+        final RealmResults<Image> images = realm.where(Image.class)
+                .findAll();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                images.deleteAllFromRealm();
+            }
+        });
     }
 
     public static Image persist(Image image, ImageFetcher imageFetcher)

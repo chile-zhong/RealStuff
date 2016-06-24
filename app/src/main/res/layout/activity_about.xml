@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -24,7 +25,7 @@
             <LinearLayout
                 android:id="@+id/introduction"
                 android:layout_width="match_parent"
-                android:layout_height="230dp"
+                android:layout_height="240dp"
                 android:fitsSystemWindows="true"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -38,7 +39,7 @@
                     android:layout_marginTop="?attr/actionBarSize"
                     android:contentDescription="@string/app_name"
                     android:gravity="center_horizontal"
-                    android:text="每日分享 妹子图 和 技术干货"
+                    android:text="@string/about_intro"
                     android:textSize="16sp" />
 
                 <TextView
@@ -70,6 +71,15 @@
                     android:gravity="center_horizontal"
                     android:text="@string/about_repository_url" />
 
+                <TextView
+                    android:id="@+id/version_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:contentDescription="@string/app_name"
+                    android:gravity="center_horizontal"
+                    tools:text="@string/version_name" />
+
             </LinearLayout>
 
             <android.support.v7.widget.Toolbar
@@ -89,6 +99,7 @@
         android:clipToPadding="false"
         android:fitsSystemWindows="true"
         android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/about_item" />
 
 </android.support.design.widget.CoordinatorLayout>

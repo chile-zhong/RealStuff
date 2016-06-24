@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -37,7 +38,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 
 /**
  * Created by Ivor on 2016/2/15.
@@ -50,6 +50,7 @@ public class ViewerActivity extends AppCompatActivity {
     private static final String SHARE_TITLE = "share_title";
     private static final String SHARE_TEXT = "share_text";
     private static final String SHARE_URL = "share_url";
+    private ViewPager mViewPager;
     private final Handler mMsgHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
@@ -62,7 +63,6 @@ public class ViewerActivity extends AppCompatActivity {
             }
         }
     };
-    private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
     private int mSavedPicPos = -1;
@@ -84,13 +84,14 @@ public class ViewerActivity extends AppCompatActivity {
 
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
         mRealm = Realm.getDefaultInstance();
-        mRealm.addChangeListener(new RealmChangeListener() {
-            @Override
-            public void onChange() {
-                mImages = Image.all(mRealm);
-                mAdapter.notifyDataSetChanged();
-            }
-        });
+//        mRealm.addChangeListener(new RealmChangeListener() {
+//            @Override
+//            public void onChange(Object element) {
+//                Log.d(TAG, "onChange: " + ((Image) element).getId());
+//                mImages = Image.all(mRealm);
+//                mAdapter.notifyDataSetChanged();
+//            }
+//        });
 
         mImages = Image.all(mRealm);
         mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
@@ -114,6 +115,20 @@ public class ViewerActivity extends AppCompatActivity {
             }
         };
         mViewPager.setAdapter(mAdapter);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                hideToolbar();
+            }
+        });
         mViewPager.setCurrentItem(mPos);
 
         // 避免图片在进行 Shared Element Transition 时盖过 Toolbar
@@ -250,7 +265,7 @@ public class ViewerActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            if (file != null && file.exists() && file.isFile()) {
+            if (file.exists() && file.isFile()) {
                 intent.setType("image/jpg");
                 Uri uri = Uri.fromFile(file);
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
@@ -289,7 +304,7 @@ public class ViewerActivity extends AppCompatActivity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
         if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
             savePicAt(mSavedPicPos);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

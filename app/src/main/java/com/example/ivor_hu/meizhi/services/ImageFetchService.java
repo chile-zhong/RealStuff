@@ -13,9 +13,12 @@ import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.net.GankAPI;
 import com.example.ivor_hu.meizhi.net.GankAPIService;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
+import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -27,36 +30,15 @@ import io.realm.RealmResults;
  * Created by Ivor on 2016/2/12.
  */
 public class ImageFetchService extends IntentService implements ImageFetcher {
-    private static final String TAG = "ImageFetchService";
     public static final String ACTION_UPDATE_RESULT = "com.ivor.meizhi.girls_update_result";
     public static final String EXTRA_FETCHED = "girls_fetched";
     public static final String EXTRA_TRIGGER = "girls_trigger";
+    public static final String EXTRA_EXCEPTION_CODE = "exception_code";
     public static final String ACTION_FETCH_REFRESH = "com.ivor.meizhi.girls_fetch_refresh";
     public static final String ACTION_FETCH_MORE = "com.ivor.meizhi.girls_fetch_more";
-
+    private static final String TAG = "ImageFetchService";
     private LocalBroadcastManager localBroadcastManager;
-
-//    private final Gson gson = new GsonBuilder()
-//            .setDateFormat(DateUtil.DATE_FORMAT_WHOLE)
-//            .setExclusionStrategies(new ExclusionStrategy() {
-//                @Override
-//                public boolean shouldSkipField(FieldAttributes f) {
-//                    return f.getDeclaringClass().equals(RealmObject.class);
-//                }
-//
-//                @Override
-//                public boolean shouldSkipClass(Class<?> clazz) {
-//                    return false;
-//                }
-//            })
-//            .create();
-//
-//    private final Retrofit girlsRetrofit = new Retrofit.Builder()
-//            .baseUrl(GankAPI.BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create(gson))
-//            .build();
-//
-//    private final GankAPI girlsApi = girlsRetrofit.create(GankAPI.class);
+    private Constants.NETWORK_EXCEPTION mExceptionCode;
 
     public ImageFetchService() {
         super(TAG);
@@ -65,6 +47,7 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
     @Override
     public void onCreate() {
         super.onCreate();
+        mExceptionCode = Constants.NETWORK_EXCEPTION.DEFAULT;
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
@@ -86,7 +69,13 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
                 Log.d(TAG, "earliest fetch: " + latest.last().getPublishedAt());
                 fetched = fetchMore(realm, latest.last().getPublishedAt());
             }
+        } catch (SocketTimeoutException e) {
+            mExceptionCode = Constants.NETWORK_EXCEPTION.TIMEOUT;
+        } catch (UnknownHostException e) {
+            mExceptionCode = Constants.NETWORK_EXCEPTION.UNKNOWN_HOST;
         } catch (IOException e) {
+            mExceptionCode = Constants.NETWORK_EXCEPTION.IOEXCEPTION;
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -98,9 +87,10 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
 
         Log.d(TAG, "finished fetching, actual fetched " + fetched);
 
-        Intent broadcast = new Intent(ACTION_UPDATE_RESULT);
-        broadcast.putExtra(EXTRA_FETCHED, fetched);
-        broadcast.putExtra(EXTRA_TRIGGER, intent.getAction());
+        Intent broadcast = new Intent(ACTION_UPDATE_RESULT)
+                .putExtra(EXTRA_FETCHED, fetched)
+                .putExtra(EXTRA_EXCEPTION_CODE, mExceptionCode)
+                .putExtra(EXTRA_TRIGGER, intent.getAction());
 
         localBroadcastManager.sendBroadcast(broadcast);
     }
@@ -155,12 +145,11 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
         return fetched;
     }
 
-    private boolean saveToDb(Realm realm, Image image) {
+    private boolean saveToDb(Realm realm, final Image image) {
         realm.beginTransaction();
 
         try {
             realm.copyToRealm(Image.persist(image, this));
-            Log.d(TAG, "saveToDb: " + image.getPublishedAt());
         } catch (Exception e) {
             Log.e(TAG, "Failed to fetch image", e);
             realm.cancelTransaction();

@@ -1,6 +1,7 @@
 package com.example.ivor_hu.meizhi.net;
 
 import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.db.SearchBean;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.google.gson.annotations.SerializedName;
 
@@ -23,6 +24,13 @@ public interface GankAPI {
     String LATEST_OTHERS_URL = BASE_URL + "data/%E6%8B%93%E5%B1%95%E8%B5%84%E6%BA%90/20/1";
     String LATEST_FUN_URL = BASE_URL + "data/%E7%9E%8E%E6%8E%A8%E8%8D%90/20/1";
     String DAYLY_DATA_URL = BASE_URL + "day/";
+
+    @GET("search/query/{keyword}/category/{category}/count/{count}/page/{page}")
+    Call<Result<List<SearchBean>>> search(
+            @Path("keyword") String keyword,
+            @Path("category") String category,
+            @Path("count") int count,
+            @Path("page") int page);
 
     @GET("data/%E7%A6%8F%E5%88%A9/{count}/1")
     Call<Result<List<Image>>> latestGirls(@Path("count") int count);
