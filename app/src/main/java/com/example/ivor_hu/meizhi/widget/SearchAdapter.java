@@ -73,12 +73,13 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
                 }
             });
         }
+
         holder.likeBtn.setTag(position);
-        holder.likeBtn.setImageResource(R.drawable.unlike);
+        holder.likeBtn.setImageResource(isLiked(searchBean) ? R.drawable.like : R.drawable.unlike);
         holder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleLikeBtn((ImageButton) v, position);
+                toggleLikeBtn((ImageButton) v, searchBean);
             }
         });
     }
@@ -88,18 +89,17 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
         return mSearchBeens.size();
     }
 
-    private void toggleLikeBtn(ImageButton likeBtn, int pos) {
-        if (mSearchBeens.get(pos).isLiked()) {
+    private void toggleLikeBtn(ImageButton likeBtn, SearchBean bean) {
+        if (bean.isLiked()) {
             likeBtn.setImageResource(R.drawable.unlike);
-            changeLiked(pos, false);
+            changeLiked(bean, false);
         } else {
             likeBtn.setImageResource(R.drawable.like);
-            changeLiked(pos, true);
+            changeLiked(bean, true);
         }
     }
 
-    private void changeLiked(int pos, boolean isLiked) {
-        SearchBean bean = mSearchBeens.get(pos);
+    private void changeLiked(SearchBean bean, boolean isLiked) {
         bean.setLiked(isLiked);
         try {
             Stuff stuff = Stuff.checkSearch(realm, bean.getUrl());
@@ -117,6 +117,15 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isLiked(SearchBean bean) {
+        Stuff stuff = Stuff.checkSearch(realm, bean.getUrl());
+        if (stuff != null) {
+            bean.setLiked(stuff.isLiked());
+            return stuff.isLiked();
+        }
+        return false;
     }
 
     public SearchBean getStuffAt(int pos) {
