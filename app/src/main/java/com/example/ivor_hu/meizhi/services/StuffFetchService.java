@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
 /**
  * Created by Ivor on 2016/3/3.
@@ -231,8 +232,15 @@ public class StuffFetchService extends IntentService {
 
         try {
             realm.copyToRealm(stuff);
+        } catch (RealmPrimaryKeyConstraintException e) {
+            realm.where(Stuff.class)
+                    .equalTo("id", stuff.getId())
+                    .findFirst()
+                    .setDeleted(false);
+            realm.commitTransaction();
+            return true;
         } catch (Exception e) {
-            Log.e(TAG, "Failed to fetch image", e);
+            Log.e(TAG, "Failed to save stuff", e);
             realm.cancelTransaction();
             return false;
         }

@@ -22,7 +22,7 @@ public class Stuff extends RealmObject {
     private String id;
     private String desc, url, who, type;
     private Date publishedAt, lastChanged;
-    private boolean isLiked;
+    private boolean isLiked, isDeleted;
 
     public Stuff() {
     }
@@ -36,7 +36,7 @@ public class Stuff extends RealmObject {
         this.publishedAt = publishedAt;
         this.lastChanged = publishedAt;
         this.isLiked = false;
-
+        this.isDeleted = false;
     }
 
     public static Stuff fromSearch(SearchBean bean) throws ParseException {
@@ -53,6 +53,7 @@ public class Stuff extends RealmObject {
     public static RealmResults<Stuff> all(Realm realm, String type) {
         return realm.where(Stuff.class)
                 .equalTo("type", type)
+                .equalTo("isDeleted", false)
                 .findAllSorted("publishedAt", Sort.DESCENDING);
     }
 
@@ -80,14 +81,21 @@ public class Stuff extends RealmObject {
     }
 
     public static void clearType(Realm realm, final String type) {
-        final RealmResults<Stuff> types = realm.where(Stuff.class)
+        final RealmResults<Stuff> unCollected = realm.where(Stuff.class)
                 .equalTo("type", type)
+                .equalTo("isLiked", false)
                 .findAll();
-
+        final RealmResults<Stuff> collected = realm.where(Stuff.class)
+                .equalTo("type", type)
+                .equalTo("isLiked", true)
+                .findAll();
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                types.deleteAllFromRealm();
+                unCollected.deleteAllFromRealm();
+                for (Stuff stuff : collected) {
+                    stuff.setDeleted(true);
+                }
             }
         });
     }
@@ -156,4 +164,11 @@ public class Stuff extends RealmObject {
         this.lastChanged = lastChanged;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
 }
