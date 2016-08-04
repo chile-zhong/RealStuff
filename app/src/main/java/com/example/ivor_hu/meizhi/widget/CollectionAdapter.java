@@ -1,7 +1,6 @@
 package com.example.ivor_hu.meizhi.widget;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -49,7 +48,11 @@ public class CollectionAdapter extends StuffBaseAdapter {
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                mStuffs.get(position).setLiked(false);
+                Stuff stuff = mStuffs.get(position);
+                if (stuff.isDeleted())
+                    stuff.deleteFromRealm();
+                else
+                    stuff.setLiked(false);
             }
         });
     }
