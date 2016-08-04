@@ -6,6 +6,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:itemTextAppearance">@style/myCustomMenuTextApearance</item>
+        <item name="android:dropDownItemStyle">@style/myDropDronItemStyle</item>
+        <item name="android:dropDownListViewStyle">@style/myDropDronListViewStyle</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -34,5 +37,20 @@
     <style name="TranslucentTheme" parent="AppTheme.NoActionBar">
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
+    </style>
+
+    <!-- for searchview -->
+    <style name="myDropDronItemStyle" parent="Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:textColor">@color/colorPrimaryLight</item>
+    </style>
+
+    <!-- for searchview -->
+    <style name="myDropDronListViewStyle" parent="Widget.AppCompat.Light.ListView.DropDown">
+        <item name="android:background">@color/colorAccent</item>
+    </style>
+
+    <style name="myCustomMenuTextApearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/icons</item>
     </style>
 </resources>

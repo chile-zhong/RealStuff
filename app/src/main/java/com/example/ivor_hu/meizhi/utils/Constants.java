@@ -16,7 +16,7 @@ public interface Constants {
         FUN("FUN", "瞎推荐", R.string.nav_fun, R.id.nav_fun),
         OTHERS("OTHERS", "拓展资源", R.string.nav_others, R.id.nav_others),
         COLLECTIONS("COLLECTIONS", "Collections", R.string.nav_collections, R.id.nav_collections),
-        SEARCH_RESULTS("SEARCH_RESULTS", "search_results", R.string.search, 0);
+        SEARCH_RESULTS("SEARCH_RESULTS", "search_results", R.string.nav_search, 0);
 
         private final String id;
         private final String apiName;

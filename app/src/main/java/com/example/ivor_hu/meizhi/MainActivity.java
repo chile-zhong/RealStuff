@@ -1,10 +1,13 @@
 package com.example.ivor_hu.meizhi;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.SearchRecentSuggestions;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -16,23 +19,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.view.ViewAnimationUtils;
 
 import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
@@ -43,6 +38,7 @@ import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.widget.CollectionFragment;
 import com.example.ivor_hu.meizhi.widget.GirlsFragment;
 import com.example.ivor_hu.meizhi.widget.SearchFragment;
+import com.example.ivor_hu.meizhi.widget.SearchSuggestionProvider;
 import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.util.List;
@@ -76,12 +72,18 @@ public class MainActivity extends AppCompatActivity
     private Handler mClearCacheHandler;
     private Realm mRealm;
     private DrawerLayout mDrawer;
-    private String mSearchCat = "all";
+    private SearchView mSearchView;
+    private boolean mIsSearching;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSearchView = (SearchView) findViewById(R.id.searchview);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setIconifiedByDefault(false);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.nav_girls);
@@ -122,85 +124,6 @@ public class MainActivity extends AppCompatActivity
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        View headerView = navigationView.getHeaderView(0);
-        final Spinner searchCatSp = (Spinner) headerView.findViewById(R.id.search_cat_sp);
-        ArrayAdapter<String> searchCatAdapter = new ArrayAdapter<>(
-                this,
-                R.layout.custom_spinner_item,
-                getResources().getStringArray(R.array.search_cat));
-        searchCatAdapter.setDropDownViewResource(R.layout.custom_spinner_dropdown_item);
-        searchCatSp.setPopupBackgroundResource(R.color.colorAccent);
-        searchCatSp.setAdapter(searchCatAdapter);
-        searchCatSp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mSearchCat = getResources().getStringArray(R.array.search_cat_api)[position];
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        final EditText searchEt = (EditText) headerView.findViewById(R.id.query_et);
-        final ImageButton searchBtn = (ImageButton) headerView.findViewById(R.id.search_btn);
-        final ImageButton clearSearchBtn = (ImageButton) headerView.findViewById(R.id.search_clear_btn);
-
-        searchEt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (clearSearchBtn == null)
-                    return;
-
-                if (s.toString().length() > 0 && clearSearchBtn.getVisibility() == View.GONE)
-                    clearSearchBtn.setVisibility(View.VISIBLE);
-                else if (s.toString().length() == 0 && clearSearchBtn.getVisibility() == View.VISIBLE)
-                    clearSearchBtn.setVisibility(View.GONE);
-            }
-        });
-        searchEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    searchBtn.callOnClick();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        clearSearchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchEt.getText().clear();
-            }
-        });
-
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String searchText = searchEt.getText().toString().trim();
-                final String safeText = CommonUtil.stringFilterStrict(searchText);
-                if (safeText == null || safeText.length() == 0 || safeText.length() != searchText.length()) {
-                    CommonUtil.makeSnackBar(navigationView, getString(R.string.search_tips), Snackbar.LENGTH_LONG);
-                } else {
-                    searchEt.getText().clear();
-                    switchToSearchResult(safeText, mSearchCat, 10);
-                    hideSoftKeyboard(searchEt);
-                }
-            }
-        });
 
         setExitSharedElementCallback(new SharedElementCallback() {
             @Override
@@ -247,6 +170,33 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            if (((BaseFragment) mCurrFragment).isFetching()) {
+                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
+                return;
+            }
+
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            final String safeText = CommonUtil.stringFilterStrict(query);
+            if (safeText == null || safeText.length() == 0 || safeText.length() != query.length()) {
+                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.search_tips), Snackbar.LENGTH_LONG);
+            } else {
+                new SearchRecentSuggestions(this, SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE)
+                        .saveRecentQuery(safeText, null);
+                TYPE type = getCurrSearchType();
+                String searchCat;
+                if (type == null)
+                    searchCat = getString(R.string.api_all);
+                else
+                    searchCat = type.getApiName();
+                switchToSearchResult(safeText, searchCat, 10);
+            }
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mRealm.close();
@@ -271,6 +221,9 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (mIsSearching) {
+            mIsSearching = false;
+            hideSearchView();
         } else {
             super.onBackPressed();
         }
@@ -300,6 +253,9 @@ public class MainActivity extends AppCompatActivity
             else
                 clearRealmType(mCurrFragmentType);
             return true;
+        } else if (id == R.id.action_search) {
+            mIsSearching = true;
+            showSearchView();
         }
 
         return super.onOptionsItemSelected(item);
@@ -378,22 +334,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void hideAllExcept(String mCurrFragmentType) {
-        FragmentManager manager = getSupportFragmentManager();
-        for (TYPE type : TYPE.values()) {
-            Fragment fragment = manager.findFragmentByTag(type.getId());
-            if (fragment == null)
-                continue;
-
-            if (type.getId().equals(mCurrFragmentType)) {
-                manager.beginTransaction().show(fragment).commit();
-                mCurrFragment = fragment;
-            } else {
-                manager.beginTransaction().hide(fragment).commit();
-            }
-        }
-    }
-
     private void clearCacheSnackBar(int clearTipStrId, View.OnClickListener onClickListener) {
         CommonUtil.makeSnackBarWithAction(
                 mCoordinatorLayout,
@@ -415,16 +355,11 @@ public class MainActivity extends AppCompatActivity
         } else {
             hideAndAdd(manager, addedFragment, type);
         }
+        if (mIsSearching)
+            hideSearchView();
     }
 
     private void switchToSearchResult(String keyword, String category, int count) {
-        // close Drawer
-        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
-            mDrawer.closeDrawer(GravityCompat.START);
-        } else {
-            mDrawer.closeDrawer(GravityCompat.END);
-        }
-
         FragmentManager manager = getSupportFragmentManager();
         String searchTag = Constants.TYPE.SEARCH_RESULTS.getId();
         Fragment searchFragment = manager.findFragmentByTag(searchTag);
@@ -433,6 +368,22 @@ public class MainActivity extends AppCompatActivity
         } else {
             hideAndShow(manager, searchFragment, searchTag);
             ((SearchFragment) searchFragment).search(keyword, category, count);
+        }
+    }
+
+    private void hideAllExcept(String mCurrFragmentType) {
+        FragmentManager manager = getSupportFragmentManager();
+        for (TYPE type : TYPE.values()) {
+            Fragment fragment = manager.findFragmentByTag(type.getId());
+            if (fragment == null)
+                continue;
+
+            if (type.getId().equals(mCurrFragmentType)) {
+                manager.beginTransaction().show(fragment).commit();
+                mCurrFragment = fragment;
+            } else {
+                manager.beginTransaction().hide(fragment).commit();
+            }
         }
     }
 
@@ -451,9 +402,48 @@ public class MainActivity extends AppCompatActivity
         mToolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
     }
 
-    private void hideSoftKeyboard(EditText editText) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    private void showSearchView() {
+        if (mSearchView != null) {
+            mSearchView.setVisibility(View.VISIBLE);
+            int cx = mSearchView.getWidth() - (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
+            int cy = mSearchView.getHeight() / 2;
+            int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
+        }
+
+        if (mToolbar != null)
+            mToolbar.setVisibility(View.GONE);
+        updateSearchHint();
+    }
+
+    private void hideSearchView() {
+        if (mSearchView != null)
+            mSearchView.setVisibility(View.GONE);
+        if (mToolbar != null)
+            mToolbar.setVisibility(View.VISIBLE);
+    }
+
+    private void updateSearchHint() {
+        int navResId;
+        TYPE type = getCurrSearchType();
+        if (type == null)
+            navResId = R.string.search_all;
+        else
+            navResId = type.getStrId();
+
+        if (mSearchView != null)
+            mSearchView.setQueryHint(String.format(getString(R.string.search), getString(navResId)));
+    }
+
+    private TYPE getCurrSearchType() {
+        if (TYPE.GIRLS.getId().equals(mCurrFragmentType)
+                || TYPE.COLLECTIONS.getId().equals(mCurrFragmentType)
+                || TYPE.SEARCH_RESULTS.getId().equals(mCurrFragmentType))
+            return null;
+        else
+            return TYPE.valueOf(mCurrFragmentType);
     }
 
     private void updateLikedData(Fragment newFragment, String fragmentIdx) {
