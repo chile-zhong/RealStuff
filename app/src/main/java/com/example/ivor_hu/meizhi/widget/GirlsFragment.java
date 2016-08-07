@@ -44,14 +44,14 @@ public class GirlsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+        Log.d(TAG, "onResume: " + mType);
         mLocalBroadcastManager.registerReceiver(updateResultReceiver, new IntentFilter(ImageFetchService.ACTION_UPDATE_RESULT));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause: ");
+        Log.d(TAG, "onPause: " + mType);
         mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
 

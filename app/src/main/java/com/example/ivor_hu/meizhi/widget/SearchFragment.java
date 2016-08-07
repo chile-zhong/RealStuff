@@ -90,6 +90,10 @@ public class SearchFragment extends BaseFragment {
         if (mIsLoadingMore || mIsRefreshing)
             return;
 
+        if (mKeyword.equals("")) {
+            return;
+        }
+
         Intent intent = new Intent(getActivity(), SearchFetchService.class);
         intent.setAction(SearchFetchService.ACTION_FETCH_REFRESH);
         intent.putExtra(KEYWORD, mKeyword);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.net.GankAPI;
 import com.example.ivor_hu.meizhi.net.GankAPIService;
@@ -126,7 +127,7 @@ public class StuffFetchService extends IntentService {
 
     private int fetch(Realm realm, String after, List<String> dates) throws IOException {
         int fetched = 0;
-        if (type.equals(Constants.TYPE.ANDROID.getApiName())) {
+        if (getString(R.string.api_android).equals(type)) {
             for (String date : dates) {
                 if (date.equals(after))
                     continue;
@@ -142,7 +143,7 @@ public class StuffFetchService extends IntentService {
                     fetched++;
                 }
             }
-        } else if (type.equals(Constants.TYPE.IOS.getApiName())) {
+        } else if (getString(R.string.api_ios).equals(type)) {
             for (String date : dates) {
                 if (date.equals(after))
                     continue;
@@ -158,7 +159,7 @@ public class StuffFetchService extends IntentService {
                     fetched++;
                 }
             }
-        } else if (type.equals(Constants.TYPE.APP.getApiName())) {
+        } else if (getString(R.string.api_app).equals(type)) {
             for (String date : dates) {
                 if (date.equals(after))
                     continue;
@@ -174,7 +175,7 @@ public class StuffFetchService extends IntentService {
                     fetched++;
                 }
             }
-        } else if (type.equals(Constants.TYPE.FUN.getApiName())) {
+        } else if (getString(R.string.api_fun).equals(type)) {
             for (String date : dates) {
                 if (date.equals(after))
                     continue;
@@ -190,7 +191,7 @@ public class StuffFetchService extends IntentService {
                     fetched++;
                 }
             }
-        } else if (type.equals(Constants.TYPE.OTHERS.getApiName())) {
+        } else if (getString(R.string.api_others).equals(type)) {
             for (String date : dates) {
                 if (date.equals(after))
                     continue;
@@ -206,7 +207,7 @@ public class StuffFetchService extends IntentService {
                     fetched++;
                 }
             }
-        } else if (type.equals(Constants.TYPE.WEB.getApiName())) {
+        } else if (getString(R.string.api_web).equals(type)) {
             for (String date : dates) {
                 if (date.equals(after))
                     continue;
