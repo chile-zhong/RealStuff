@@ -7,7 +7,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +28,8 @@ public abstract class BaseFragment extends Fragment {
     protected Realm mRealm;
     protected String mType;
     protected boolean mIsNoMore;
+    private boolean mIsViewCreated;
+    private boolean mIsLoadDataCompleted;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,7 +50,6 @@ public abstract class BaseFragment extends Fragment {
         mRecyclerView = $(view, getRecyclerViewId());
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mLayoutManager = getLayoutManager();
-        Log.d(TAG, "onCreateView: " + mType + ", " + mLayoutManager);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = initAdapter();
         mRecyclerView.setAdapter(mAdapter);
@@ -67,8 +67,15 @@ public abstract class BaseFragment extends Fragment {
         });
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-
+        mIsViewCreated = true;
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && mIsViewCreated && !mIsLoadDataCompleted)
+            loadData();
     }
 
     @Override
@@ -82,8 +89,8 @@ public abstract class BaseFragment extends Fragment {
             }
         };
         mRefreshLayout.setOnRefreshListener(listener);
-        if (savedInstanceState == null)
-            listener.onRefresh();
+//        if (savedInstanceState == null)
+//            listener.onRefresh();
 
         // another way to call onRefresh
 //        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -93,6 +100,9 @@ public abstract class BaseFragment extends Fragment {
 //                mRefreshLayout.setRefreshing(true);
 //            }
 //        });
+
+        if (getUserVisibleHint())
+            loadData();
     }
 
     @Override
@@ -100,6 +110,11 @@ public abstract class BaseFragment extends Fragment {
         super.onDestroy();
         mRealm.removeAllChangeListeners();
         mRealm.close();
+    }
+
+    public void loadData() {
+        mIsLoadDataCompleted = true;
+        fetchLatest();
     }
 
     public void setRefreshLayout(final boolean state) {
@@ -122,11 +137,8 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void smoothScrollToTop() {
-        Log.d(TAG, "smoothScrollToTop: out " + mType);
-        if (mLayoutManager != null) {
+        if (mLayoutManager != null)
             mLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);
-            Log.d(TAG, "smoothScrollToTop: " + mType);
-        }
     }
 
     public void updateData() {

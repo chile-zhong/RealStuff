@@ -192,7 +192,6 @@ public class GirlsFragment extends BaseFragment {
             }
 
             if (mIsRefreshing) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 if (fetched > 0) {
                     ((GirlsAdapter) mAdapter).updateRefreshed(fetched);
                     mRecyclerView.smoothScrollToPosition(0);

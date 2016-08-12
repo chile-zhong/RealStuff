@@ -19,7 +19,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -29,7 +28,6 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 
 import com.example.ivor_hu.meizhi.base.BaseFragment;
-import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.db.TypeBean;
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     });
     private FloatingActionButton mFab;
     private Toolbar mToolbar;
-    private Fragment mCurrFragment;
+    private BaseFragment mCurrFragment;
     private Bundle reenterState;
 
     private Handler mClearCacheHandler;
@@ -71,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     private SearchView mSearchView;
     private boolean mIsSearching;
     private List<TypeBean> mTypes;
-    private List<BaseFragment> mFrags;
     private ViewPager mViewPager;
     private MainFragPagerAdapter mAdapter;
     private String mSearchCat = "all";
@@ -109,10 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                Log.d(TAG, "onPageSelected: " + position);
-                mCurrFragment = mAdapter.getItem(position);
+                mCurrFragment = getCurrFragment(position);
                 updateLikedData();
                 mToolbar.setTitle(mTypes.get(position).getStrId());
+                hideSearchView();
             }
 
             @Override
@@ -121,20 +118,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mViewPager.setCurrentItem(0);
-        mCurrFragment = mAdapter.getItem(0);
         SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.slidingtab);
         slidingTabLayout.setViewPager(mViewPager);
+        mCurrFragment = getCurrFragment(0);
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coor_layout);
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                ((BaseFragment) mCurrFragment).smoothScrollToTop();
-                BaseFragment fragment = mFrags.get(getCurrentItem());
-                Log.d(TAG, "onClick: " + fragment);
-                if (fragment != null)
-                    fragment.smoothScrollToTop();
+                mCurrFragment.smoothScrollToTop();
             }
         });
 
@@ -161,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case CLEAR_DONE:
-                        ((BaseFragment) mCurrFragment).updateData();
+                        mCurrFragment.updateData();
                         break;
                     case CLEAR_ALL:
                         Fragment fragment = mAdapter.getItem(0);
@@ -176,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initTypes() {
-        mFrags = new ArrayList<>();
         mTypes = new ArrayList<>();
         mTypes.add(new TypeBean(R.string.nav_girls, R.string.api_girls));
         mTypes.add(new TypeBean(R.string.nav_android, R.string.api_android));
@@ -193,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            if (((BaseFragment) mCurrFragment).isFetching()) {
+            if (mCurrFragment.isFetching()) {
                 CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
                 return;
             }
@@ -208,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 mSearchKey = safeText;
                 mSearchCat = getCurrSearchType();
                 mViewPager.setCurrentItem(mTypes.size() - 1);
-                Log.d(TAG, "onNewIntent: key = " + mSearchKey + ", cat = " + mSearchCat);
+                ((SearchFragment) mCurrFragment).search(mSearchKey, mSearchCat, 10);
             }
         }
     }
@@ -230,7 +222,12 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         int currIdx = savedInstanceState.getInt(CURR_IDX);
         mViewPager.setCurrentItem(currIdx);
+        mCurrFragment = getCurrFragment(currIdx);
         mToolbar.setTitle(getString(mTypes.get(currIdx).getStrId()));
+    }
+
+    private BaseFragment getCurrFragment(int currIdx) {
+        return (BaseFragment) mAdapter.instantiateItem(mViewPager, currIdx);
     }
 
     @Override
@@ -262,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, AboutActivity.class));
             return true;
         } else if (id == R.id.action_clear_cache) {
-            if (((BaseFragment) mCurrFragment).isFetching())
+            if (mCurrFragment.isFetching())
                 CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
             else
                 clearRealmType(getCurrentItem());
@@ -377,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         if (getCurrentItem() == 0 || getCurrentItem() == mTypes.size() - 1) {
             return;
         }
-        ((StuffBaseFragment) mCurrFragment).updateData();
+        mCurrFragment.updateData();
     }
 
     class MainFragPagerAdapter extends FragmentStatePagerAdapter {
@@ -397,8 +394,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 fragment = StuffFragment.newInstance(getString(mTypes.get(position).getApiId()));
             }
-            Log.d(TAG, "getItem: " + position);
-            mFrags.add(position, fragment);
             return fragment;
         }
 

@@ -91,6 +91,7 @@ public class SearchFragment extends BaseFragment {
             return;
 
         if (mKeyword.equals("")) {
+            setRefreshLayout(false);
             return;
         }
 
@@ -157,7 +158,6 @@ public class SearchFragment extends BaseFragment {
         this.mPage = 1;
         ((SearchAdapter) mAdapter).clearData();
         fetchLatest();
-        mRefreshLayout.setRefreshing(true);
     }
 
     private class UpdateSearchReceiver extends BroadcastReceiver {
@@ -183,7 +183,6 @@ public class SearchFragment extends BaseFragment {
             }
 
             if (mIsRefreshing) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 mRecyclerView.smoothScrollToPosition(0);
                 mPage = 2;
             } else if (mIsLoadingMore) {

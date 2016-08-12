@@ -135,7 +135,6 @@ public class StuffFragment extends StuffBaseFragment {
             }
 
             if (mIsRefreshing) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
                 mRecyclerView.smoothScrollToPosition(0);
             }
             setFetchingFlagsFalse();
