@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        mViewPager.setOffscreenPageLimit(7);
         mViewPager.setCurrentItem(0);
         SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.slidingtab);
         slidingTabLayout.setViewPager(mViewPager);
@@ -157,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
                         mCurrFragment.updateData();
                         break;
                     case CLEAR_ALL:
-                        Fragment fragment = mAdapter.getItem(0);
+                        BaseFragment fragment = (BaseFragment) mAdapter.instantiateItem(mViewPager, 0);
                         if (fragment != null)
-                            ((BaseFragment) fragment).updateData();
+                            fragment.updateData();
                         break;
                     default:
                         break;
