@@ -3,6 +3,7 @@ package com.example.ivor_hu.meizhi;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,14 +85,6 @@ public class ViewerActivity extends AppCompatActivity {
 
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
         mRealm = Realm.getDefaultInstance();
-//        mRealm.addChangeListener(new RealmChangeListener() {
-//            @Override
-//            public void onChange(Object element) {
-//                Log.d(TAG, "onChange: " + ((Image) element).getId());
-//                mImages = Image.all(mRealm);
-//                mAdapter.notifyDataSetChanged();
-//            }
-//        });
 
         mImages = Image.all(mRealm);
         mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
@@ -227,12 +220,18 @@ public class ViewerActivity extends AppCompatActivity {
         super.supportFinishAfterTransition();
     }
 
+    @Override
+    public void onBackPressed() {
+        supportFinishAfterTransition();
+        super.onBackPressed();
+    }
+
     private void initToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.viewer_toolbar);
         mToolbar.setTitle(R.string.nav_girls);
         mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
-        mToolbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        mToolbar.setTitleTextColor(Color.WHITE);
+        mToolbar.setBackgroundColor(Color.TRANSPARENT);
         setSupportActionBar(mToolbar);
     }
 
