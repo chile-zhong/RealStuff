@@ -74,9 +74,9 @@ public class AboutActivity extends AppCompatActivity {
         mFeasList = new ArrayList<>();
         mFeasList.add("CardView");
         mFeasList.add("CollapsingToolbarLayout");
-        mFeasList.add("DrawerLayout");
         mFeasList.add("RecyclerView");
         mFeasList.add("Shared Element Transition");
+        mFeasList.add("SlidingTabLayout");
         mFeasList.add("SnackBar");
         mFeasList.add("TranslucentBar");
     }
