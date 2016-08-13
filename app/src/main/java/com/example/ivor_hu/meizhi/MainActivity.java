@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(0);
         SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.slidingtab);
         slidingTabLayout.setViewPager(mViewPager);
+        slidingTabLayout.setSelectedIndicatorColors(R.color.colorAccent);
         mCurrFragment = getCurrFragment(0);
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coor_layout);
