@@ -4,9 +4,9 @@
 ## 项目支持的Android特性
 * CardView
 * CollapsingToolbarLayout
-* DrawerLayout
 * RecyclerView
 * Shared Element Transition
+* SlidingTabLayout
 * SnackBar
 * TranslucentBar
 
@@ -19,7 +19,6 @@
 ## 使用要求
 Android 4.4+
 
-[apk下载](https://github.com/IvorHu/RealStuff/releases/download/v1.1/RealStuff.apk)
 
 ## 致谢
 * [@代码家](http://gank.io/)提供的[API](http://gank.io/api)
@@ -27,7 +26,8 @@ Android 4.4+
 * [@xingrz](https://github.com/xingrz)的开源项目[干·妹纸](https://github.com/xingrz/GankMeizhi)
 
 ## 预览
-<img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/home.png" width="400px" /><br/>
-<img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/clearCache.png" width="400px" /><br/>
-<img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/navigation.png" width="400px" /><br/>
-<img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/about.png" width="400px" /><br/>
+<img src="https://github.com/IvorHu/RealStuff/blob/slidingTab/screenshoots/home.png" width="400px" /><br/>
+<img src="https://github.com/IvorHu/RealStuff/blob/slidingTab/screenshoots/fullscreen.png" width="400px" /><br/>
+<img src="https://github.com/IvorHu/RealStuff/blob/slidingTab/screenshoots/clearCache.png" width="400px" /><br/>
+<img src="https://github.com/IvorHu/RealStuff/blob/slidingTab/screenshoots/search.png" width="400px" /><br/>
+<img src="https://github.com/IvorHu/RealStuff/blob/slidingTab/screenshoots/about.png" width="400px" /><br/>
