@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -121,5 +123,46 @@ public class CommonUtil {
      */
     public static String stringFilterStrict(String searchText) {
         return searchText.replaceAll("[^ a-zA-Z0-9\\u4e00-\\u9fa5]", "");
+    }
+
+    /**
+     * Clear cache
+     *
+     * @param context
+     */
+    public static void clearCache(Context context) {
+        cleanExternalCache(context);
+        cleanInternalCache(context);
+    }
+
+    /**
+     * Clear internal cache
+     *
+     * @param context
+     */
+    public static void cleanInternalCache(Context context) {
+        File directory = context.getCacheDir();
+        deleteFilesByDirectory(directory);
+    }
+
+    /**
+     * Clear external cache
+     *
+     * @param context
+     */
+    public static void cleanExternalCache(Context context) {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+            deleteFilesByDirectory(context.getExternalCacheDir());
+    }
+
+    /**
+     * Delete all files in given directory
+     *
+     * @param directory
+     */
+    private static void deleteFilesByDirectory(File directory) {
+        if (directory != null && directory.exists() && directory.isDirectory())
+            for (File item : directory.listFiles())
+                item.delete();
     }
 }
