@@ -3,8 +3,10 @@ package com.example.ivor_hu.meizhi.widget;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,7 +46,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
 
     @Override
     public Viewholder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new Viewholder(LayoutInflater.from(mContext).inflate(R.layout.stuff_item, parent, false));
+        return new Viewholder(LayoutInflater.from(mContext).inflate(R.layout.search_item, parent, false));
     }
 
     @Override
@@ -74,6 +76,24 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             });
         }
 
+        holder.webView.setTag(position);
+        holder.webView.getSettings().setUseWideViewPort(true);
+        holder.webView.getSettings().setLoadWithOverviewMode(true);
+        holder.webView.getSettings().setDefaultFontSize(48);
+        holder.webView.loadData(searchBean.getReadability(), "text/html; charset=UTF-8", "utf8");
+        holder.webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_UP:
+                        mOnItemClickListener.onItemClick(view, position);
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+        });
+
         holder.likeBtn.setTag(position);
         holder.likeBtn.setImageResource(isLiked(searchBean) ? R.drawable.like : R.drawable.unlike);
         holder.likeBtn.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +102,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
                 toggleLikeBtn((ImageButton) v, searchBean);
             }
         });
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mSearchBeens.get(position).getUrl().hashCode();
     }
 
     @Override
@@ -165,6 +190,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
         TextView title, author, date;
         LinearLayout stuff;
         ImageButton likeBtn;
+        WebView webView;
 
         public Viewholder(final View itemView) {
             super(itemView);
@@ -173,6 +199,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             date = $(itemView, R.id.stuff_date);
             stuff = $(itemView, R.id.stuff);
             likeBtn = $(itemView, R.id.like_btn);
+            webView = $(itemView, R.id.readability_wv);
         }
     }
 }

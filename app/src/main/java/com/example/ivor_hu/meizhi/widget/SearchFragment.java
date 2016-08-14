@@ -64,6 +64,7 @@ public class SearchFragment extends BaseFragment {
     @Override
     protected void initData() {
         super.initData();
+        mType = SEARCH_FRAG;
         mKeyword = getArguments().getString(KEYWORD);
         mCategory = getArguments().getString(CATEGORY);
         mCount = getArguments().getInt(COUNT, 10);

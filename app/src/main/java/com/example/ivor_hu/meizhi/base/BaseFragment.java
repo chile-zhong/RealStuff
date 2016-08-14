@@ -17,6 +17,7 @@ import io.realm.Realm;
  * Created by ivor on 16-6-3.
  */
 public abstract class BaseFragment extends Fragment {
+    protected static final String SEARCH_FRAG = "search_fragment";
     private static final String TAG = "BaseFragment";
     protected RecyclerView mRecyclerView;
     protected SwipeRefreshLayout mRefreshLayout;
@@ -114,7 +115,8 @@ public abstract class BaseFragment extends Fragment {
 
     public void loadData() {
         mIsLoadDataCompleted = true;
-        fetchLatest();
+        if (!SEARCH_FRAG.equals(mType))
+            fetchLatest();
     }
 
     public void setRefreshLayout(final boolean state) {

@@ -29,7 +29,7 @@ public class SearchBean implements Parcelable {
 
     private String desc;
     private String publishedAt;
-    //    private String readability;
+    private String readability;
     private String type;
     private String url;
     private String who;
@@ -38,11 +38,10 @@ public class SearchBean implements Parcelable {
     public SearchBean(Parcel source) {
         desc = source.readString();
         publishedAt = source.readString();
-//        readability = source.readString();
+        readability = source.readString();
         type = source.readString();
         url = source.readString();
         who = source.readString();
-//        isLiked = source.readByte() == 1;
     }
 
     public String getDesc() {
@@ -57,16 +56,16 @@ public class SearchBean implements Parcelable {
         return publishedAt;
     }
 
-//    public String getReadability() {
-//        return readability;
-//    }
-
-//    public void setReadability(String readability) {
-//        this.readability = readability;
-//    }
-
     public void setPublishedAt(String publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public String getReadability() {
+        return readability;
+    }
+
+    public void setReadability(String readability) {
+        this.readability = readability;
     }
 
     public String getType() {
@@ -110,10 +109,9 @@ public class SearchBean implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(desc);
         dest.writeString(publishedAt);
-//        dest.writeString(readability);
+        dest.writeString(readability);
         dest.writeString(type);
         dest.writeString(url);
         dest.writeString(who);
-//        dest.writeByte((byte) (isLiked ? 1 : 0));
     }
 }
