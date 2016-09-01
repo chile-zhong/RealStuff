@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         mRealm.close();
+        CommonUtil.clearCache(getApplicationContext());
     }
 
     @Override
