@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.design.widget.Snackbar;
@@ -164,5 +166,15 @@ public class CommonUtil {
         if (directory != null && directory.exists() && directory.isDirectory())
             for (File item : directory.listFiles())
                 item.delete();
+    }
+
+    public static boolean isWifiConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork == null)
+            return false;
+
+        return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+
     }
 }
