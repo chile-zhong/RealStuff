@@ -16,6 +16,7 @@ public final class DateUtil {
     public static final String DATE_FORMAT_WHOLE = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
     private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}\\-\\d{2}\\-\\d{2}");
+
     private DateUtil() {
     }
 
@@ -40,20 +41,21 @@ public final class DateUtil {
         return format(parse(date));
     }
 
-    public static List<String> generateSequenceDateTillToday(Date start){
+    public static List<String> generateSequenceDateTillToday(Date start) {
         List<String> dates = new ArrayList<>();
         Date today = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(start);
-        while (calendar.getTime().before(today)){
+        while (calendar.getTime().before(today)) {
             String date = format(calendar.getTime());
             dates.add(date);
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
+        dates.add(format(today));
         return dates;
     }
 
-    public static List<String> generateSequenceDateBefore(Date start, int interval){
+    public static List<String> generateSequenceDateBefore(Date start, int interval) {
         List<String> dates = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(start);
