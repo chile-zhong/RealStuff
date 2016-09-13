@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.SearchBean;
 import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.text.ParseException;
@@ -76,23 +77,28 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             });
         }
 
-        holder.webView.setTag(position);
-        holder.webView.getSettings().setUseWideViewPort(true);
-        holder.webView.getSettings().setLoadWithOverviewMode(true);
-        holder.webView.getSettings().setDefaultFontSize(48);
-        holder.webView.loadData(searchBean.getReadability(), "text/html; charset=UTF-8", "utf8");
-        holder.webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_UP:
-                        mOnItemClickListener.onItemClick(view, position);
-                        return true;
-                    default:
-                        return true;
+        if (CommonUtil.isWifiConnected(mContext)) {
+            holder.webView.setVisibility(View.VISIBLE);
+            holder.webView.setTag(position);
+            holder.webView.getSettings().setUseWideViewPort(true);
+            holder.webView.getSettings().setLoadWithOverviewMode(true);
+            holder.webView.getSettings().setDefaultFontSize(48);
+            holder.webView.loadData(searchBean.getReadability(), "text/html; charset=UTF-8", "utf8");
+            holder.webView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    switch (motionEvent.getAction()) {
+                        case MotionEvent.ACTION_UP:
+                            mOnItemClickListener.onItemClick(view, position);
+                            return true;
+                        default:
+                            return true;
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            holder.webView.setVisibility(View.GONE);
+        }
 
         holder.likeBtn.setTag(position);
         holder.likeBtn.setImageResource(isLiked(searchBean) ? R.drawable.like : R.drawable.unlike);
