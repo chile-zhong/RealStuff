@@ -56,4 +56,5 @@
     <string name="search">Search %1$s</string>
     <string name="search_tips">Only Chinese, numbers, English characters and space are allowed.</string>
     <string name="no_search_cache">No search cache</string>
+    <string name="save_img_failed_without_permission">Saving image failed without permission.</string>
 </resources>

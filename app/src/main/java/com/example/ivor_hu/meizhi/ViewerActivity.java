@@ -3,7 +3,6 @@ package com.example.ivor_hu.meizhi;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,21 +10,21 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.TextView;
 
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
@@ -46,11 +45,13 @@ import io.realm.Realm;
 public class ViewerActivity extends AppCompatActivity {
     public static final String TAG = "ViewerActivity";
     public static final String INDEX = "index";
-    private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 111;
+    private static final int SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 111;
+    private static final int SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 112;
     private static final String MSG_URL = "msg_url";
     private static final String SHARE_TITLE = "share_title";
     private static final String SHARE_TEXT = "share_text";
     private static final String SHARE_URL = "share_url";
+    private static String mSavedImgUrl;
     private ViewPager mViewPager;
     private final Handler mMsgHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -66,11 +67,9 @@ public class ViewerActivity extends AppCompatActivity {
     };
     private List<Image> mImages;
     private int mPos;
-    private int mSavedPicPos = -1;
-    private Toolbar mToolbar;
     private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
-    private boolean mIsHidden;
+    private boolean mIsSystemUiHidden;
     private HandlerThread mThread;
     private Handler mSavePicHandler;
     private Handler mShareHandler;
@@ -81,19 +80,12 @@ public class ViewerActivity extends AppCompatActivity {
         supportPostponeEnterTransition();
         setContentView(R.layout.viewer_pager_layout);
 
-        initToolbar();
-
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
         mRealm = Realm.getDefaultInstance();
 
         mImages = Image.all(mRealm);
         mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
-        mViewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        hideSystemUi();
         mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -119,7 +111,8 @@ public class ViewerActivity extends AppCompatActivity {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                hideToolbar();
+                if (!mIsSystemUiHidden)
+                    hideSystemUi();
             }
         });
         mViewPager.setCurrentItem(mPos);
@@ -146,9 +139,7 @@ public class ViewerActivity extends AppCompatActivity {
                 final String url = msg.getData().getString(MSG_URL);
                 try {
                     PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, mMsgHandler);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -174,44 +165,6 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.viewer_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                supportFinishAfterTransition();
-                return true;
-            case R.id.img_save:
-                mSavedPicPos = mViewPager.getCurrentItem();
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    //申请WRITE_EXTERNAL_STORAGE权限
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
-                } else {
-                    savePicAt(mSavedPicPos);
-                }
-                return true;
-            case R.id.img_share:
-                Message message = Message.obtain();
-                Bundle bundle = new Bundle();
-                bundle.putString(SHARE_TITLE, getString(R.string.share_msg));
-                bundle.putString(SHARE_TEXT, null);
-                bundle.putString(SHARE_URL, mImages.get(mViewPager.getCurrentItem()).getUrl());
-                message.setData(bundle);
-                mShareHandler.sendMessage(message);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     public void supportFinishAfterTransition() {
         Intent data = new Intent();
         data.putExtra(INDEX, mViewPager.getCurrentItem());
@@ -226,25 +179,38 @@ public class ViewerActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    private void initToolbar() {
-        mToolbar = (Toolbar) findViewById(R.id.viewer_toolbar);
-        mToolbar.setTitle(R.string.nav_girls);
-        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        mToolbar.setTitleTextColor(Color.WHITE);
-        mToolbar.setBackgroundColor(Color.TRANSPARENT);
-        setSupportActionBar(mToolbar);
+    private void hideSystemUi() {
+        mViewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        mIsSystemUiHidden = true;
     }
 
-    private void savePicAt(int pos) {
-        if (pos < 0)
+    public void saveImg(String url) {
+        if (url == null)
             return;
 
         Message message = Message.obtain();
-        String url = mImages.get(pos).getUrl();
         Bundle bundle = new Bundle();
         bundle.putString(MSG_URL, url);
         message.setData(bundle);
         mSavePicHandler.sendMessage(message);
+    }
+
+    public void shareImg(String url) {
+        if (url == null)
+            return;
+
+        Message message = Message.obtain();
+        Bundle bundle = new Bundle();
+        bundle.putString(SHARE_TITLE, getString(R.string.share_msg));
+        bundle.putString(SHARE_TEXT, null);
+        bundle.putString(SHARE_URL, url);
+        message.setData(bundle);
+        mShareHandler.sendMessage(message);
     }
 
     public void shareMsg(String msgTitle, String msgText, String url) {
@@ -258,9 +224,7 @@ public class ViewerActivity extends AppCompatActivity {
             if (!file.exists()) {
                 try {
                     PicUtil.saveBitmapFromUrl(ViewerActivity.this, url, mMsgHandler);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -276,36 +240,82 @@ public class ViewerActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void toggleToolbar() {
-        if (mIsHidden) {
-            showToolbar();
-        } else {
-            hideToolbar();
-        }
-    }
-
-    public void hideToolbar() {
-        if (mIsHidden)
-            return;
-
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mToolbar.getLayoutParams();
-        mToolbar.animate().translationY(-(mToolbar.getHeight() + lp.topMargin)).setInterpolator(new AccelerateInterpolator(2));
-        mIsHidden = true;
-    }
-
-    public void showToolbar() {
-        if (!mIsHidden)
-            return;
-
-        mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2));
-        mIsHidden = false;
-    }
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
-        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
-            savePicAt(mSavedPicPos);
+        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            CommonUtil.makeSnackBar(mViewPager, getString(R.string.save_img_failed_without_permission), Snackbar.LENGTH_SHORT);
+            return;
+        }
+        if (requestCode == SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+            saveImg(mSavedImgUrl);
+        else if (requestCode == SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+            shareImg(mSavedImgUrl);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public void showImgOptDialog(String url) {
+        ImageOptionDialog.newInstance(url).show(getSupportFragmentManager(), TAG);
+        mIsSystemUiHidden = false;
+    }
+
+    public static class ImageOptionDialog extends DialogFragment {
+        private static final String OPT_URL = "option_url";
+        private String mUrl;
+
+        public static ImageOptionDialog newInstance(String url) {
+            Bundle args = new Bundle();
+            args.putString(OPT_URL, url);
+
+            ImageOptionDialog fragment = new ImageOptionDialog();
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            mUrl = getArguments().getString(OPT_URL);
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+            View view = inflater.inflate(R.layout.dialog_image_option, container);
+            TextView saveTextView = (TextView) view.findViewById(R.id.save_img);
+            saveTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mSavedImgUrl = mUrl;
+                    if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        //申请WRITE_EXTERNAL_STORAGE权限
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                    } else {
+                        ((ViewerActivity) getActivity()).saveImg(mUrl);
+                    }
+                    dismiss();
+                }
+            });
+            TextView shareTextView = (TextView) view.findViewById(R.id.share_img);
+            shareTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mSavedImgUrl = mUrl;
+                    if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        //申请WRITE_EXTERNAL_STORAGE权限
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                    } else {
+                        ((ViewerActivity) getActivity()).shareImg(mUrl);
+                    }
+                    dismiss();
+                }
+            });
+
+            return view;
+        }
     }
 }

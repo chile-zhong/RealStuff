@@ -5,9 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -52,27 +50,11 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.viewer_pager_item, container, false);
         touchImageView = (TouchImageView) view.findViewById(R.id.picture);
-        touchImageView.setOnClickListener(new View.OnClickListener() {
+        touchImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-            }
-        });
-        touchImageView.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                ((ViewerActivity) getActivity()).toggleToolbar();
+            public boolean onLongClick(View view) {
+                ((ViewerActivity) getActivity()).showImgOptDialog(mUrl);
                 return true;
-            }
-
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                ((ViewerActivity) getActivity()).hideToolbar();
-                return true;
-            }
-
-            @Override
-            public boolean onDoubleTapEvent(MotionEvent e) {
-                return false;
             }
         });
 
