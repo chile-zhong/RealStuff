@@ -296,11 +296,10 @@ public class MainActivity extends AppCompatActivity
         super.onActivityReenter(resultCode, data);
 
         if (TYPE.GIRLS.getId().equals(mCurrFragmentType)) {
-            supportPostponeEnterTransition();
-
             reenterState = new Bundle(data.getExtras());
-
             final int index = reenterState.getInt(ViewerActivity.INDEX, 0);
+            ((GirlsFragment) mCurrFragment).smoothScrollTo(index);
+            supportPostponeEnterTransition();
             ((GirlsFragment) mCurrFragment).onActivityReenter(index);
         }
     }

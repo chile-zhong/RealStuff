@@ -153,8 +153,11 @@ public class GirlsFragment extends BaseFragment {
         return maxPosition;
     }
 
-    public void onActivityReenter(final int index) {
+    public void smoothScrollTo(int index) {
         mRecyclerView.smoothScrollToPosition(index);
+    }
+
+    public void onActivityReenter(final int index) {
         mRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
