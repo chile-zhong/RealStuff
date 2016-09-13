@@ -280,12 +280,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityReenter(resultCode, data);
 
         if (getCurrentItem() == 0) {
-            supportPostponeEnterTransition();
-
             reenterState = new Bundle(data.getExtras());
-
             final int index = reenterState.getInt(ViewerActivity.INDEX, 0);
-            ((GirlsFragment) mCurrFragment).onActivityReenter(index);
+            ((GirlsFragment) mCurrFragment).smoothScrollTo(index);
+            supportPostponeEnterTransition();
+            ((GirlsFragment) mCurrFragment).onActivityReenter();
         }
     }
 

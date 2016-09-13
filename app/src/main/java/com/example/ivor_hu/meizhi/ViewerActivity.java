@@ -11,7 +11,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -25,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
@@ -52,24 +52,23 @@ public class ViewerActivity extends AppCompatActivity {
     private static final String SHARE_TEXT = "share_text";
     private static final String SHARE_URL = "share_url";
     private static String sSavedUrl;
-    private ViewPager mViewPager;
     private final Handler mMsgHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
                 case PicUtil.SAVE_DONE_TOAST:
                     String filepath = msg.getData().getString(PicUtil.FILEPATH);
-                    CommonUtil.makeSnackBar(mViewPager, getString(R.string.pic_saved) + filepath, Snackbar.LENGTH_LONG);
+                    CommonUtil.toast(ViewerActivity.this, getString(R.string.pic_saved) + filepath, Toast.LENGTH_LONG);
                     break;
                 default:
                     break;
             }
         }
     };
+    private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
     private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
-    private boolean mIsSystemUiHidden;
     private HandlerThread mThread;
     private Handler mSavePicHandler;
     private Handler mShareHandler;
@@ -85,12 +84,6 @@ public class ViewerActivity extends AppCompatActivity {
 
         mImages = Image.all(mRealm);
         mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
-        mViewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -227,7 +220,7 @@ public class ViewerActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
         if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-            CommonUtil.makeSnackBar(mViewPager, getString(R.string.save_img_failed_without_permission), Snackbar.LENGTH_SHORT);
+            CommonUtil.toast(ViewerActivity.this, getString(R.string.save_img_failed_without_permission), Toast.LENGTH_SHORT);
             return;
         }
 
