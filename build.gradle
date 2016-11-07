@@ -25,11 +25,11 @@ task clean(type: Delete) {
 
 ext {
     applicationId = "com.example.ivor_hu.meizhi"
-    buildToolsVersion = "24.0.1"
+    buildToolsVersion = "25.0.0"
     compileSdkVersion = 24
     minSdkVersion = 19
     targetSdkVersion = 23
     versionCode = 1
     versionName = "1.1"
-    supportVersion = "24.1.1"
+    supportVersion = "25.0.0"
 }
