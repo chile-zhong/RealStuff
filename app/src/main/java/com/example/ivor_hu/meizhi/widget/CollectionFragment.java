@@ -2,7 +2,6 @@ package com.example.ivor_hu.meizhi.widget;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
@@ -38,7 +37,6 @@ public class CollectionFragment extends StuffBaseFragment {
     @Override
     protected void fetchLatest() {
         setRefreshLayout(false);
-        updateData();
     }
 
     @Override
