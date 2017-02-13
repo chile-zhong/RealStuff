@@ -137,8 +137,7 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
 
             for (Image image : girlsResult.results.images) {
                 if (!saveToDb(realm, image))
-                    return fetched;
-
+                    continue;
                 fetched++;
             }
         }
