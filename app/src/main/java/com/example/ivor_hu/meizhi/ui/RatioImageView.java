@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;

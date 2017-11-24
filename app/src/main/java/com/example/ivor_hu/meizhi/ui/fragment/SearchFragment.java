@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,9 +12,9 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.db.SearchBean;
 import com.example.ivor_hu.meizhi.services.SearchFetchService;
+import com.example.ivor_hu.meizhi.ui.adapter.SearchAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
 

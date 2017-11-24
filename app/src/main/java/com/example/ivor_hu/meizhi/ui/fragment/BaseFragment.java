@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.base;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

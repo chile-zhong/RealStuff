@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,15 +11,15 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
 import com.example.ivor_hu.meizhi.services.StuffFetchService;
+import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
 
 /**
  * Created by Ivor on 2016/3/3.
  */
-public class StuffFragment extends StuffBaseFragment {
+public class StuffFragment extends BaseStuffFragment {
     public static final String SERVICE_TYPE = "service_type";
     private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";

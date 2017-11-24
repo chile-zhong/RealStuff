@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -49,7 +49,7 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.viewer_pager_item, container, false);
-        touchImageView = (TouchImageView) view.findViewById(R.id.picture);
+        touchImageView = view.findViewById(R.id.picture);
         touchImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {

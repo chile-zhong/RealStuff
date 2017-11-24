@@ -8,9 +8,9 @@ import android.util.Log;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.net.GankAPI;
 import com.example.ivor_hu.meizhi.net.GankAPIService;
+import com.example.ivor_hu.meizhi.ui.fragment.StuffFragment;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
-import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;

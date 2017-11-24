@@ -27,10 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.ui.fragment.GirlsFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.ViewerFragment;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.PicUtil;
-import com.example.ivor_hu.meizhi.widget.GirlsFragment;
-import com.example.ivor_hu.meizhi.widget.ViewerFragment;
 
 import java.io.File;
 import java.util.List;
@@ -83,7 +83,7 @@ public class ViewerActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
 
         mImages = Image.all(mRealm);
-        mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
+        mViewPager = findViewById(R.id.viewer_pager);
         mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -267,7 +267,7 @@ public class ViewerActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
             View view = inflater.inflate(R.layout.dialog_image_option, container);
-            TextView saveTextView = (TextView) view.findViewById(R.id.save_img);
+            TextView saveTextView = view.findViewById(R.id.save_img);
             saveTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -283,7 +283,7 @@ public class ViewerActivity extends AppCompatActivity {
                     dismiss();
                 }
             });
-            TextView shareTextView = (TextView) view.findViewById(R.id.share_img);
+            TextView shareTextView = view.findViewById(R.id.share_img);
             shareTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

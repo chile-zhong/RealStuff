@@ -1,11 +1,10 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageButton;
 
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.base.StuffBaseAdapter;
 import com.example.ivor_hu.meizhi.db.Stuff;
 
 import io.realm.Realm;
@@ -15,7 +14,7 @@ import io.realm.RealmResults;
 /**
  * Created by ivor on 16-6-21.
  */
-public class CollectionAdapter extends StuffBaseAdapter {
+public class CollectionAdapter extends BaseStuffAdapter {
     private static final String TAG = "CollectionAdapter";
 
     public CollectionAdapter(Context context, Realm realm, String type) {

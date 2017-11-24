@@ -1,16 +1,16 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
+import com.example.ivor_hu.meizhi.ui.adapter.CollectionAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 
 /**
  * Created by ivor on 16-6-21.
  */
-public class CollectionFragment extends StuffBaseFragment {
+public class CollectionFragment extends BaseStuffFragment {
     private static final String TAG = "CollectionFragment";
     private static final String TYPE = "col_type";
 

@@ -7,8 +7,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.example.ivor_hu.meizhi.db.SearchBean;
 import com.example.ivor_hu.meizhi.net.GankAPI;
 import com.example.ivor_hu.meizhi.net.GankAPIService;
+import com.example.ivor_hu.meizhi.ui.fragment.SearchFragment;
 import com.example.ivor_hu.meizhi.utils.Constants;
-import com.example.ivor_hu.meizhi.widget.SearchFragment;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;

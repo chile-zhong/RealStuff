@@ -29,17 +29,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
-import com.example.ivor_hu.meizhi.base.BaseFragment;
-import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.ui.SearchSuggestionProvider;
+import com.example.ivor_hu.meizhi.ui.fragment.BaseFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.BaseStuffFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.CollectionFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.GirlsFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.SearchFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.StuffFragment;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
-import com.example.ivor_hu.meizhi.widget.CollectionFragment;
-import com.example.ivor_hu.meizhi.widget.GirlsFragment;
-import com.example.ivor_hu.meizhi.widget.SearchFragment;
-import com.example.ivor_hu.meizhi.widget.SearchSuggestionProvider;
-import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.util.List;
 import java.util.Map;
@@ -80,12 +80,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchView = (SearchView) findViewById(R.id.searchview);
+        mSearchView = findViewById(R.id.searchview);
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.nav_girls);
         setSupportActionBar(mToolbar);
         mToolbar.setOnTouchListener(new View.OnTouchListener() {
@@ -107,8 +107,8 @@ public class MainActivity extends AppCompatActivity
             mCurrFragmentType = TYPE.GIRLS.getId();
         }
 
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coor_layout);
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mCoordinatorLayout = findViewById(R.id.main_coor_layout);
+        mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,13 +116,13 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         setExitSharedElementCallback(new SharedElementCallback() {
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (mIsSearching) {
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void closeDrawer() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
 
@@ -450,7 +450,7 @@ public class MainActivity extends AppCompatActivity
         if (fragmentIdx.equals(TYPE.GIRLS.getId()) || fragmentIdx.equals(TYPE.SEARCH_RESULTS.getId())) {
             return;
         }
-        ((StuffBaseFragment) newFragment).updateData();
+        ((BaseStuffFragment) newFragment).updateData();
     }
 
 }

@@ -104,7 +104,7 @@ public class CommonUtil {
     }
 
     /**
-     * Get APP version name
+     * Get App version name
      *
      * @param context
      * @return

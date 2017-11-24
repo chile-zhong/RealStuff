@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,9 +15,9 @@ import android.view.ViewTreeObserver;
 
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.ViewerActivity;
-import com.example.ivor_hu.meizhi.base.BaseFragment;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.services.ImageFetchService;
+import com.example.ivor_hu.meizhi.ui.adapter.GirlsAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
 

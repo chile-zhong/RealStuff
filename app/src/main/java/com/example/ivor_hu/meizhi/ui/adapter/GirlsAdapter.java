@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.widget;
+package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.ui.RatioImageView;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -110,8 +111,8 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            cardView = (CardView) itemView.findViewById(R.id.cardview);
-            imageView = (RatioImageView) itemView.findViewById(R.id.network_imageview);
+            cardView = itemView.findViewById(R.id.cardview);
+            imageView = itemView.findViewById(R.id.network_imageview);
         }
 
     }

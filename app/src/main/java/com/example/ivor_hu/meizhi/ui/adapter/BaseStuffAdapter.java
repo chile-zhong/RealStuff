@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.base;
+package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -19,8 +19,8 @@ import io.realm.RealmResults;
 /**
  * Created by ivor on 16-6-21.
  */
-public abstract class StuffBaseAdapter extends RecyclerView.Adapter<StuffBaseAdapter.Viewholder> {
-    private static final String TAG = "StuffBaseAdapter";
+public abstract class BaseStuffAdapter extends RecyclerView.Adapter<BaseStuffAdapter.Viewholder> {
+    private static final String TAG = "BaseStuffAdapter";
     protected final Context mContext;
     protected final Realm mRealm;
     protected final String mType;
@@ -28,7 +28,7 @@ public abstract class StuffBaseAdapter extends RecyclerView.Adapter<StuffBaseAda
     protected int lastStuffsNum;
     private OnItemClickListener mOnItemClickListener;
 
-    public StuffBaseAdapter(Context context, Realm realm, String type) {
+    public BaseStuffAdapter(Context context, Realm realm, String type) {
         this.mContext = context;
         this.mRealm = realm;
         this.mType = type;
@@ -82,12 +82,6 @@ public abstract class StuffBaseAdapter extends RecyclerView.Adapter<StuffBaseAda
         mOnItemClickListener = onItemClickListener;
     }
 
-    public interface OnItemClickListener {
-        boolean onItemLongClick(View v, int position);
-
-        void onItemClick(View v, int position);
-    }
-
     protected abstract void initStuffs(Realm realm, String mType);
 
     protected abstract void bindColBtn(ImageButton likeBtn, int position);
@@ -98,6 +92,12 @@ public abstract class StuffBaseAdapter extends RecyclerView.Adapter<StuffBaseAda
 
     public Stuff getStuffAt(int pos) {
         return mStuffs.get(pos);
+    }
+
+    public interface OnItemClickListener {
+        boolean onItemLongClick(View v, int position);
+
+        void onItemClick(View v, int position);
     }
 
     public class Viewholder extends RecyclerView.ViewHolder {

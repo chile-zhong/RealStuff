@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.base;
+package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,7 @@ import com.example.ivor_hu.meizhi.db.Stuff;
 /**
  * Created by ivor on 16-6-21.
  */
-public abstract class StuffBaseFragment extends BaseFragment {
+public abstract class BaseStuffFragment extends BaseFragment {
     @Override
     protected int getLastVisiblePos() {
         return ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
