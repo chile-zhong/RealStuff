@@ -64,7 +64,7 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
                         @Override
                         public void onAnimationEnd(View view) {
                             ScrollAwareFabBehavior.this.mIsAnimatingOut = false;
-                            view.setVisibility(View.GONE);
+                            view.setVisibility(View.INVISIBLE);
                         }
                     }).start();
         }
@@ -77,8 +77,6 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
             ViewCompat.animate(button).translationY(0)
                     .setInterpolator(INTERPOLATOR).withLayer().setListener(null)
                     .start();
-        } else {
-
         }
     }
 
