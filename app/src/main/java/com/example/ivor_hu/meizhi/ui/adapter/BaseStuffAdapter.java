@@ -51,15 +51,17 @@ public abstract class BaseStuffAdapter extends RecyclerView.Adapter<BaseStuffAda
         holder.stuff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mOnItemClickListener != null)
+                if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(v, position);
+                }
             }
         });
         holder.stuff.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (mOnItemClickListener != null)
+                if (mOnItemClickListener != null) {
                     return mOnItemClickListener.onItemLongClick(v, position);
+                }
 
                 return false;
             }

@@ -59,8 +59,9 @@ public class StuffFragment extends BaseStuffFragment {
 
     @Override
     protected void loadingMore() {
-        if (mIsLoadingMore)
+        if (mIsLoadingMore) {
             return;
+        }
 
         Intent intent = new Intent(getActivity(), StuffFetchService.class);
         intent.setAction(StuffFetchService.ACTION_FETCH_MORE).putExtra(SERVICE_TYPE, mType);
@@ -72,8 +73,9 @@ public class StuffFragment extends BaseStuffFragment {
 
     @Override
     protected void fetchLatest() {
-        if (mIsRefreshing)
+        if (mIsRefreshing) {
             return;
+        }
 
         Intent intent = new Intent(getActivity(), StuffFetchService.class);
         intent.setAction(StuffFetchService.ACTION_FETCH_REFRESH).putExtra(SERVICE_TYPE, mType);
@@ -89,8 +91,9 @@ public class StuffFragment extends BaseStuffFragment {
         adapter.setOnItemClickListener(new StuffAdapter.OnItemClickListener() {
             @Override
             public boolean onItemLongClick(View v, int position) {
-                if (mIsLoadingMore || mIsRefreshing)
+                if (mIsLoadingMore || mIsRefreshing) {
                     return true;
+                }
 
                 getActivity().startActionMode(new ShareListener(getActivity(), adapter.getStuffAt(position), v));
                 return true;
@@ -98,8 +101,9 @@ public class StuffFragment extends BaseStuffFragment {
 
             @Override
             public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing)
+                if (mIsLoadingMore || mIsRefreshing) {
                     return;
+                }
 
                 CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
             }
@@ -140,8 +144,9 @@ public class StuffFragment extends BaseStuffFragment {
             }
             setFetchingFlagsFalse();
 
-            if (null == mAdapter || fetched == 0)
+            if (null == mAdapter || fetched == 0) {
                 return;
+            }
             ((StuffAdapter) mAdapter).updateInsertedData(fetched, trigger.equals(StuffFetchService.ACTION_FETCH_MORE));
         }
     }

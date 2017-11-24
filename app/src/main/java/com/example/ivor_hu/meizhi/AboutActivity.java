@@ -36,8 +36,9 @@ public class AboutActivity extends AppCompatActivity {
 
         mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(mToolbar);
-        if (NavUtils.getParentActivityName(this) != null)
+        if (NavUtils.getParentActivityName(this) != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         TextView verTv = $(R.id.version_name);
         try {
@@ -56,8 +57,9 @@ public class AboutActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.home:
-                if (NavUtils.getParentActivityName(this) != null)
+                if (NavUtils.getParentActivityName(this) != null) {
                     NavUtils.navigateUpFromSameTask(this);
+                }
 
                 return true;
             default:

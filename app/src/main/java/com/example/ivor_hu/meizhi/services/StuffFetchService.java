@@ -6,8 +6,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.ivor_hu.meizhi.db.Stuff;
-import com.example.ivor_hu.meizhi.net.GankAPI;
-import com.example.ivor_hu.meizhi.net.GankAPIService;
+import com.example.ivor_hu.meizhi.net.GankApi;
+import com.example.ivor_hu.meizhi.net.GankApiService;
 import com.example.ivor_hu.meizhi.ui.fragment.StuffFragment;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
@@ -99,15 +99,17 @@ public class StuffFetchService extends IntentService {
 
 
     private int fetchLatest(final Realm realm) throws IOException {
-        GankAPI.Result<List<Stuff>> result = GankAPIService.getInstance().latestStuff(type, 20).execute().body();
+        GankApi.Result<List<Stuff>> result = GankApiService.getInstance().latestStuff(type, 20).execute().body();
 
-        if (result.error)
+        if (result.error) {
             return 0;
+        }
 
         int stuffSize = result.results.size();
         for (int i = 0; i < stuffSize; i++) {
-            if (!saveToDb(realm, result.results.get(i)))
+            if (!saveToDb(realm, result.results.get(i))) {
                 return i;
+            }
         }
         return stuffSize;
     }
@@ -128,96 +130,114 @@ public class StuffFetchService extends IntentService {
         int fetched = 0;
         if (type.equals(Constants.TYPE.ANDROID.getApiName())) {
             for (String date : dates) {
-                if (date.equals(after))
+                if (date.equals(after)) {
                     continue;
+                }
 
-                GankAPI.Result<GankAPI.Androids> stuffsResult = GankAPIService.getInstance().dayAndroids(date).execute().body();
-                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                GankApi.Result<GankApi.Androids> stuffsResult = GankApiService.getInstance().dayAndroids(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs) {
                     continue;
+                }
 
                 for (Stuff stuff : stuffsResult.results.stuffs) {
-                    if (!saveToDb(realm, stuff))
+                    if (!saveToDb(realm, stuff)) {
                         return fetched;
+                    }
 
                     fetched++;
                 }
             }
         } else if (type.equals(Constants.TYPE.IOS.getApiName())) {
             for (String date : dates) {
-                if (date.equals(after))
+                if (date.equals(after)) {
                     continue;
+                }
 
-                GankAPI.Result<GankAPI.IOSs> stuffsResult = GankAPIService.getInstance().dayIOSs(date).execute().body();
-                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                GankApi.Result<GankApi.IOSs> stuffsResult = GankApiService.getInstance().dayIOSs(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs) {
                     continue;
+                }
 
                 for (Stuff stuff : stuffsResult.results.stuffs) {
-                    if (!saveToDb(realm, stuff))
+                    if (!saveToDb(realm, stuff)) {
                         return fetched;
+                    }
 
                     fetched++;
                 }
             }
         } else if (type.equals(Constants.TYPE.APP.getApiName())) {
             for (String date : dates) {
-                if (date.equals(after))
+                if (date.equals(after)) {
                     continue;
+                }
 
-                GankAPI.Result<GankAPI.Apps> stuffsResult = GankAPIService.getInstance().dayApps(date).execute().body();
-                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                GankApi.Result<GankApi.Apps> stuffsResult = GankApiService.getInstance().dayApps(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs) {
                     continue;
+                }
 
                 for (Stuff stuff : stuffsResult.results.stuffs) {
-                    if (!saveToDb(realm, stuff))
+                    if (!saveToDb(realm, stuff)) {
                         return fetched;
+                    }
 
                     fetched++;
                 }
             }
         } else if (type.equals(Constants.TYPE.FUN.getApiName())) {
             for (String date : dates) {
-                if (date.equals(after))
+                if (date.equals(after)) {
                     continue;
+                }
 
-                GankAPI.Result<GankAPI.Funs> stuffsResult = GankAPIService.getInstance().dayFuns(date).execute().body();
-                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                GankApi.Result<GankApi.Funs> stuffsResult = GankApiService.getInstance().dayFuns(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs) {
                     continue;
+                }
 
                 for (Stuff stuff : stuffsResult.results.stuffs) {
-                    if (!saveToDb(realm, stuff))
+                    if (!saveToDb(realm, stuff)) {
                         return fetched;
+                    }
 
                     fetched++;
                 }
             }
         } else if (type.equals(Constants.TYPE.OTHERS.getApiName())) {
             for (String date : dates) {
-                if (date.equals(after))
+                if (date.equals(after)) {
                     continue;
+                }
 
-                GankAPI.Result<GankAPI.Others> stuffsResult = GankAPIService.getInstance().dayOthers(date).execute().body();
-                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                GankApi.Result<GankApi.Others> stuffsResult = GankApiService.getInstance().dayOthers(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs) {
                     continue;
+                }
 
                 for (Stuff stuff : stuffsResult.results.stuffs) {
-                    if (!saveToDb(realm, stuff))
+                    if (!saveToDb(realm, stuff)) {
                         return fetched;
+                    }
 
                     fetched++;
                 }
             }
         } else if (type.equals(Constants.TYPE.WEB.getApiName())) {
             for (String date : dates) {
-                if (date.equals(after))
+                if (date.equals(after)) {
                     continue;
+                }
 
-                GankAPI.Result<GankAPI.Webs> stuffsResult = GankAPIService.getInstance().dayWebs(date).execute().body();
-                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs)
+                GankApi.Result<GankApi.Webs> stuffsResult = GankApiService.getInstance().dayWebs(date).execute().body();
+                if (stuffsResult.error || null == stuffsResult.results || null == stuffsResult.results.stuffs) {
                     continue;
+                }
 
                 for (Stuff stuff : stuffsResult.results.stuffs) {
-                    if (!saveToDb(realm, stuff))
+                    if (!saveToDb(realm, stuff)) {
                         return fetched;
+                    }
 
                     fetched++;
                 }

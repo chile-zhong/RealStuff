@@ -159,8 +159,9 @@ public class MainActivity extends AppCompatActivity
 //                            ((BaseFragment) fragment).updateData();
 //                        }
                         Fragment fragment = getSupportFragmentManager().findFragmentByTag(TYPE.GIRLS.getId());
-                        if (fragment != null)
+                        if (fragment != null) {
                             ((BaseFragment) fragment).updateData();
+                        }
                         break;
                     default:
                         break;
@@ -187,13 +188,20 @@ public class MainActivity extends AppCompatActivity
                         .saveRecentQuery(safeText, null);
                 TYPE type = getCurrSearchType();
                 String searchCat;
-                if (type == null)
+                if (type == null) {
                     searchCat = getString(R.string.api_all);
-                else
+                } else {
                     searchCat = type.getApiName();
+                }
                 switchToSearchResult(safeText, searchCat, 10);
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mClearCacheHandler.removeMessages(CLEAR_ALL);
     }
 
     @Override
@@ -249,10 +257,11 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, AboutActivity.class));
             return true;
         } else if (id == R.id.action_clear_cache) {
-            if (((BaseFragment) mCurrFragment).isFetching())
+            if (((BaseFragment) mCurrFragment).isFetching()) {
                 CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
-            else
+            } else {
                 clearRealmType(mCurrFragmentType);
+            }
             return true;
         } else if (id == R.id.action_search) {
             mIsSearching = true;
@@ -323,10 +332,11 @@ public class MainActivity extends AppCompatActivity
                 clearCacheSnackBar(strId, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (TYPE.GIRLS.getApiName().equals(apiName))
+                        if (TYPE.GIRLS.getApiName().equals(apiName)) {
                             Image.clearImage(MainActivity.this, mRealm);
-                        else
+                        } else {
                             Stuff.clearType(mRealm, apiName);
+                        }
                         mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);
                     }
                 });
@@ -355,8 +365,9 @@ public class MainActivity extends AppCompatActivity
         } else {
             hideAndAdd(manager, addedFragment, type);
         }
-        if (mIsSearching)
+        if (mIsSearching) {
             hideSearchView();
+        }
     }
 
     private void switchToSearchResult(String keyword, String category, int count) {
@@ -375,8 +386,9 @@ public class MainActivity extends AppCompatActivity
         FragmentManager manager = getSupportFragmentManager();
         for (TYPE type : TYPE.values()) {
             Fragment fragment = manager.findFragmentByTag(type.getId());
-            if (fragment == null)
+            if (fragment == null) {
                 continue;
+            }
 
             if (type.getId().equals(mCurrFragmentType)) {
                 manager.beginTransaction().show(fragment).commit();
@@ -409,41 +421,48 @@ public class MainActivity extends AppCompatActivity
                     TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
             int cy = mSearchView.getHeight() / 2;
             int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
+            }
         }
 
-        if (mToolbar != null)
+        if (mToolbar != null) {
             mToolbar.setVisibility(View.GONE);
+        }
         updateSearchHint();
     }
 
     private void hideSearchView() {
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.setVisibility(View.GONE);
-        if (mToolbar != null)
+        }
+        if (mToolbar != null) {
             mToolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateSearchHint() {
         int navResId;
         TYPE type = getCurrSearchType();
-        if (type == null)
+        if (type == null) {
             navResId = R.string.search_all;
-        else
+        } else {
             navResId = type.getStrId();
+        }
 
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.setQueryHint(String.format(getString(R.string.search), getString(navResId)));
+        }
     }
 
     private TYPE getCurrSearchType() {
         if (TYPE.GIRLS.getId().equals(mCurrFragmentType)
                 || TYPE.COLLECTIONS.getId().equals(mCurrFragmentType)
-                || TYPE.SEARCH_RESULTS.getId().equals(mCurrFragmentType))
+                || TYPE.SEARCH_RESULTS.getId().equals(mCurrFragmentType)) {
             return null;
-        else
+        } else {
             return TYPE.valueOf(mCurrFragmentType);
+        }
     }
 
     private void updateLikedData(Fragment newFragment, String fragmentIdx) {

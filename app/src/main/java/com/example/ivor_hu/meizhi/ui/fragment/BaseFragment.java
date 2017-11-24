@@ -80,8 +80,9 @@ public abstract class BaseFragment extends Fragment {
             }
         };
         mRefreshLayout.setOnRefreshListener(listener);
-        if (savedInstanceState == null)
+        if (savedInstanceState == null) {
             listener.onRefresh();
+        }
 
         // another way to call onRefresh
 //        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -101,8 +102,9 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void setRefreshLayout(final boolean state) {
-        if (mRefreshLayout == null)
+        if (mRefreshLayout == null) {
             return;
+        }
 
         mRefreshLayout.post(new Runnable() {
             @Override
@@ -113,20 +115,24 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void setFetchingFlagsFalse() {
-        if (mIsRefreshing)
+        if (mIsRefreshing) {
             mIsRefreshing = false;
-        if (mIsLoadingMore)
+        }
+        if (mIsLoadingMore) {
             mIsLoadingMore = false;
+        }
     }
 
     public void smoothScrollToTop() {
-        if (mLayoutManager != null)
+        if (mLayoutManager != null) {
             mLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);
+        }
     }
 
     public void updateData() {
-        if (null == mAdapter)
+        if (null == mAdapter) {
             return;
+        }
 
         mAdapter.notifyDataSetChanged();
     }

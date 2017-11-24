@@ -153,8 +153,9 @@ public class CommonUtil {
      * @param context
      */
     public static void cleanExternalCache(Context context) {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             deleteFilesByDirectory(context.getExternalCacheDir());
+        }
     }
 
     /**
@@ -163,16 +164,19 @@ public class CommonUtil {
      * @param directory
      */
     private static void deleteFilesByDirectory(File directory) {
-        if (directory != null && directory.exists() && directory.isDirectory())
-            for (File item : directory.listFiles())
+        if (directory != null && directory.exists() && directory.isDirectory()) {
+            for (File item : directory.listFiles()) {
                 item.delete();
+            }
+        }
     }
 
     public static boolean isWifiConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork == null)
+        if (activeNetwork == null) {
             return false;
+        }
 
         return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 

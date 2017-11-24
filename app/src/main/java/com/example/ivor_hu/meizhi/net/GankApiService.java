@@ -13,9 +13,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by Ivor on 2016/4/4.
  */
-public class GankAPIService {
-    private static volatile GankAPI sGankAPI;
-    private static final Gson gson = new GsonBuilder()
+public class GankApiService {
+    private static final Gson GSON = new GsonBuilder()
             .setDateFormat(DateUtil.DATE_FORMAT_WHOLE)
             .setExclusionStrategies(new ExclusionStrategy() {
                 @Override
@@ -29,24 +28,25 @@ public class GankAPIService {
                 }
             })
             .create();
-
-    private static final Retrofit girlsRetrofit = new Retrofit.Builder()
-            .baseUrl(GankAPI.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+    private static final Retrofit GIRLS_RETROFIT = new Retrofit.Builder()
+            .baseUrl(GankApi.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(GSON))
             .build();
+    private static volatile GankApi sGankApi;
 
-    private GankAPIService() {
+    private GankApiService() {
     }
 
-    public static GankAPI getInstance() {
-        if (sGankAPI == null) {
-            synchronized (GankAPIService.class) {
-                if (sGankAPI == null)
-                    sGankAPI = girlsRetrofit.create(GankAPI.class);
+    public static GankApi getInstance() {
+        if (sGankApi == null) {
+            synchronized (GankApiService.class) {
+                if (sGankApi == null) {
+                    sGankApi = GIRLS_RETROFIT.create(GankApi.class);
+                }
             }
         }
 
-        return sGankAPI;
+        return sGankApi;
     }
 
 }

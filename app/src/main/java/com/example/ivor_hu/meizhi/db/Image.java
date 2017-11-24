@@ -2,6 +2,7 @@ package com.example.ivor_hu.meizhi.db;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.AsyncTask;
 
 import com.bumptech.glide.Glide;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
@@ -44,12 +45,13 @@ public class Image extends RealmObject {
     }
 
     public static void clearImage(final Context context, Realm realm) {
-        new Thread(new Runnable() {
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            public void run() {
+            protected Void doInBackground(Void... voids) {
                 Glide.get(context).clearDiskCache();
+                return null;
             }
-        }).start();
+        }.execute();
 
         final RealmResults<Image> images = realm.where(Image.class)
                 .findAll();

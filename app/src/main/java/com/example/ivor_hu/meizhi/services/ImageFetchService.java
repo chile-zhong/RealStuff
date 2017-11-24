@@ -10,8 +10,8 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
 import com.example.ivor_hu.meizhi.db.Image;
-import com.example.ivor_hu.meizhi.net.GankAPI;
-import com.example.ivor_hu.meizhi.net.GankAPIService;
+import com.example.ivor_hu.meizhi.net.GankApi;
+import com.example.ivor_hu.meizhi.net.GankApiService;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
 import com.example.ivor_hu.meizhi.utils.Constants;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
@@ -97,15 +97,17 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
 
 
     private int fetchLatest(final Realm realm) throws IOException {
-        GankAPI.Result<List<Image>> result = GankAPIService.getInstance().latestGirls(10).execute().body();
+        GankApi.Result<List<Image>> result = GankApiService.getInstance().latestGirls(10).execute().body();
 
-        if (result.error)
+        if (result.error) {
             return 0;
+        }
 
         int resultSize = result.results.size();
         for (int i = 0; i < resultSize; i++) {
-            if (!saveToDb(realm, result.results.get(i)))
+            if (!saveToDb(realm, result.results.get(i))) {
                 return i;
+            }
         }
 
         return resultSize;
@@ -127,17 +129,20 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
         int fetched = 0;
 
         for (String date : dates) {
-            if (date.equals(baseline))
+            if (date.equals(baseline)) {
                 continue;
+            }
 
-            GankAPI.Result<GankAPI.Girls> girlsResult = GankAPIService.getInstance().dayGirls(date).execute().body();
+            GankApi.Result<GankApi.Girls> girlsResult = GankApiService.getInstance().dayGirls(date).execute().body();
 
-            if (girlsResult.error || null == girlsResult.results || null == girlsResult.results.images)
+            if (girlsResult.error || null == girlsResult.results || null == girlsResult.results.images) {
                 continue;
+            }
 
             for (Image image : girlsResult.results.images) {
-                if (!saveToDb(realm, image))
+                if (!saveToDb(realm, image)) {
                     continue;
+                }
                 fetched++;
             }
         }

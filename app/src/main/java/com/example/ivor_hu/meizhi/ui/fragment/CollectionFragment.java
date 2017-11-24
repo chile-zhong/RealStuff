@@ -45,8 +45,9 @@ public class CollectionFragment extends BaseStuffFragment {
         adapter.setOnItemClickListener(new CollectionAdapter.OnItemClickListener() {
             @Override
             public boolean onItemLongClick(View v, int position) {
-                if (mIsLoadingMore || mIsRefreshing)
+                if (mIsLoadingMore || mIsRefreshing) {
                     return true;
+                }
 
                 getActivity().startActionMode(new StuffFragment.ShareListener(getActivity(), adapter.getStuffAt(position), v));
                 return true;
@@ -54,8 +55,9 @@ public class CollectionFragment extends BaseStuffFragment {
 
             @Override
             public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing)
+                if (mIsLoadingMore || mIsRefreshing) {
                     return;
+                }
 
                 CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
             }

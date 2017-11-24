@@ -87,8 +87,9 @@ public class SearchFragment extends BaseFragment {
 
     @Override
     protected void fetchLatest() {
-        if (mIsLoadingMore || mIsRefreshing)
+        if (mIsLoadingMore || mIsRefreshing) {
             return;
+        }
 
         Intent intent = new Intent(getActivity(), SearchFetchService.class);
         intent.setAction(SearchFetchService.ACTION_FETCH_REFRESH);
@@ -123,8 +124,9 @@ public class SearchFragment extends BaseFragment {
         adapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing)
+                if (mIsLoadingMore || mIsRefreshing) {
                     return;
+                }
 
                 CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
             }
@@ -187,8 +189,9 @@ public class SearchFragment extends BaseFragment {
             }
             setFetchingFlagsFalse();
 
-            if (null == mAdapter || fetched == 0)
+            if (null == mAdapter || fetched == 0) {
                 return;
+            }
             ((SearchAdapter) mAdapter).updateInsertedData(beans, trigger.equals(SearchFetchService.ACTION_FETCH_MORE));
         }
     }

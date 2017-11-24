@@ -17,8 +17,8 @@
 package com.example.ivor_hu.meizhi.ui;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * 一个能保持比例的 ImageView
@@ -26,7 +26,7 @@ import android.widget.ImageView;
  *
  * @author XiNGRZ
  */
-public class RatioImageView extends ImageView {
+public class RatioImageView extends AppCompatImageView {
 
     private int originalWidth;
     private int originalHeight;

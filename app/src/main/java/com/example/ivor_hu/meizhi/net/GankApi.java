@@ -14,7 +14,9 @@ import retrofit2.http.Path;
 /**
  * Created by Ivor on 2016/4/4.
  */
-public interface GankAPI {
+public interface GankApi {
+    String HTTP_CODE_PREFIX_4 = "4";
+    String HTTP_CODE_PREFIX_5 = "5";
     String BASE_URL = "http://gank.io/api/";
     String LATEST_GIRLS_URL = BASE_URL + "data/%E7%A6%8F%E5%88%A9/10/1";
     String LATEST_ANDROID_URL = BASE_URL + "data/Android/20/1";

@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.ivor_hu.meizhi.db.SearchBean;
-import com.example.ivor_hu.meizhi.net.GankAPI;
-import com.example.ivor_hu.meizhi.net.GankAPIService;
+import com.example.ivor_hu.meizhi.net.GankApi;
+import com.example.ivor_hu.meizhi.net.GankApiService;
 import com.example.ivor_hu.meizhi.ui.fragment.SearchFragment;
 import com.example.ivor_hu.meizhi.utils.Constants;
 
@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Response;
+
+import static com.example.ivor_hu.meizhi.net.GankApi.HTTP_CODE_PREFIX_4;
+import static com.example.ivor_hu.meizhi.net.GankApi.HTTP_CODE_PREFIX_5;
 
 /**
  * Created by ivor on 16-6-17.
@@ -52,10 +55,11 @@ public class SearchFetchService extends IntentService {
         final int page = intent.getIntExtra(SearchFragment.PAGE, 1);
         ArrayList<SearchBean> beans = null;
         try {
-            if (ACTION_FETCH_REFRESH.equals(intent.getAction()))
+            if (ACTION_FETCH_REFRESH.equals(intent.getAction())) {
                 beans = fetchRefresh(keyword, category, count, page);
-            else if (ACTION_FETCH_MORE.equals(intent.getAction()))
+            } else if (ACTION_FETCH_MORE.equals(intent.getAction())) {
                 beans = fetchMore(keyword, category, count, page);
+            }
         } catch (SocketTimeoutException e) {
             mExceptionCode = Constants.NETWORK_EXCEPTION.TIMEOUT;
         } catch (UnknownHostException e) {
@@ -79,7 +83,7 @@ public class SearchFetchService extends IntentService {
     }
 
     private ArrayList<SearchBean> fetchMore(String keyword, String category, int count, int page) throws IOException {
-        Response<GankAPI.Result<List<SearchBean>>> response = GankAPIService.getInstance().search(
+        Response<GankApi.Result<List<SearchBean>>> response = GankApiService.getInstance().search(
                 keyword,
                 category,
                 count,
@@ -89,7 +93,7 @@ public class SearchFetchService extends IntentService {
     }
 
     private ArrayList<SearchBean> fetchRefresh(String keyword, String category, int count, int page) throws IOException {
-        Response<GankAPI.Result<List<SearchBean>>> response = GankAPIService.getInstance().search(
+        Response<GankApi.Result<List<SearchBean>>> response = GankApiService.getInstance().search(
                 keyword,
                 category,
                 count,
@@ -98,14 +102,14 @@ public class SearchFetchService extends IntentService {
         return handleResponse(response);
     }
 
-    private ArrayList<SearchBean> handleResponse(Response<GankAPI.Result<List<SearchBean>>> response) {
+    private ArrayList<SearchBean> handleResponse(Response<GankApi.Result<List<SearchBean>>> response) {
         String code = Integer.toString(response.code());
         if (response.isSuccessful() && !response.body().error) {
             return (ArrayList<SearchBean>) response.body().results;
-        } else if (code.startsWith("4")) {
+        } else if (code.startsWith(HTTP_CODE_PREFIX_4)) {
             mExceptionCode = Constants.NETWORK_EXCEPTION.HTTP4XX;
             return new ArrayList<>();
-        } else if (code.startsWith("5")) {
+        } else if (code.startsWith(HTTP_CODE_PREFIX_5)) {
             mExceptionCode = Constants.NETWORK_EXCEPTION.HTTP5XX;
             return new ArrayList<>();
         }

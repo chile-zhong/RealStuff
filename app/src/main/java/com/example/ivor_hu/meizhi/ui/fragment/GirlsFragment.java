@@ -63,8 +63,9 @@ public class GirlsFragment extends BaseFragment {
 
     @Override
     protected void loadingMore() {
-        if (mIsLoadingMore)
+        if (mIsLoadingMore) {
             return;
+        }
 
         Intent intent = new Intent(getActivity(), ImageFetchService.class);
         intent.setAction(ImageFetchService.ACTION_FETCH_MORE);

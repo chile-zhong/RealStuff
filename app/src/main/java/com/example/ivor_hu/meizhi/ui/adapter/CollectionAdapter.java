@@ -48,10 +48,11 @@ public class CollectionAdapter extends BaseStuffAdapter {
             @Override
             public void execute(Realm realm) {
                 Stuff stuff = mStuffs.get(position);
-                if (stuff.isDeleted())
+                if (stuff.isDeleted()) {
                     stuff.deleteFromRealm();
-                else
+                } else {
                     stuff.setLiked(false);
+                }
             }
         });
     }

@@ -19,6 +19,7 @@ import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,7 @@ public class ViewerActivity extends AppCompatActivity {
     private static final String SHARE_URL = "share_url";
     private static String mSavedImgUrl;
     private final Handler mMsgHandler = new Handler() {
+        @Override
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
                 case PicUtil.SAVE_DONE_TOAST:
@@ -114,7 +116,7 @@ public class ViewerActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(mPos);
 
         // 避免图片在进行 Shared Element Transition 时盖过 Toolbar
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setSharedElementsUseOverlay(false);
         }
 
@@ -176,8 +178,9 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     public void saveImg(String url) {
-        if (url == null)
+        if (url == null) {
             return;
+        }
 
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
@@ -187,8 +190,9 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     public void shareImg(String url) {
-        if (url == null)
+        if (url == null) {
             return;
+        }
 
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
@@ -203,7 +207,7 @@ public class ViewerActivity extends AppCompatActivity {
         String imgPath = PicUtil.getImgPathFromUrl(url);
 
         Intent intent = new Intent(Intent.ACTION_SEND);
-        if (imgPath == null || imgPath.equals("")) {
+        if (TextUtils.isEmpty(imgPath)) {
             intent.setType("text/plain");
         } else {
             File file = new File(imgPath);
@@ -232,10 +236,11 @@ public class ViewerActivity extends AppCompatActivity {
             CommonUtil.toast(ViewerActivity.this, getString(R.string.save_img_failed_without_permission), Toast.LENGTH_SHORT);
             return;
         }
-        if (requestCode == SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+        if (requestCode == SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             saveImg(mSavedImgUrl);
-        else if (requestCode == SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+        } else if (requestCode == SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             shareImg(mSavedImgUrl);
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 

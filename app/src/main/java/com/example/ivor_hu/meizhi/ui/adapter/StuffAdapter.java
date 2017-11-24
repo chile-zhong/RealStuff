@@ -22,10 +22,11 @@ public class StuffAdapter extends BaseStuffAdapter {
     }
 
     public void updateInsertedData(int numImages, boolean isMore) {
-        if (isMore)
+        if (isMore) {
             notifyItemRangeInserted(lastStuffsNum, numImages);
-        else
+        } else {
             notifyItemRangeInserted(0, numImages);
+        }
         lastStuffsNum += numImages;
     }
 
