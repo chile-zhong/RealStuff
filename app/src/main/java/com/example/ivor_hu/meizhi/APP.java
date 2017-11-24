@@ -13,9 +13,11 @@ public class APP extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Realm.setDefaultConfiguration(new RealmConfiguration.Builder(this)
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration
+                .Builder()
                 .schemaVersion(2)
-                .deleteRealmIfMigrationNeeded()
-                .build());
+                .deleteRealmIfMigrationNeeded().build();
+        Realm.setDefaultConfiguration(config);
     }
 }
