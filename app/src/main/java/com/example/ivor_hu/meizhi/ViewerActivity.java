@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import io.realm.Realm;
-
 /**
  * Created by Ivor on 2016/2/15.
  */
@@ -69,7 +67,6 @@ public class ViewerActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
-    private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
     private HandlerThread mThread;
     private Handler mSavePicHandler;
@@ -82,9 +79,7 @@ public class ViewerActivity extends AppCompatActivity {
         setContentView(R.layout.viewer_pager_layout);
 
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
-        mRealm = Realm.getDefaultInstance();
-
-        mImages = Image.all(mRealm);
+        mImages = getIntent().getParcelableArrayListExtra(GirlsFragment.IMAGES);
         mViewPager = findViewById(R.id.viewer_pager);
         mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -157,8 +152,6 @@ public class ViewerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mRealm.removeAllChangeListeners();
-        mRealm.close();
         mThread.quit();
     }
 

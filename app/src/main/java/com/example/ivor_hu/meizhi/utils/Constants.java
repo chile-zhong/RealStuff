@@ -12,7 +12,7 @@ public interface Constants {
         ANDROID("ANDROID", "Android", R.string.nav_android, R.id.nav_android),
         IOS("IOS", "iOS", R.string.nav_ios, R.id.nav_ios),
         WEB("WEB", "前端", R.string.nav_web, R.id.nav_web),
-        APP("App", "App", R.string.nav_app, R.id.nav_app),
+        APP("APP", "App", R.string.nav_app, R.id.nav_app),
         FUN("FUN", "瞎推荐", R.string.nav_fun, R.id.nav_fun),
         OTHERS("OTHERS", "拓展资源", R.string.nav_others, R.id.nav_others),
         COLLECTIONS("COLLECTIONS", "Collections", R.string.nav_collections, R.id.nav_collections),

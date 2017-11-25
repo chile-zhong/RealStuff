@@ -2,6 +2,7 @@ package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,16 +14,12 @@ import android.widget.TextView;
 
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.SearchBean;
-import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import io.realm.Realm;
 
 /**
  * Created by ivor on 16-6-17.
@@ -32,12 +29,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
     private Context mContext;
     private List<SearchBean> mSearchBeens;
     private OnItemClickListener mOnItemClickListener;
-    private Realm realm;
 
-    public SearchAdapter(Context context, Realm realm) {
+    public SearchAdapter(Context context) {
         this.mContext = context;
         this.mSearchBeens = new ArrayList<>();
-        this.realm = realm;
         setHasStableIds(true);
     }
 
@@ -77,7 +72,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             });
         }
 
-        if (CommonUtil.isWifiConnected(mContext)) {
+        if (CommonUtil.isWifiConnected(mContext)
+                && !TextUtils.isEmpty(searchBean.getReadability())) {
             holder.webView.setVisibility(View.VISIBLE);
             holder.webView.setTag(position);
             holder.webView.getSettings().setUseWideViewPort(true);
@@ -132,47 +128,35 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
 
     private void changeLiked(SearchBean bean, boolean isLiked) {
         bean.setLiked(isLiked);
-        try {
-            Stuff stuff = Stuff.checkSearch(realm, bean.getUrl());
-            realm.beginTransaction();
-            if (stuff == null) {
-                stuff = Stuff.fromSearch(bean);
-                stuff.setLastChanged(new Date());
-                stuff.setLiked(isLiked);
-                realm.copyToRealm(stuff);
-            } else {
-                stuff.setLiked(isLiked);
-                stuff.setLastChanged(new Date());
-            }
-            realm.commitTransaction();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Stuff stuff = Stuff.checkSearch(realm, bean.getUrl());
+//            realm.beginTransaction();
+//            if (stuff == null) {
+//                stuff = Stuff.fromSearch(bean);
+//                stuff.setLastChanged(new Date());
+//                stuff.setLiked(isLiked);
+//                realm.copyToRealm(stuff);
+//            } else {
+//                stuff.setLiked(isLiked);
+//                stuff.setLastChanged(new Date());
+//            }
+//            realm.commitTransaction();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private boolean isLiked(SearchBean bean) {
-        Stuff stuff = Stuff.checkSearch(realm, bean.getUrl());
-        if (stuff != null) {
-            bean.setLiked(stuff.isLiked());
-            return stuff.isLiked();
-        }
+//        Stuff stuff = Stuff.checkSearch(realm, bean.getUrl());
+//        if (stuff != null) {
+//            bean.setLiked(stuff.isLiked());
+//            return stuff.isLiked();
+//        }
         return false;
     }
 
     public SearchBean getStuffAt(int pos) {
         return mSearchBeens.get(pos);
-    }
-
-    public void updateInsertedData(ArrayList<SearchBean> beans, boolean isMore) {
-        if (isMore) {
-            int oldSize = mSearchBeens.size();
-            mSearchBeens.addAll(beans);
-            notifyItemRangeInserted(oldSize, beans.size());
-        } else {
-            mSearchBeens.clear();
-            mSearchBeens.addAll(beans);
-            notifyDataSetChanged();
-        }
     }
 
     public void clearData() {
@@ -182,6 +166,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
 
     private <T extends View> T $(View view, int resId) {
         return (T) view.findViewById(resId);
+    }
+
+    public void addSearch(List<SearchBean> results) {
+        if (results == null) {
+            return;
+        }
+
+        mSearchBeens.addAll(results);
     }
 
     public interface OnItemClickListener {

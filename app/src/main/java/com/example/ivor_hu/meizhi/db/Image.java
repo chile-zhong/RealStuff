@@ -1,10 +1,9 @@
 package com.example.ivor_hu.meizhi.db;
 
-import android.content.Context;
 import android.graphics.Point;
-import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.bumptech.glide.Glide;
 import com.example.ivor_hu.meizhi.net.ImageFetcher;
 import com.google.gson.annotations.SerializedName;
 
@@ -12,17 +11,21 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
-import io.realm.Sort;
-import io.realm.annotations.PrimaryKey;
-
 /**
  * Created by Ivor on 2016/2/9.
  */
-public class Image extends RealmObject {
-    @PrimaryKey
+public class Image implements Parcelable {
+    public static final Parcelable.Creator<Image> CREATOR = new Creator<Image>() {
+        @Override
+        public Image createFromParcel(Parcel source) {
+            return new Image(source);
+        }
+
+        @Override
+        public Image[] newArray(int size) {
+            return new Image[size];
+        }
+    };
     @SerializedName("_id")
     private String id;
     private String url;
@@ -39,28 +42,12 @@ public class Image extends RealmObject {
         this.publishedAt = publishedAt;
     }
 
-    public static RealmResults<Image> all(Realm realm) {
-        return realm.where(Image.class)
-                .findAllSorted("publishedAt", Sort.DESCENDING);
-    }
-
-    public static void clearImage(final Context context, Realm realm) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                Glide.get(context).clearDiskCache();
-                return null;
-            }
-        }.execute();
-
-        final RealmResults<Image> images = realm.where(Image.class)
-                .findAll();
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                images.deleteAllFromRealm();
-            }
-        });
+    public Image(Parcel parcel) {
+        id = parcel.readString();
+        url = parcel.readString();
+        width = parcel.readInt();
+        height = parcel.readInt();
+        publishedAt = new Date(parcel.readLong());
     }
 
     public static Image persist(Image image, ImageFetcher imageFetcher)
@@ -113,5 +100,19 @@ public class Image extends RealmObject {
 
     public void setPublishedAt(Date publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(url);
+        dest.writeInt(width);
+        dest.writeInt(height);
+        dest.writeLong(publishedAt.getTime());
     }
 }

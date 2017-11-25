@@ -13,8 +13,8 @@ import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ivor on 16-6-21.
@@ -22,18 +22,14 @@ import io.realm.RealmResults;
 public abstract class BaseStuffAdapter extends RecyclerView.Adapter<BaseStuffAdapter.Viewholder> {
     private static final String TAG = "BaseStuffAdapter";
     protected final Context mContext;
-    protected final Realm mRealm;
     protected final String mType;
-    protected RealmResults<Stuff> mStuffs;
-    protected int lastStuffsNum;
+    protected List<Stuff> mStuffs;
     private OnItemClickListener mOnItemClickListener;
 
-    public BaseStuffAdapter(Context context, Realm realm, String type) {
+    public BaseStuffAdapter(Context context, String type) {
         this.mContext = context;
-        this.mRealm = realm;
         this.mType = type;
-        initStuffs(mRealm, mType);
-        lastStuffsNum = mStuffs.size();
+        mStuffs = new ArrayList<>();
         setHasStableIds(true);
     }
 
@@ -84,13 +80,7 @@ public abstract class BaseStuffAdapter extends RecyclerView.Adapter<BaseStuffAda
         mOnItemClickListener = onItemClickListener;
     }
 
-    protected abstract void initStuffs(Realm realm, String mType);
-
     protected abstract void bindColBtn(ImageButton likeBtn, int position);
-
-    public <T extends View> T $(View view, int resId) {
-        return (T) view.findViewById(resId);
-    }
 
     public Stuff getStuffAt(int pos) {
         return mStuffs.get(pos);
@@ -109,11 +99,11 @@ public abstract class BaseStuffAdapter extends RecyclerView.Adapter<BaseStuffAda
 
         public Viewholder(View itemView) {
             super(itemView);
-            title = $(itemView, R.id.stuff_title);
-            source = $(itemView, R.id.stuff_author);
-            date = $(itemView, R.id.stuff_date);
-            stuff = $(itemView, R.id.stuff);
-            likeBtn = $(itemView, R.id.like_btn);
+            title = itemView.findViewById(R.id.stuff_title);
+            source = itemView.findViewById(R.id.stuff_author);
+            date = itemView.findViewById(R.id.stuff_date);
+            stuff = itemView.findViewById(R.id.stuff);
+            likeBtn = itemView.findViewById(R.id.like_btn);
         }
     }
 }

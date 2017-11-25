@@ -7,9 +7,7 @@ import android.widget.ImageButton;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Stuff;
 
-import java.util.Date;
-
-import io.realm.Realm;
+import java.util.List;
 
 /**
  * Created by Ivor on 2016/2/28.
@@ -17,22 +15,8 @@ import io.realm.Realm;
 public class StuffAdapter extends BaseStuffAdapter {
     private static final String TAG = "StuffAdapter";
 
-    public StuffAdapter(Context context, Realm realm, String type) {
-        super(context, realm, type);
-    }
-
-    public void updateInsertedData(int numImages, boolean isMore) {
-        if (isMore) {
-            notifyItemRangeInserted(lastStuffsNum, numImages);
-        } else {
-            notifyItemRangeInserted(0, numImages);
-        }
-        lastStuffsNum += numImages;
-    }
-
-    @Override
-    protected void initStuffs(Realm realm, String mType) {
-        mStuffs = Stuff.all(realm, mType);
+    public StuffAdapter(Context context, String type) {
+        super(context, type);
     }
 
     @Override
@@ -58,14 +42,26 @@ public class StuffAdapter extends BaseStuffAdapter {
     }
 
     private void changeLiked(final int pos, final boolean isLiked) {
-        mRealm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Stuff stuff = mStuffs.get(pos);
-                stuff.setLiked(isLiked);
-                stuff.setLastChanged(new Date());
-            }
-        });
-        notifyItemChanged(pos);
+//        mRealm.executeTransaction(new Realm.Transaction() {
+//            @Override
+//            public void execute(Realm realm) {
+//                Stuff stuff = mStuffs.get(pos);
+//                stuff.setLiked(isLiked);
+//                stuff.setLastChanged(new Date());
+//            }
+//        });
+//        notifyItemChanged(pos);
+    }
+
+    public void addStuffs(List<Stuff> stuffs) {
+        if (stuffs == null) {
+            return;
+        }
+
+        mStuffs.addAll(stuffs);
+    }
+
+    public void clearStuff() {
+        mStuffs.clear();
     }
 }

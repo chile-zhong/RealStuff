@@ -35,17 +35,17 @@ public class CollectionFragment extends BaseStuffFragment {
     }
 
     @Override
-    protected void fetchLatest() {
+    protected void refresh() {
         setRefreshLayout(false);
     }
 
     @Override
     protected RecyclerView.Adapter initAdapter() {
-        final CollectionAdapter adapter = new CollectionAdapter(getActivity(), mRealm, mType);
+        final CollectionAdapter adapter = new CollectionAdapter(getActivity(), mType);
         adapter.setOnItemClickListener(new CollectionAdapter.OnItemClickListener() {
             @Override
             public boolean onItemLongClick(View v, int position) {
-                if (mIsLoadingMore || mIsRefreshing) {
+                if (isFetching()) {
                     return true;
                 }
 
@@ -55,7 +55,7 @@ public class CollectionFragment extends BaseStuffFragment {
 
             @Override
             public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing) {
+                if (isFetching()) {
                     return;
                 }
 

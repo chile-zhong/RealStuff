@@ -6,7 +6,6 @@ import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,8 @@ import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.ui.RatioImageView;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -28,22 +27,17 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
     private static final String TAG = "GirlsAdapter";
 
     private final Context mContext;
-    private final RealmResults<Image> mImages;
+    private final List<Image> mImages;
     private OnItemClickListener mOnItemClickListener;
 
-    public GirlsAdapter(Context mContext, Realm realm) {
+    public GirlsAdapter(Context mContext) {
         this.mContext = mContext;
-        mImages = Image.all(realm);
+        mImages = new ArrayList<>();
         setHasStableIds(true);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
-    }
-
-    public void updateRefreshed(int numImages) {
-        notifyItemRangeInserted(0, numImages);
-        Log.d(TAG, "updateInsertedData: from 0 to " + numImages);
     }
 
     @Override
@@ -94,6 +88,22 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
     public String getUrlAt(int pos) {
         return mImages.get(pos).getUrl();
+    }
+
+    public void clear() {
+        mImages.clear();
+    }
+
+    public void addGirls(List<Image> girls) {
+        if (girls == null) {
+            return;
+        }
+
+        mImages.addAll(girls);
+    }
+
+    public List<Image> getImages() {
+        return mImages;
     }
 
     public interface OnItemClickListener {

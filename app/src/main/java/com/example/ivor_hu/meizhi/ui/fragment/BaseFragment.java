@@ -3,15 +3,12 @@ package com.example.ivor_hu.meizhi.ui.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import io.realm.Realm;
 
 /**
  * Created by ivor on 16-6-3.
@@ -20,14 +17,12 @@ public abstract class BaseFragment extends Fragment {
     private static final String TAG = "BaseFragment";
     protected RecyclerView mRecyclerView;
     protected SwipeRefreshLayout mRefreshLayout;
-    protected LocalBroadcastManager mLocalBroadcastManager;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected RecyclerView.Adapter mAdapter;
-    protected boolean mIsLoadingMore;
-    protected boolean mIsRefreshing;
-    protected Realm mRealm;
+    protected boolean mIsFetching;
     protected String mType;
     protected boolean mIsNoMore;
+    protected int mPage = 1;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,7 +31,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected void initData() {
-        mRealm = Realm.getDefaultInstance();
+        // Empty
     }
 
     @Nullable
@@ -55,7 +50,7 @@ public abstract class BaseFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!mIsLoadingMore && dy > 0) {
+                if (!mIsFetching && dy > 0) {
                     int lastVisiblePos = getLastVisiblePos();
                     if (!mIsNoMore && lastVisiblePos + 1 == mAdapter.getItemCount()) {
                         loadingMore();
@@ -63,8 +58,6 @@ public abstract class BaseFragment extends Fragment {
                 }
             }
         });
-
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
 
         return view;
     }
@@ -76,7 +69,7 @@ public abstract class BaseFragment extends Fragment {
         SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchLatest();
+                refresh();
             }
         };
         mRefreshLayout.setOnRefreshListener(listener);
@@ -94,13 +87,6 @@ public abstract class BaseFragment extends Fragment {
 //        });
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mRealm.removeAllChangeListeners();
-        mRealm.close();
-    }
-
     public void setRefreshLayout(final boolean state) {
         if (mRefreshLayout == null) {
             return;
@@ -115,11 +101,8 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void setFetchingFlagsFalse() {
-        if (mIsRefreshing) {
-            mIsRefreshing = false;
-        }
-        if (mIsLoadingMore) {
-            mIsLoadingMore = false;
+        if (mIsFetching) {
+            mIsFetching = false;
         }
     }
 
@@ -138,7 +121,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public boolean isFetching() {
-        return mIsLoadingMore || mIsRefreshing;
+        return mIsFetching;
     }
 
     protected <T extends View> T $(View view, int resId) {
@@ -147,7 +130,7 @@ public abstract class BaseFragment extends Fragment {
 
     protected abstract void loadingMore();
 
-    protected abstract void fetchLatest();
+    protected abstract void refresh();
 
     protected abstract int getLastVisiblePos();
 

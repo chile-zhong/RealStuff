@@ -15,24 +15,34 @@ import retrofit2.http.Path;
  * Created by Ivor on 2016/4/4.
  */
 public interface GankApi {
+    int DEFAULT_BATCH_NUM = 20;
     String HTTP_CODE_PREFIX_4 = "4";
     String HTTP_CODE_PREFIX_5 = "5";
     String BASE_URL = "http://gank.io/api/";
-    String LATEST_GIRLS_URL = BASE_URL + "data/%E7%A6%8F%E5%88%A9/10/1";
-    String LATEST_ANDROID_URL = BASE_URL + "data/Android/20/1";
-    String LATEST_IOS_URL = BASE_URL + "data/iOS/20/1";
-    String LATEST_APP_URL = BASE_URL + "data/App/20/1";
-    String LATEST_WEB_URL = BASE_URL + "data/%E5%89%8D%E7%AB%AF/20/1";
-    String LATEST_OTHERS_URL = BASE_URL + "data/%E6%8B%93%E5%B1%95%E8%B5%84%E6%BA%90/20/1";
-    String LATEST_FUN_URL = BASE_URL + "data/%E7%9E%8E%E6%8E%A8%E8%8D%90/20/1";
-    String DAYLY_DATA_URL = BASE_URL + "day/";
+    String TYPE = "type";
+    String PAGE = "page";
+    String QUERY = "query";
+    String COUNT = "count";
+    String CATEGOTY = "category";
+    String STUFF_URL = "data/{" + TYPE + "}/{" + COUNT + "}/{" + PAGE + "}";
+    String GIRL_URL = "data/%E7%A6%8F%E5%88%A9/{" + COUNT + "}/{" + PAGE + "}";
+    String SEARCH_URL = "search/query/{" + QUERY + "}/category/{" + CATEGOTY + "}/count/{" + COUNT + "}/page/{" + PAGE + "}";
 
-    @GET("search/query/{keyword}/category/{category}/count/{count}/page/{page}")
+    @GET(STUFF_URL)
+    Call<Result<List<Stuff>>> fetchStuffs(@Path(TYPE) String type,
+                                          @Path(COUNT) int count,
+                                          @Path(PAGE) int page);
+
+    @GET(GIRL_URL)
+    Call<Result<List<Image>>> fetchGirls(@Path(COUNT) int count,
+                                         @Path(PAGE) int page);
+
+    @GET(SEARCH_URL)
     Call<Result<List<SearchBean>>> search(
-            @Path("keyword") String keyword,
-            @Path("category") String category,
-            @Path("count") int count,
-            @Path("page") int page);
+            @Path(QUERY) String keyword,
+            @Path(CATEGOTY) String category,
+            @Path(COUNT) int count,
+            @Path(PAGE) int page);
 
     @GET("data/%E7%A6%8F%E5%88%A9/{count}/1")
     Call<Result<List<Image>>> latestGirls(@Path("count") int count);
@@ -66,37 +76,37 @@ public interface GankApi {
         public T results;
     }
 
-    class Girls{
+    class Girls {
         @SerializedName("福利")
         public List<Image> images;
     }
 
-    class Androids{
+    class Androids {
         @SerializedName("Android")
         public List<Stuff> stuffs;
     }
 
-    class IOSs{
+    class IOSs {
         @SerializedName("iOS")
         public List<Stuff> stuffs;
     }
 
-    class Funs{
+    class Funs {
         @SerializedName("瞎推荐")
         public List<Stuff> stuffs;
     }
 
-    class Others{
+    class Others {
         @SerializedName("扩展资源")
         public List<Stuff> stuffs;
     }
 
-    class Webs{
+    class Webs {
         @SerializedName("前端")
         public List<Stuff> stuffs;
     }
 
-    class Apps{
+    class Apps {
         @SerializedName("App")
         public List<Stuff> stuffs;
     }

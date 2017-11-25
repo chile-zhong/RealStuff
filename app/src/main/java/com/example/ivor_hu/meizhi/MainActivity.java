@@ -29,8 +29,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
-import com.example.ivor_hu.meizhi.db.Image;
-import com.example.ivor_hu.meizhi.db.Stuff;
 import com.example.ivor_hu.meizhi.ui.SearchSuggestionProvider;
 import com.example.ivor_hu.meizhi.ui.fragment.BaseFragment;
 import com.example.ivor_hu.meizhi.ui.fragment.BaseStuffFragment;
@@ -43,8 +41,6 @@ import com.example.ivor_hu.meizhi.utils.Constants;
 
 import java.util.List;
 import java.util.Map;
-
-import io.realm.Realm;
 
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPE;
 
@@ -70,7 +66,6 @@ public class MainActivity extends AppCompatActivity
     private Bundle reenterState;
 
     private Handler mClearCacheHandler;
-    private Realm mRealm;
     private DrawerLayout mDrawer;
     private SearchView mSearchView;
     private boolean mIsSearching;
@@ -141,7 +136,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        mRealm = Realm.getDefaultInstance();
         mClearCacheHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -193,7 +187,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     searchCat = type.getApiName();
                 }
-                switchToSearchResult(safeText, searchCat, 10);
+                switchToSearchResult(safeText, searchCat);
             }
         }
     }
@@ -207,7 +201,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mRealm.close();
         CommonUtil.clearCache(getApplicationContext());
     }
 
@@ -318,8 +311,6 @@ public class MainActivity extends AppCompatActivity
             clearCacheSnackBar(R.string.clear_cache_all, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Image.clearImage(MainActivity.this, mRealm);
-                    Stuff.clearAll(mRealm);
                     mClearCacheHandler.sendEmptyMessage(CLEAR_ALL);
                 }
             });
@@ -332,11 +323,6 @@ public class MainActivity extends AppCompatActivity
                 clearCacheSnackBar(strId, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (TYPE.GIRLS.getApiName().equals(apiName)) {
-                            Image.clearImage(MainActivity.this, mRealm);
-                        } else {
-                            Stuff.clearType(mRealm, apiName);
-                        }
                         mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);
                     }
                 });
@@ -370,15 +356,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void switchToSearchResult(String keyword, String category, int count) {
+    private void switchToSearchResult(String keyword, String category) {
         FragmentManager manager = getSupportFragmentManager();
         String searchTag = Constants.TYPE.SEARCH_RESULTS.getId();
         Fragment searchFragment = manager.findFragmentByTag(searchTag);
         if (searchFragment == null) {
-            hideAndAdd(manager, SearchFragment.newInstance(keyword, category, count), searchTag);
+            hideAndAdd(manager, SearchFragment.newInstance(keyword, category), searchTag);
         } else {
             hideAndShow(manager, searchFragment, searchTag);
-            ((SearchFragment) searchFragment).search(keyword, category, count);
+            ((SearchFragment) searchFragment).search(keyword, category);
         }
     }
 

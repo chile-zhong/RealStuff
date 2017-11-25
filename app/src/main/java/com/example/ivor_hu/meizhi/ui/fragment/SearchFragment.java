@@ -1,64 +1,40 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.db.SearchBean;
-import com.example.ivor_hu.meizhi.services.SearchFetchService;
+import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.SearchAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.Constants;
+import com.example.ivor_hu.meizhi.viewmodel.SearchViewModel;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ivor on 16-6-17.
  */
 public class SearchFragment extends BaseFragment {
-    public static final String COUNT = "count";
     public static final String KEYWORD = "keyword";
     public static final String CATEGORY = "category";
-    public static final String PAGE = "page";
     private static final String TAG = "SearchFragment";
     private String mKeyword;
     private String mCategory;
-    private int mCount;
-    private int mPage;
-    private UpdateSearchReceiver mUpdateSearchReceiver;
+    private SearchViewModel mSearchViewModel;
 
     public static SearchFragment newInstance(String keyword, String category) {
-        return newInstance(keyword, category, 10);
-    }
-
-    public static SearchFragment newInstance(String keyword, String category, int count) {
         Bundle args = new Bundle();
         args.putString(KEYWORD, keyword);
         args.putString(CATEGORY, category);
-        args.putInt(COUNT, count);
         SearchFragment fragment = new SearchFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mLocalBroadcastManager.registerReceiver(mUpdateSearchReceiver, new IntentFilter(SearchFetchService.ACTION_UPDATE_RESULT));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mLocalBroadcastManager.unregisterReceiver(mUpdateSearchReceiver);
     }
 
     @Override
@@ -66,40 +42,48 @@ public class SearchFragment extends BaseFragment {
         super.initData();
         mKeyword = getArguments().getString(KEYWORD);
         mCategory = getArguments().getString(CATEGORY);
-        mCount = getArguments().getInt(COUNT, 10);
         mPage = 1;
-        mUpdateSearchReceiver = new UpdateSearchReceiver();
+        mSearchViewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
+        mSearchViewModel.getSearchResult().observe(this, new Observer<GankApi.Result<List<SearchBean>>>() {
+            @Override
+            public void onChanged(@Nullable GankApi.Result<List<SearchBean>> result) {
+                setFetchingFlagsFalse();
+                setRefreshLayout(false);
+                if (result == null) {
+                    return;
+                }
+
+                SearchAdapter adapter = (SearchAdapter) mAdapter;
+                if (mPage == 1) {
+                    adapter.clearData();
+                }
+                adapter.addSearch(result.results);
+                adapter.notifyItemRangeInserted(adapter.getItemCount(), result.results.size());
+                mPage++;
+            }
+        });
     }
 
     @Override
     protected void loadingMore() {
-        Intent intent = new Intent(getActivity(), SearchFetchService.class);
-        intent.setAction(SearchFetchService.ACTION_FETCH_MORE);
-        intent.putExtra(KEYWORD, mKeyword);
-        intent.putExtra(CATEGORY, mCategory);
-        intent.putExtra(COUNT, mCount);
-        intent.putExtra(PAGE, mPage);
-        getActivity().startService(intent);
+        if (isFetching()) {
+            return;
+        }
 
-        mIsLoadingMore = true;
+        mSearchViewModel.search(mKeyword, mCategory, mPage);
+        mIsFetching = true;
         setRefreshLayout(true);
     }
 
     @Override
-    protected void fetchLatest() {
-        if (mIsLoadingMore || mIsRefreshing) {
+    protected void refresh() {
+        if (isFetching()) {
             return;
         }
 
-        Intent intent = new Intent(getActivity(), SearchFetchService.class);
-        intent.setAction(SearchFetchService.ACTION_FETCH_REFRESH);
-        intent.putExtra(KEYWORD, mKeyword);
-        intent.putExtra(CATEGORY, mCategory);
-        intent.putExtra(COUNT, mCount);
-        intent.putExtra(PAGE, 1);
-        getActivity().startService(intent);
-
-        mIsRefreshing = true;
+        mPage = 1;
+        mSearchViewModel.search(mKeyword, mCategory, mPage);
+        mIsFetching = true;
         setRefreshLayout(true);
     }
 
@@ -120,11 +104,11 @@ public class SearchFragment extends BaseFragment {
 
     @Override
     protected RecyclerView.Adapter initAdapter() {
-        final SearchAdapter adapter = new SearchAdapter(getActivity(), mRealm);
+        final SearchAdapter adapter = new SearchAdapter(getActivity());
         adapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing) {
+                if (isFetching()) {
                     return;
                 }
 
@@ -148,51 +132,10 @@ public class SearchFragment extends BaseFragment {
         return R.id.stuff_recyclerview;
     }
 
-    public void search(String keyword, String category, int count) {
+    public void search(String keyword, String category) {
         this.mKeyword = keyword;
         this.mCategory = category;
-        this.mCount = count;
-        this.mPage = 1;
         ((SearchAdapter) mAdapter).clearData();
-        fetchLatest();
-        mRefreshLayout.setRefreshing(true);
-    }
-
-    private class UpdateSearchReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final ArrayList<SearchBean> beans = intent.getParcelableArrayListExtra(SearchFetchService.EXTRA_FETCHED);
-            final String trigger = intent.getStringExtra(SearchFetchService.EXTRA_TRIGGER);
-            final String type = intent.getStringExtra(SearchFetchService.EXTRA_TYPE);
-            final Constants.NETWORK_EXCEPTION networkException = (Constants.NETWORK_EXCEPTION) intent.getSerializableExtra(SearchFetchService.EXTRA_EXCEPTION_CODE);
-
-            setRefreshLayout(false);
-
-            if (networkException.getTipsResId() != 0) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(networkException.getTipsResId()), Snackbar.LENGTH_SHORT);
-                setFetchingFlagsFalse();
-                return;
-            }
-            int fetched = beans.size();
-            Log.d(TAG, "fetched " + fetched + ", triggered by " + trigger);
-            if (fetched == 0 && trigger.equals(SearchFetchService.ACTION_FETCH_MORE)) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_no_more), Snackbar.LENGTH_SHORT);
-                mIsNoMore = true;
-            }
-
-            if (mIsRefreshing) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
-                mRecyclerView.smoothScrollToPosition(0);
-                mPage = 2;
-            } else if (mIsLoadingMore) {
-                mPage++;
-            }
-            setFetchingFlagsFalse();
-
-            if (null == mAdapter || fetched == 0) {
-                return;
-            }
-            ((SearchAdapter) mAdapter).updateInsertedData(beans, trigger.equals(SearchFetchService.ACTION_FETCH_MORE));
-        }
+        refresh();
     }
 }

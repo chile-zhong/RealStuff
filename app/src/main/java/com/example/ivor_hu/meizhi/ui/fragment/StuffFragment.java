@@ -1,20 +1,20 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.services.StuffFetchService;
+import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.utils.Constants;
+import com.example.ivor_hu.meizhi.viewmodel.StuffViewModel;
+
+import java.util.List;
 
 /**
  * Created by Ivor on 2016/3/3.
@@ -24,7 +24,7 @@ public class StuffFragment extends BaseStuffFragment {
     private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";
 
-    private UpdateResultReceiver updateResultReceiver;
+    private StuffViewModel mStuffViewModel;
 
     public static StuffFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -39,59 +39,65 @@ public class StuffFragment extends BaseStuffFragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: " + mType);
-        mLocalBroadcastManager.registerReceiver(updateResultReceiver, new IntentFilter(StuffFetchService.ACTION_UPDATE_RESULT));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause: ");
-
-        mLocalBroadcastManager.unregisterReceiver(updateResultReceiver);
     }
 
     @Override
     protected void initData() {
         super.initData();
         mType = getArguments().getString(TYPE);
-        updateResultReceiver = new UpdateResultReceiver();
+        mStuffViewModel = ViewModelProviders.of(this).get(StuffViewModel.class);
+        mStuffViewModel.getStuffs().observe(this, new Observer<GankApi.Result<List<Stuff>>>() {
+            @Override
+            public void onChanged(@Nullable GankApi.Result<List<Stuff>> result) {
+                setRefreshLayout(false);
+                setFetchingFlagsFalse();
+
+                if (result == null) {
+                    return;
+                }
+
+                StuffAdapter adapter = (StuffAdapter) mAdapter;
+                if (mPage == 1) {
+                    adapter.clearStuff();
+                }
+                adapter.addStuffs(result.results);
+                mAdapter.notifyItemRangeInserted(adapter.getItemCount(), result.results.size());
+                mPage++;
+            }
+        });
     }
 
     @Override
     protected void loadingMore() {
-        if (mIsLoadingMore) {
+        if (mIsFetching) {
             return;
         }
 
-        Intent intent = new Intent(getActivity(), StuffFetchService.class);
-        intent.setAction(StuffFetchService.ACTION_FETCH_MORE).putExtra(SERVICE_TYPE, mType);
-        getActivity().startService(intent);
+        mStuffViewModel.fetchStuffs(mType, mPage);
 
-        mIsLoadingMore = true;
+        mIsFetching = true;
         setRefreshLayout(true);
     }
 
     @Override
-    protected void fetchLatest() {
-        if (mIsRefreshing) {
+    protected void refresh() {
+        if (isFetching()) {
             return;
         }
 
-        Intent intent = new Intent(getActivity(), StuffFetchService.class);
-        intent.setAction(StuffFetchService.ACTION_FETCH_REFRESH).putExtra(SERVICE_TYPE, mType);
-        getActivity().startService(intent);
+        mPage = 1;
+        mStuffViewModel.fetchStuffs(mType, mPage);
 
-        mIsRefreshing = true;
         setRefreshLayout(true);
     }
 
     @Override
     protected RecyclerView.Adapter initAdapter() {
-        final StuffAdapter adapter = new StuffAdapter(getActivity(), mRealm, mType);
+        final StuffAdapter adapter = new StuffAdapter(getActivity(), mType);
         adapter.setOnItemClickListener(new StuffAdapter.OnItemClickListener() {
             @Override
             public boolean onItemLongClick(View v, int position) {
-                if (mIsLoadingMore || mIsRefreshing) {
+                if (isFetching()) {
                     return true;
                 }
 
@@ -101,7 +107,7 @@ public class StuffFragment extends BaseStuffFragment {
 
             @Override
             public void onItemClick(View view, int pos) {
-                if (mIsLoadingMore || mIsRefreshing) {
+                if (isFetching()) {
                     return;
                 }
 
@@ -111,43 +117,4 @@ public class StuffFragment extends BaseStuffFragment {
         return adapter;
     }
 
-    private class UpdateResultReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final int fetched = intent.getIntExtra(StuffFetchService.EXTRA_FETCHED, 0);
-            final String trigger = intent.getStringExtra(StuffFetchService.EXTRA_TRIGGER);
-            final String type = intent.getStringExtra(StuffFetchService.EXTRA_TYPE);
-            final Constants.NETWORK_EXCEPTION networkException = (Constants.NETWORK_EXCEPTION) intent.getSerializableExtra(StuffFetchService.EXTRA_EXCEPTION_CODE);
-
-            if (!type.equals(mType)) {
-                return;
-            }
-
-            Log.d(TAG, "fetched " + fetched + ", triggered by " + trigger);
-            if (fetched == 0 && trigger.equals(StuffFetchService.ACTION_FETCH_MORE)) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_no_more), Snackbar.LENGTH_SHORT);
-                mIsNoMore = true;
-            }
-
-            setRefreshLayout(false);
-
-            if (networkException.getTipsResId() != 0) {
-                // 显示异常提示
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(networkException.getTipsResId()), Snackbar.LENGTH_SHORT);
-                setFetchingFlagsFalse();
-                return;
-            }
-
-            if (mIsRefreshing) {
-                CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fragment_refreshed), Snackbar.LENGTH_SHORT);
-                mRecyclerView.smoothScrollToPosition(0);
-            }
-            setFetchingFlagsFalse();
-
-            if (null == mAdapter || fetched == 0) {
-                return;
-            }
-            ((StuffAdapter) mAdapter).updateInsertedData(fetched, trigger.equals(StuffFetchService.ACTION_FETCH_MORE));
-        }
-    }
 }
