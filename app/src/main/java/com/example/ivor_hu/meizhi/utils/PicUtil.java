@@ -47,17 +47,19 @@ public final class PicUtil {
     }
 
     public static File saveBitmapToSDCard(Bitmap bitmap, String url, Handler handler) {
-        String SavePath = getSDCardPath() + IMAGE_SAVE_PATH;
+        String savePath = getSDCardPath() + IMAGE_SAVE_PATH;
         // save Bitmap
         try {
-            File path = new File(SavePath);
-            if (!path.exists())
+            File path = new File(savePath);
+            if (!path.exists()) {
                 path.mkdirs();
+            }
 
-            String filepath = SavePath + getLastStringFromUrl(url);
+            String filepath = savePath + getLastStringFromUrl(url);
             File file = new File(filepath);
-            if (!file.exists())
+            if (!file.exists()) {
                 file.createNewFile();
+            }
 
             FileOutputStream fos = new FileOutputStream(file);
             if (null != fos) {

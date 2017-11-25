@@ -20,7 +20,7 @@ public final class DateUtil {
     private DateUtil() {
     }
 
-    public static final Date parse(String date) throws ParseException {
+    public static Date parse(String date) throws ParseException {
         return DATE_FORMAT.parse(date);
     }
 

@@ -46,7 +46,7 @@
     <string name="version_name">Version: %1$s</string>
     <string name="action_clear_cache">Clear cache</string>
     <string name="clear_cache_all">All</string>
-    <string name="clear_type">Clear %1$s?</string>
+    <string name="clear_done">Clear done</string>
     <string name="confirm">Confirm</string>
     <string name="network_request_error">Error request.</string>
     <string name="network_server_error">Error in server.</string>
@@ -57,4 +57,9 @@
     <string name="search_tips">Only Chinese, numbers, English characters and space are allowed.</string>
     <string name="no_search_cache">No search cache</string>
     <string name="save_img_failed_without_permission">Saving image failed without permission.</string>
+    <string name="gank" translatable="false">gank.io</string>
+    <string name="favor">Favor</string>
+    <string name="unfavor">Unfavor</string>
+    <string name="favored">Favored</string>
+    <string name="unfavored">Unfavored</string>
 </resources>

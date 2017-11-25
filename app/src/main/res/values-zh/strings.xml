@@ -36,7 +36,7 @@
     <string name="action_clear_cache">清除缓存</string>
     <string name="clear_cache_all">全部缓存</string>
     <string name="confirm">确定</string>
-    <string name="clear_type">清除 %1$s?</string>
+    <string name="clear_done">已清除</string>
     <string name="network_request_error">请求错误</string>
     <string name="network_server_error">服务器错误</string>
     <string name="network_not_avaiable">请检查网络连接</string>
@@ -48,4 +48,8 @@
     <string name="search_all">全部类别</string>
     <string name="nav_search">搜索</string>
     <string name="save_img_failed_without_permission">未获取写存储权限，保存失败</string>
+    <string name="favor">收藏</string>
+    <string name="unfavor">取消收藏</string>
+    <string name="favored">已收藏</string>
+    <string name="unfavored">已取消收藏</string>
 </resources>

@@ -19,6 +19,7 @@ import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,18 +27,16 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.db.entity.Image;
+import com.example.ivor_hu.meizhi.ui.fragment.GirlsFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.ViewerFragment;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.PicUtil;
-import com.example.ivor_hu.meizhi.widget.GirlsFragment;
-import com.example.ivor_hu.meizhi.widget.ViewerFragment;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import io.realm.Realm;
 
 /**
  * Created by Ivor on 2016/2/15.
@@ -53,6 +52,7 @@ public class ViewerActivity extends AppCompatActivity {
     private static final String SHARE_URL = "share_url";
     private static String mSavedImgUrl;
     private final Handler mMsgHandler = new Handler() {
+        @Override
         public void handleMessage(Message msg) {
             switch (msg.arg1) {
                 case PicUtil.SAVE_DONE_TOAST:
@@ -67,7 +67,6 @@ public class ViewerActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
-    private Realm mRealm;
     private FragmentStatePagerAdapter mAdapter;
     private HandlerThread mThread;
     private Handler mSavePicHandler;
@@ -80,10 +79,8 @@ public class ViewerActivity extends AppCompatActivity {
         setContentView(R.layout.viewer_pager_layout);
 
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
-        mRealm = Realm.getDefaultInstance();
-
-        mImages = Image.all(mRealm);
-        mViewPager = (ViewPager) findViewById(R.id.viewer_pager);
+        mImages = getIntent().getParcelableArrayListExtra(GirlsFragment.IMAGES);
+        mViewPager = findViewById(R.id.viewer_pager);
         mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -114,7 +111,7 @@ public class ViewerActivity extends AppCompatActivity {
         mViewPager.setCurrentItem(mPos);
 
         // 避免图片在进行 Shared Element Transition 时盖过 Toolbar
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setSharedElementsUseOverlay(false);
         }
 
@@ -155,8 +152,6 @@ public class ViewerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mRealm.removeAllChangeListeners();
-        mRealm.close();
         mThread.quit();
     }
 
@@ -176,8 +171,9 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     public void saveImg(String url) {
-        if (url == null)
+        if (url == null) {
             return;
+        }
 
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
@@ -187,8 +183,9 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     public void shareImg(String url) {
-        if (url == null)
+        if (url == null) {
             return;
+        }
 
         Message message = Message.obtain();
         Bundle bundle = new Bundle();
@@ -203,7 +200,7 @@ public class ViewerActivity extends AppCompatActivity {
         String imgPath = PicUtil.getImgPathFromUrl(url);
 
         Intent intent = new Intent(Intent.ACTION_SEND);
-        if (imgPath == null || imgPath.equals("")) {
+        if (TextUtils.isEmpty(imgPath)) {
             intent.setType("text/plain");
         } else {
             File file = new File(imgPath);
@@ -232,10 +229,11 @@ public class ViewerActivity extends AppCompatActivity {
             CommonUtil.toast(ViewerActivity.this, getString(R.string.save_img_failed_without_permission), Toast.LENGTH_SHORT);
             return;
         }
-        if (requestCode == SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+        if (requestCode == SAVE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             saveImg(mSavedImgUrl);
-        else if (requestCode == SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+        } else if (requestCode == SHARE_IMG_WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             shareImg(mSavedImgUrl);
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -267,7 +265,7 @@ public class ViewerActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
             View view = inflater.inflate(R.layout.dialog_image_option, container);
-            TextView saveTextView = (TextView) view.findViewById(R.id.save_img);
+            TextView saveTextView = view.findViewById(R.id.save_img);
             saveTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -283,7 +281,7 @@ public class ViewerActivity extends AppCompatActivity {
                     dismiss();
                 }
             });
-            TextView shareTextView = (TextView) view.findViewById(R.id.share_img);
+            TextView shareTextView = view.findViewById(R.id.share_img);
             shareTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

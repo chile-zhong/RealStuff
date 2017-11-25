@@ -3,10 +3,10 @@ package com.example.ivor_hu.meizhi;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.SearchRecentSuggestions;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -29,22 +29,19 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
-import com.example.ivor_hu.meizhi.base.BaseFragment;
-import com.example.ivor_hu.meizhi.base.StuffBaseFragment;
-import com.example.ivor_hu.meizhi.db.Image;
-import com.example.ivor_hu.meizhi.db.Stuff;
+import com.bumptech.glide.Glide;
+import com.example.ivor_hu.meizhi.ui.SearchSuggestionProvider;
+import com.example.ivor_hu.meizhi.ui.fragment.BaseFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.BaseStuffFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.CollectionFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.GirlsFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.SearchFragment;
+import com.example.ivor_hu.meizhi.ui.fragment.StuffFragment;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.Constants;
-import com.example.ivor_hu.meizhi.widget.CollectionFragment;
-import com.example.ivor_hu.meizhi.widget.GirlsFragment;
-import com.example.ivor_hu.meizhi.widget.SearchFragment;
-import com.example.ivor_hu.meizhi.widget.SearchSuggestionProvider;
-import com.example.ivor_hu.meizhi.widget.StuffFragment;
 
 import java.util.List;
 import java.util.Map;
-
-import io.realm.Realm;
 
 import static com.example.ivor_hu.meizhi.utils.Constants.TYPE;
 
@@ -52,8 +49,6 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     private static final String CURR_TYPE = "curr_fragment_type";
-    private static final int CLEAR_DONE = 0x36;
-    private static final int CLEAR_ALL = 0x33;
 
     private CoordinatorLayout mCoordinatorLayout;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
@@ -69,23 +64,22 @@ public class MainActivity extends AppCompatActivity
     private String mCurrFragmentType;
     private Bundle reenterState;
 
-    private Handler mClearCacheHandler;
-    private Realm mRealm;
     private DrawerLayout mDrawer;
     private SearchView mSearchView;
     private boolean mIsSearching;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchView = (SearchView) findViewById(R.id.searchview);
+        mSearchView = findViewById(R.id.searchview);
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.nav_girls);
         setSupportActionBar(mToolbar);
         mToolbar.setOnTouchListener(new View.OnTouchListener() {
@@ -107,8 +101,8 @@ public class MainActivity extends AppCompatActivity
             mCurrFragmentType = TYPE.GIRLS.getId();
         }
 
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coor_layout);
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mCoordinatorLayout = findViewById(R.id.main_coor_layout);
+        mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,13 +110,13 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         setExitSharedElementCallback(new SharedElementCallback() {
@@ -140,33 +134,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-        mRealm = Realm.getDefaultInstance();
-        mClearCacheHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what) {
-                    case CLEAR_DONE:
-                        ((BaseFragment) mCurrFragment).updateData();
-                        break;
-                    case CLEAR_ALL:
-//                        for (TYPE type : TYPE.values()) {
-//                            Fragment fragment = getSupportFragmentManager().findFragmentByTag(type.getId());
-//                            if (fragment == null)
-//                                continue;
-//
-//                            ((BaseFragment) fragment).updateData();
-//                        }
-                        Fragment fragment = getSupportFragmentManager().findFragmentByTag(TYPE.GIRLS.getId());
-                        if (fragment != null)
-                            ((BaseFragment) fragment).updateData();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
     }
 
     @Override
@@ -187,20 +154,15 @@ public class MainActivity extends AppCompatActivity
                         .saveRecentQuery(safeText, null);
                 TYPE type = getCurrSearchType();
                 String searchCat;
-                if (type == null)
+                if (type == null) {
                     searchCat = getString(R.string.api_all);
-                else
+                } else {
                     searchCat = type.getApiName();
-                switchToSearchResult(safeText, searchCat, 10);
+                }
+                switchToSearchResult(safeText, searchCat);
+                hideSearchView();
             }
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mRealm.close();
-        CommonUtil.clearCache(getApplicationContext());
     }
 
     @Override
@@ -219,7 +181,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (mIsSearching) {
@@ -249,10 +211,20 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, AboutActivity.class));
             return true;
         } else if (id == R.id.action_clear_cache) {
-            if (((BaseFragment) mCurrFragment).isFetching())
-                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
-            else
-                clearRealmType(mCurrFragmentType);
+            new AsyncTask<Context, Void, Void>() {
+                @Override
+                protected Void doInBackground(Context... contexts) {
+                    CommonUtil.clearCache(contexts[0]);
+                    Glide.get(contexts[0]).clearDiskCache();
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.clear_done), Snackbar.LENGTH_SHORT);
+                }
+            }.execute(MainActivity.this);
             return true;
         } else if (id == R.id.action_search) {
             mIsSearching = true;
@@ -304,47 +276,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void clearRealmType(final String typeId) {
-        if (TYPE.COLLECTIONS.getId().equals(typeId)) {
-            clearCacheSnackBar(R.string.clear_cache_all, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Image.clearImage(MainActivity.this, mRealm);
-                    Stuff.clearAll(mRealm);
-                    mClearCacheHandler.sendEmptyMessage(CLEAR_ALL);
-                }
-            });
-        } else if (TYPE.SEARCH_RESULTS.getId().equals(typeId)) {
-            CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.no_search_cache), Snackbar.LENGTH_SHORT);
-        } else {
-            final int strId = TYPE.valueOf(typeId).getStrId();
-            final String apiName = TYPE.valueOf(typeId).getApiName();
-            if (strId != -1) {
-                clearCacheSnackBar(strId, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (TYPE.GIRLS.getApiName().equals(apiName))
-                            Image.clearImage(MainActivity.this, mRealm);
-                        else
-                            Stuff.clearType(mRealm, apiName);
-                        mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);
-                    }
-                });
-            }
-        }
-    }
-
-    private void clearCacheSnackBar(int clearTipStrId, View.OnClickListener onClickListener) {
-        CommonUtil.makeSnackBarWithAction(
-                mCoordinatorLayout,
-                String.format(getString(R.string.clear_type), getString(clearTipStrId)),
-                Snackbar.LENGTH_SHORT,
-                onClickListener,
-                getString(R.string.confirm));
-    }
-
     private void closeDrawer() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
 
@@ -355,19 +288,20 @@ public class MainActivity extends AppCompatActivity
         } else {
             hideAndAdd(manager, addedFragment, type);
         }
-        if (mIsSearching)
+        if (mIsSearching) {
             hideSearchView();
+        }
     }
 
-    private void switchToSearchResult(String keyword, String category, int count) {
+    private void switchToSearchResult(String keyword, String category) {
         FragmentManager manager = getSupportFragmentManager();
         String searchTag = Constants.TYPE.SEARCH_RESULTS.getId();
         Fragment searchFragment = manager.findFragmentByTag(searchTag);
         if (searchFragment == null) {
-            hideAndAdd(manager, SearchFragment.newInstance(keyword, category, count), searchTag);
+            hideAndAdd(manager, SearchFragment.newInstance(keyword, category), searchTag);
         } else {
             hideAndShow(manager, searchFragment, searchTag);
-            ((SearchFragment) searchFragment).search(keyword, category, count);
+            ((SearchFragment) searchFragment).search(keyword, category);
         }
     }
 
@@ -375,8 +309,9 @@ public class MainActivity extends AppCompatActivity
         FragmentManager manager = getSupportFragmentManager();
         for (TYPE type : TYPE.values()) {
             Fragment fragment = manager.findFragmentByTag(type.getId());
-            if (fragment == null)
+            if (fragment == null) {
                 continue;
+            }
 
             if (type.getId().equals(mCurrFragmentType)) {
                 manager.beginTransaction().show(fragment).commit();
@@ -405,52 +340,72 @@ public class MainActivity extends AppCompatActivity
     private void showSearchView() {
         if (mSearchView != null) {
             mSearchView.setVisibility(View.VISIBLE);
-            int cx = mSearchView.getWidth() - (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
-            int cy = mSearchView.getHeight() / 2;
-            int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
+            if (mSearchView.getWidth() == 0) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        showSearchViewAnimation();
+                    }
+                });
+            } else {
+                showSearchViewAnimation();
+            }
         }
 
-        if (mToolbar != null)
+        if (mToolbar != null) {
             mToolbar.setVisibility(View.GONE);
+        }
         updateSearchHint();
     }
 
+    private void showSearchViewAnimation() {
+        int cx = mSearchView.getWidth() - (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
+        int cy = mSearchView.getHeight() / 2;
+        int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
+        }
+    }
+
     private void hideSearchView() {
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.setVisibility(View.GONE);
-        if (mToolbar != null)
+        }
+        if (mToolbar != null) {
             mToolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateSearchHint() {
         int navResId;
         TYPE type = getCurrSearchType();
-        if (type == null)
+        if (type == null) {
             navResId = R.string.search_all;
-        else
+        } else {
             navResId = type.getStrId();
+        }
 
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.setQueryHint(String.format(getString(R.string.search), getString(navResId)));
+        }
     }
 
     private TYPE getCurrSearchType() {
         if (TYPE.GIRLS.getId().equals(mCurrFragmentType)
                 || TYPE.COLLECTIONS.getId().equals(mCurrFragmentType)
-                || TYPE.SEARCH_RESULTS.getId().equals(mCurrFragmentType))
+                || TYPE.SEARCH_RESULTS.getId().equals(mCurrFragmentType)) {
             return null;
-        else
+        } else {
             return TYPE.valueOf(mCurrFragmentType);
+        }
     }
 
     private void updateLikedData(Fragment newFragment, String fragmentIdx) {
         if (fragmentIdx.equals(TYPE.GIRLS.getId()) || fragmentIdx.equals(TYPE.SEARCH_RESULTS.getId())) {
             return;
         }
-        ((StuffBaseFragment) newFragment).updateData();
+        ((BaseStuffFragment) newFragment).updateData();
     }
 
 }

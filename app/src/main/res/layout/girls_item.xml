@@ -10,7 +10,7 @@
     card_view:cardCornerRadius="4dp"
     card_view:cardElevation="6dp">
 
-    <com.example.ivor_hu.meizhi.widget.RatioImageView
+    <com.example.ivor_hu.meizhi.ui.RatioImageView
         android:id="@+id/network_imageview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
