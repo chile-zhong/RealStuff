@@ -32,6 +32,6 @@ Android 4.4+
 
 ## 预览
 <img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/home.png" width="400px" /><br/>
-<img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/clearCache.png" width="400px" /><br/>
+<img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/realStuff.png" width="400px" /><br/>
 <img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/navigation.png" width="400px" /><br/>
 <img src="https://github.com/IvorHu/RealStuff/blob/master/screenshoots/about.png" width="400px" /><br/>
