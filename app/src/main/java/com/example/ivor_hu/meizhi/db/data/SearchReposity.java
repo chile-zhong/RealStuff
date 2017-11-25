@@ -2,7 +2,7 @@ package com.example.ivor_hu.meizhi.db.data;
 
 import android.arch.lifecycle.LiveData;
 
-import com.example.ivor_hu.meizhi.db.SearchBean;
+import com.example.ivor_hu.meizhi.db.entity.SearchEntity;
 import com.example.ivor_hu.meizhi.net.AbstractLiveDataAsyncNetRequest;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.net.GankApi.Result;
@@ -34,10 +34,10 @@ public class SearchReposity {
         return sInstance;
     }
 
-    public LiveData<Result<List<SearchBean>>> search(final String query, final String category, final int count, final int page) {
-        return new AbstractLiveDataAsyncNetRequest<Result<List<SearchBean>>>() {
+    public LiveData<Result<List<SearchEntity>>> search(final String query, final String category, final int count, final int page) {
+        return new AbstractLiveDataAsyncNetRequest<Result<List<SearchEntity>>>() {
             @Override
-            protected Call<Result<List<SearchBean>>> createCall(GankApi gankApi) {
+            protected Call<Result<List<SearchEntity>>> createCall(GankApi gankApi) {
                 return gankApi.search(query, category, count, page);
             }
         }.asLiveData();

@@ -1,9 +1,8 @@
 package com.example.ivor_hu.meizhi.net;
 
-import com.example.ivor_hu.meizhi.db.Image;
-import com.example.ivor_hu.meizhi.db.SearchBean;
-import com.example.ivor_hu.meizhi.db.Stuff;
-import com.google.gson.annotations.SerializedName;
+import com.example.ivor_hu.meizhi.db.entity.Image;
+import com.example.ivor_hu.meizhi.db.entity.SearchEntity;
+import com.example.ivor_hu.meizhi.db.entity.Stuff;
 
 import java.util.List;
 
@@ -38,76 +37,14 @@ public interface GankApi {
                                          @Path(PAGE) int page);
 
     @GET(SEARCH_URL)
-    Call<Result<List<SearchBean>>> search(
+    Call<Result<List<SearchEntity>>> search(
             @Path(QUERY) String keyword,
             @Path(CATEGOTY) String category,
             @Path(COUNT) int count,
             @Path(PAGE) int page);
 
-    @GET("data/%E7%A6%8F%E5%88%A9/{count}/1")
-    Call<Result<List<Image>>> latestGirls(@Path("count") int count);
-
-    @GET("day/{date}")
-    Call<Result<Girls>> dayGirls(@Path("date") String date);
-
-    @GET("data/{type}/{count}/1")
-    Call<Result<List<Stuff>>> latestStuff(@Path("type") String type, @Path("count") int count);
-
-    @GET("day/{date}")
-    Call<Result<Androids>> dayAndroids(@Path("date") String date);
-
-    @GET("day/{date}")
-    Call<Result<IOSs>> dayIOSs(@Path("date") String date);
-
-    @GET("day/{date}")
-    Call<Result<Webs>> dayWebs(@Path("date") String date);
-
-    @GET("day/{date}")
-    Call<Result<Funs>> dayFuns(@Path("date") String date);
-
-    @GET("day/{date}")
-    Call<Result<Apps>> dayApps(@Path("date") String date);
-
-    @GET("day/{date}")
-    Call<Result<Others>> dayOthers(@Path("date") String date);
-
     class Result<T> {
         public boolean error;
         public T results;
-    }
-
-    class Girls {
-        @SerializedName("福利")
-        public List<Image> images;
-    }
-
-    class Androids {
-        @SerializedName("Android")
-        public List<Stuff> stuffs;
-    }
-
-    class IOSs {
-        @SerializedName("iOS")
-        public List<Stuff> stuffs;
-    }
-
-    class Funs {
-        @SerializedName("瞎推荐")
-        public List<Stuff> stuffs;
-    }
-
-    class Others {
-        @SerializedName("扩展资源")
-        public List<Stuff> stuffs;
-    }
-
-    class Webs {
-        @SerializedName("前端")
-        public List<Stuff> stuffs;
-    }
-
-    class Apps {
-        @SerializedName("App")
-        public List<Stuff> stuffs;
     }
 }

@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
-import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.net.AbstractLiveDataAsyncNetRequest;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.net.GankApi.Result;

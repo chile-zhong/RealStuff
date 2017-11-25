@@ -1,7 +1,9 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ActionMode;
@@ -11,12 +13,24 @@ import android.view.View;
 import android.widget.AbsListView;
 
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.db.entity.Stuff;
+import com.example.ivor_hu.meizhi.utils.CommonUtil;
+import com.example.ivor_hu.meizhi.viewmodel.StuffViewModel;
+
+import java.util.Date;
 
 /**
  * Created by ivor on 16-6-21.
  */
 public abstract class BaseStuffFragment extends BaseFragment {
+    protected StuffViewModel mStuffViewModel;
+
+    @Override
+    protected void initData() {
+        super.initData();
+        mStuffViewModel = ViewModelProviders.of(this).get(StuffViewModel.class);
+    }
+
     @Override
     protected int getLastVisiblePos() {
         return ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
@@ -46,11 +60,13 @@ public abstract class BaseStuffFragment extends BaseFragment {
         private final Context context;
         private final Stuff stuff;
         private final View view;
+        private final boolean isCollection;
 
-        public ShareListener(Context context, Stuff stuff, View view) {
+        public ShareListener(Context context, Stuff stuff, View view, boolean isCollectionPage) {
             this.context = context;
             this.stuff = stuff;
             this.view = view;
+            this.isCollection = isCollectionPage;
         }
 
         @Override
@@ -61,6 +77,11 @@ public abstract class BaseStuffFragment extends BaseFragment {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.context_menu, menu);
+            if (isCollection) {
+                menu.findItem(R.id.context_menu_favor).setVisible(false);
+            } else {
+                menu.findItem(R.id.context_menu_unfavor).setVisible(false);
+            }
             view.setActivated(true);
             return true;
         }
@@ -81,6 +102,23 @@ public abstract class BaseStuffFragment extends BaseFragment {
                     intent.putExtra(Intent.EXTRA_TEXT, textShared);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
+                    mode.finish();
+                    return true;
+                case R.id.context_menu_favor:
+                    stuff.setLastChanged(new Date());
+                    mStuffViewModel.insertCollection(stuff);
+                    CommonUtil.makeSnackBar(
+                            getView(),
+                            getContext().getString(R.string.favored),
+                            Snackbar.LENGTH_SHORT);
+                    mode.finish();
+                    return true;
+                case R.id.context_menu_unfavor:
+                    mStuffViewModel.deleteCollection(stuff);
+                    CommonUtil.makeSnackBar(
+                            getView(),
+                            getContext().getString(R.string.unfavored),
+                            Snackbar.LENGTH_SHORT);
                     mode.finish();
                     return true;
                 default:

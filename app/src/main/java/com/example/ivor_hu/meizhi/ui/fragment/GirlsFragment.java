@@ -15,7 +15,7 @@ import android.view.ViewTreeObserver;
 
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.ViewerActivity;
-import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.GirlsAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
@@ -53,8 +53,7 @@ public class GirlsFragment extends BaseFragment {
         mGirlViewModel.getGirls().observe(this, new Observer<GankApi.Result<List<Image>>>() {
             @Override
             public void onChanged(@Nullable GankApi.Result<List<Image>> result) {
-                setFetchingFlagsFalse();
-                setRefreshLayout(false);
+                setFetchingFlag(false);
                 if (result == null) {
                     return;
                 }
@@ -77,8 +76,7 @@ public class GirlsFragment extends BaseFragment {
         }
 
         mGirlViewModel.fetchGirls(mPage);
-        mIsFetching = true;
-        setRefreshLayout(true);
+        setFetchingFlag(true);
     }
 
 
@@ -90,8 +88,7 @@ public class GirlsFragment extends BaseFragment {
 
         mPage = 1;
         mGirlViewModel.fetchGirls(mPage);
-        mIsFetching = true;
-        setRefreshLayout(true);
+        setFetchingFlag(true);
     }
 
     @Override

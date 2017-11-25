@@ -8,8 +8,8 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
 
-import com.example.ivor_hu.meizhi.db.Image;
 import com.example.ivor_hu.meizhi.db.data.GirlRepository;
+import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.net.GankApi;
 
 import java.util.List;

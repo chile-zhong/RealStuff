@@ -1,18 +1,15 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
-import com.example.ivor_hu.meizhi.db.Stuff;
+import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-import com.example.ivor_hu.meizhi.viewmodel.StuffViewModel;
 
 import java.util.List;
 
@@ -24,8 +21,6 @@ public class StuffFragment extends BaseStuffFragment {
     private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";
 
-    private StuffViewModel mStuffViewModel;
-
     public static StuffFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(TYPE, type);
@@ -36,21 +31,13 @@ public class StuffFragment extends BaseStuffFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: " + mType);
-    }
-
-    @Override
     protected void initData() {
         super.initData();
         mType = getArguments().getString(TYPE);
-        mStuffViewModel = ViewModelProviders.of(this).get(StuffViewModel.class);
         mStuffViewModel.getStuffs().observe(this, new Observer<GankApi.Result<List<Stuff>>>() {
             @Override
             public void onChanged(@Nullable GankApi.Result<List<Stuff>> result) {
-                setRefreshLayout(false);
-                setFetchingFlagsFalse();
+                setFetchingFlag(false);
 
                 if (result == null) {
                     return;
@@ -61,7 +48,6 @@ public class StuffFragment extends BaseStuffFragment {
                     adapter.clearStuff();
                 }
                 adapter.addStuffs(result.results);
-                mAdapter.notifyItemRangeInserted(adapter.getItemCount(), result.results.size());
                 mPage++;
             }
         });
@@ -74,9 +60,7 @@ public class StuffFragment extends BaseStuffFragment {
         }
 
         mStuffViewModel.fetchStuffs(mType, mPage);
-
-        mIsFetching = true;
-        setRefreshLayout(true);
+        setFetchingFlag(true);
     }
 
     @Override
@@ -88,7 +72,7 @@ public class StuffFragment extends BaseStuffFragment {
         mPage = 1;
         mStuffViewModel.fetchStuffs(mType, mPage);
 
-        setRefreshLayout(true);
+        setFetchingFlag(true);
     }
 
     @Override
@@ -101,7 +85,7 @@ public class StuffFragment extends BaseStuffFragment {
                     return true;
                 }
 
-                getActivity().startActionMode(new ShareListener(getActivity(), adapter.getStuffAt(position), v));
+                getActivity().startActionMode(new ShareListener(getActivity(), adapter.getStuffAt(position), v, false));
                 return true;
             }
 
@@ -113,6 +97,7 @@ public class StuffFragment extends BaseStuffFragment {
 
                 CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
             }
+
         });
         return adapter;
     }

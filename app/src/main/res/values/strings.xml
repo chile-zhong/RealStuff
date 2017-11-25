@@ -58,4 +58,8 @@
     <string name="no_search_cache">No search cache</string>
     <string name="save_img_failed_without_permission">Saving image failed without permission.</string>
     <string name="gank" translatable="false">gank.io</string>
+    <string name="favor">Favor</string>
+    <string name="unfavor">Unfavor</string>
+    <string name="favored">Favored</string>
+    <string name="unfavored">Unfavored</string>
 </resources>

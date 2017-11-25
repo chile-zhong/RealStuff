@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.db;
+package com.example.ivor_hu.meizhi.db.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,16 +6,17 @@ import android.os.Parcelable;
 /**
  * Created by ivor on 16-6-17.
  */
-public class SearchBean implements Parcelable {
-    public static final Parcelable.Creator<SearchBean> CREATOR = new Creator<SearchBean>() {
+
+public class SearchEntity implements Parcelable {
+    public static final Parcelable.Creator<SearchEntity> CREATOR = new Creator<SearchEntity>() {
         @Override
-        public SearchBean createFromParcel(Parcel source) {
-            return new SearchBean(source);
+        public SearchEntity createFromParcel(Parcel source) {
+            return new SearchEntity(source);
         }
 
         @Override
-        public SearchBean[] newArray(int size) {
-            return new SearchBean[size];
+        public SearchEntity[] newArray(int size) {
+            return new SearchEntity[size];
         }
     };
     /**
@@ -35,7 +36,7 @@ public class SearchBean implements Parcelable {
     private String who;
     private boolean isLiked;
 
-    public SearchBean(Parcel source) {
+    public SearchEntity(Parcel source) {
         desc = source.readString();
         publishedAt = source.readString();
         readability = source.readString();

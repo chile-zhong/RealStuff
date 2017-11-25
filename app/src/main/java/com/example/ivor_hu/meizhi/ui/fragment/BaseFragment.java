@@ -87,7 +87,8 @@ public abstract class BaseFragment extends Fragment {
 //        });
     }
 
-    public void setRefreshLayout(final boolean state) {
+    public void setFetchingFlag(final boolean state) {
+        mIsFetching = state;
         if (mRefreshLayout == null) {
             return;
         }
@@ -98,12 +99,6 @@ public abstract class BaseFragment extends Fragment {
                 mRefreshLayout.setRefreshing(state);
             }
         });
-    }
-
-    public void setFetchingFlagsFalse() {
-        if (mIsFetching) {
-            mIsFetching = false;
-        }
     }
 
     public void smoothScrollToTop() {

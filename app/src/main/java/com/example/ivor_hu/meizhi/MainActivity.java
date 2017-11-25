@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity
                     searchCat = type.getApiName();
                 }
                 switchToSearchResult(safeText, searchCat);
+                hideSearchView();
             }
         }
     }

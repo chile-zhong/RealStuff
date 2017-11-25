@@ -1,4 +1,4 @@
-package com.example.ivor_hu.meizhi.db;
+package com.example.ivor_hu.meizhi.db.entity;
 
 import android.graphics.Point;
 import android.os.Parcel;

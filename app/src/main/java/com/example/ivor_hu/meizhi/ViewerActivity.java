@@ -27,7 +27,7 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.ui.fragment.GirlsFragment;
 import com.example.ivor_hu.meizhi.ui.fragment.ViewerFragment;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;

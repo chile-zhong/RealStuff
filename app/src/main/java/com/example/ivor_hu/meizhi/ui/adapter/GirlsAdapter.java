@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.db.Image;
+import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.ui.RatioImageView;
 
 import java.util.ArrayList;

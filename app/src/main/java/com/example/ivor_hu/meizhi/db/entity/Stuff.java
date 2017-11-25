@@ -1,4 +1,9 @@
-package com.example.ivor_hu.meizhi.db;
+package com.example.ivor_hu.meizhi.db.entity;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 import com.google.gson.annotations.SerializedName;
@@ -9,8 +14,11 @@ import java.util.Date;
 /**
  * Created by Ivor on 2016/2/28.
  */
+@Entity(tableName = "collection")
 public class Stuff {
     private static final String TAG = "Stuff";
+    @NonNull
+    @PrimaryKey
     @SerializedName("_id")
     private String id;
     private String desc, url, who, type;
@@ -20,6 +28,7 @@ public class Stuff {
     public Stuff() {
     }
 
+    @Ignore
     public Stuff(String id, String type, String desc, String url, String who, Date publishedAt) {
         this.id = id;
         this.type = type;
@@ -32,7 +41,7 @@ public class Stuff {
         this.isDeleted = false;
     }
 
-    public static Stuff fromSearch(SearchBean bean) throws ParseException {
+    public static Stuff fromSearch(SearchEntity bean) throws ParseException {
         return new Stuff(
                 bean.getUrl(),
                 bean.getType(),

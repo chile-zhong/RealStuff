@@ -4,23 +4,23 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.example.ivor_hu.meizhi.R;
-import com.example.ivor_hu.meizhi.db.SearchBean;
+import com.example.ivor_hu.meizhi.db.entity.SearchEntity;
+import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.SearchAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.SearchViewModel;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
  * Created by ivor on 16-6-17.
  */
-public class SearchFragment extends BaseFragment {
+public class SearchFragment extends BaseStuffFragment {
     public static final String KEYWORD = "keyword";
     public static final String CATEGORY = "category";
     private static final String TAG = "SearchFragment";
@@ -42,13 +42,11 @@ public class SearchFragment extends BaseFragment {
         super.initData();
         mKeyword = getArguments().getString(KEYWORD);
         mCategory = getArguments().getString(CATEGORY);
-        mPage = 1;
         mSearchViewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
-        mSearchViewModel.getSearchResult().observe(this, new Observer<GankApi.Result<List<SearchBean>>>() {
+        mSearchViewModel.getSearchResult().observe(this, new Observer<GankApi.Result<List<SearchEntity>>>() {
             @Override
-            public void onChanged(@Nullable GankApi.Result<List<SearchBean>> result) {
-                setFetchingFlagsFalse();
-                setRefreshLayout(false);
+            public void onChanged(@Nullable GankApi.Result<List<SearchEntity>> result) {
+                setFetchingFlag(false);
                 if (result == null) {
                     return;
                 }
@@ -71,8 +69,7 @@ public class SearchFragment extends BaseFragment {
         }
 
         mSearchViewModel.search(mKeyword, mCategory, mPage);
-        mIsFetching = true;
-        setRefreshLayout(true);
+        setFetchingFlag(true);
     }
 
     @Override
@@ -83,23 +80,7 @@ public class SearchFragment extends BaseFragment {
 
         mPage = 1;
         mSearchViewModel.search(mKeyword, mCategory, mPage);
-        mIsFetching = true;
-        setRefreshLayout(true);
-    }
-
-    @Override
-    protected int getLastVisiblePos() {
-        return ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
-    }
-
-    @Override
-    protected int getLayoutResId() {
-        return R.layout.stuff_fragment;
-    }
-
-    @Override
-    protected int getRefreshLayoutId() {
-        return R.id.stuff_refresh_layout;
+        setFetchingFlag(true);
     }
 
     @Override
@@ -112,24 +93,24 @@ public class SearchFragment extends BaseFragment {
                     return;
                 }
 
-                CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
+                CommonUtil.openUrl(getActivity(), adapter.getSearchEntityAt(pos).getUrl());
             }
 
             @Override
             public void onItemLongClick(final View view, final int pos) {
+                if (isFetching()) {
+                    return;
+                }
+
+                try {
+                    Stuff stuff = Stuff.fromSearch(((SearchAdapter) mAdapter).getSearchEntityAt(pos));
+                    getActivity().startActionMode(new ShareListener(getActivity(), stuff, view, false));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
         return adapter;
-    }
-
-    @Override
-    protected RecyclerView.LayoutManager getLayoutManager() {
-        return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-    }
-
-    @Override
-    protected int getRecyclerViewId() {
-        return R.id.stuff_recyclerview;
     }
 
     public void search(String keyword, String category) {
