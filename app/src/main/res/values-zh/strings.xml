@@ -36,7 +36,7 @@
     <string name="action_clear_cache">清除缓存</string>
     <string name="clear_cache_all">全部缓存</string>
     <string name="confirm">确定</string>
-    <string name="clear_type">清除 %1$s?</string>
+    <string name="clear_done">已清除</string>
     <string name="network_request_error">请求错误</string>
     <string name="network_server_error">服务器错误</string>
     <string name="network_not_avaiable">请检查网络连接</string>

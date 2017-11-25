@@ -46,7 +46,7 @@
     <string name="version_name">Version: %1$s</string>
     <string name="action_clear_cache">Clear cache</string>
     <string name="clear_cache_all">All</string>
-    <string name="clear_type">Clear %1$s?</string>
+    <string name="clear_done">Clear done</string>
     <string name="confirm">Confirm</string>
     <string name="network_request_error">Error request.</string>
     <string name="network_server_error">Error in server.</string>

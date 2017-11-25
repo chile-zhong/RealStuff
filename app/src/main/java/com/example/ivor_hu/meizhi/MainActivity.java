@@ -3,10 +3,10 @@ package com.example.ivor_hu.meizhi;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.SearchRecentSuggestions;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +29,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
+import com.bumptech.glide.Glide;
 import com.example.ivor_hu.meizhi.ui.SearchSuggestionProvider;
 import com.example.ivor_hu.meizhi.ui.fragment.BaseFragment;
 import com.example.ivor_hu.meizhi.ui.fragment.BaseStuffFragment;
@@ -48,8 +49,6 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     private static final String CURR_TYPE = "curr_fragment_type";
-    private static final int CLEAR_DONE = 0x36;
-    private static final int CLEAR_ALL = 0x33;
 
     private CoordinatorLayout mCoordinatorLayout;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
@@ -65,10 +64,10 @@ public class MainActivity extends AppCompatActivity
     private String mCurrFragmentType;
     private Bundle reenterState;
 
-    private Handler mClearCacheHandler;
     private DrawerLayout mDrawer;
     private SearchView mSearchView;
     private boolean mIsSearching;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,33 +134,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-        mClearCacheHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what) {
-                    case CLEAR_DONE:
-                        ((BaseFragment) mCurrFragment).updateData();
-                        break;
-                    case CLEAR_ALL:
-//                        for (TYPE type : TYPE.values()) {
-//                            Fragment fragment = getSupportFragmentManager().findFragmentByTag(type.getId());
-//                            if (fragment == null)
-//                                continue;
-//
-//                            ((BaseFragment) fragment).updateData();
-//                        }
-                        Fragment fragment = getSupportFragmentManager().findFragmentByTag(TYPE.GIRLS.getId());
-                        if (fragment != null) {
-                            ((BaseFragment) fragment).updateData();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
     }
 
     @Override
@@ -191,18 +163,6 @@ public class MainActivity extends AppCompatActivity
                 hideSearchView();
             }
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mClearCacheHandler.removeMessages(CLEAR_ALL);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        CommonUtil.clearCache(getApplicationContext());
     }
 
     @Override
@@ -251,11 +211,20 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, AboutActivity.class));
             return true;
         } else if (id == R.id.action_clear_cache) {
-            if (((BaseFragment) mCurrFragment).isFetching()) {
-                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
-            } else {
-                clearRealmType(mCurrFragmentType);
-            }
+            new AsyncTask<Context, Void, Void>() {
+                @Override
+                protected Void doInBackground(Context... contexts) {
+                    CommonUtil.clearCache(contexts[0]);
+                    Glide.get(contexts[0]).clearDiskCache();
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.clear_done), Snackbar.LENGTH_SHORT);
+                }
+            }.execute(MainActivity.this);
             return true;
         } else if (id == R.id.action_search) {
             mIsSearching = true;
@@ -305,39 +274,6 @@ public class MainActivity extends AppCompatActivity
             supportPostponeEnterTransition();
             ((GirlsFragment) mCurrFragment).onActivityReenter(index);
         }
-    }
-
-    private void clearRealmType(final String typeId) {
-        if (TYPE.COLLECTIONS.getId().equals(typeId)) {
-            clearCacheSnackBar(R.string.clear_cache_all, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mClearCacheHandler.sendEmptyMessage(CLEAR_ALL);
-                }
-            });
-        } else if (TYPE.SEARCH_RESULTS.getId().equals(typeId)) {
-            CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.no_search_cache), Snackbar.LENGTH_SHORT);
-        } else {
-            final int strId = TYPE.valueOf(typeId).getStrId();
-            final String apiName = TYPE.valueOf(typeId).getApiName();
-            if (strId != -1) {
-                clearCacheSnackBar(strId, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mClearCacheHandler.sendEmptyMessage(CLEAR_DONE);
-                    }
-                });
-            }
-        }
-    }
-
-    private void clearCacheSnackBar(int clearTipStrId, View.OnClickListener onClickListener) {
-        CommonUtil.makeSnackBarWithAction(
-                mCoordinatorLayout,
-                String.format(getString(R.string.clear_type), getString(clearTipStrId)),
-                Snackbar.LENGTH_SHORT,
-                onClickListener,
-                getString(R.string.confirm));
     }
 
     private void closeDrawer() {
@@ -404,12 +340,15 @@ public class MainActivity extends AppCompatActivity
     private void showSearchView() {
         if (mSearchView != null) {
             mSearchView.setVisibility(View.VISIBLE);
-            int cx = mSearchView.getWidth() - (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
-            int cy = mSearchView.getHeight() / 2;
-            int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
+            if (mSearchView.getWidth() == 0) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        showSearchViewAnimation();
+                    }
+                });
+            } else {
+                showSearchViewAnimation();
             }
         }
 
@@ -417,6 +356,16 @@ public class MainActivity extends AppCompatActivity
             mToolbar.setVisibility(View.GONE);
         }
         updateSearchHint();
+    }
+
+    private void showSearchViewAnimation() {
+        int cx = mSearchView.getWidth() - (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
+        int cy = mSearchView.getHeight() / 2;
+        int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
+        }
     }
 
     private void hideSearchView() {
