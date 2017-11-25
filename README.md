@@ -1,5 +1,10 @@
 # RealStuff
-一个看妹纸与开发资讯的Android APP，具有自动缓存、清理缓存、分享、搜索与添加收藏的功能，新手向大神学习的练手项目，来自代码家的API http://gank.io。
+一个看妹纸与开发资讯的Android APP，具有自动缓存、清理缓存、分享、搜索与添加收藏的功能，使用Android Architecture Components构建的项目，来自代码家的API http://gank.io。
+
+## Android Architecture Components
+* Lifecycle
+* LiveData
+* Room
 
 ## 项目支持的Android特性
 * CardView
@@ -13,7 +18,6 @@
 ## 项目使用以下开源库
 * [bumptech / Glide](https://github.com/bumptech/glide)
 * [Mike Ortiz / TouchImageView](https://github.com/MikeOrtiz/TouchImageView)
-* [Realm](https://realm.io)
 * [Square / Retrofit](https://github.com/square/retrofit)
 
 ## 使用要求
