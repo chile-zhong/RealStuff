@@ -1,7 +1,9 @@
 package com.example.ivor_hu.meizhi;
 
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -28,6 +30,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ivor_hu.meizhi.ui.SearchSuggestionProvider;
@@ -105,8 +109,44 @@ public class MainActivity extends AppCompatActivity
         mFab = findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                ((BaseFragment) mCurrFragment).smoothScrollToTop();
+            public void onClick(View viewss) {
+//                ((BaseFragment) mCurrFragment).smoothScrollToTop();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                View view = getLayoutInflater().inflate(R.layout.webview_layout, null);
+                WebView mWebView = (WebView) view.findViewById(R.id.webviewzzz);
+//                mWebView.setWebViewClient(new WebViewClient());
+                mWebView.loadUrl("file:///android_asset/1.html");
+//                mWebView.loadData("<span>请问</span><span style='color:#a5060d;'>黄兴</span>< img src='http://106.15.50.103:4000/images/667.png' width='30' width='30'><span>是哪一个省人？</span>", "text/html; charset=UTF-8", null);
+//                builder.setView(view);
+                builder.setCustomTitle(view);
+                builder.setSingleChoiceItems(R.array.socialNetworks, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, which + "", Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, which + "", Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                builder.setNegativeButton("投票", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, which + "", Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                builder.setNeutralButton("放弃", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
             }
         });
 

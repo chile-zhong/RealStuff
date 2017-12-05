@@ -62,4 +62,11 @@
     <string name="unfavor">Unfavor</string>
     <string name="favored">Favored</string>
     <string name="unfavored">Unfavored</string>
+
+    <string-array name="socialNetworks">
+        <item>答案1</item>
+        <item>答案2</item>
+        <item>答案3</item>
+        <item>答案4</item>
+    </string-array>
 </resources>

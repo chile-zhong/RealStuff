@@ -21,8 +21,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
-    implementation 'com.squareup.retrofit2:retrofit:2.0.1'
-    implementation 'com.squareup.retrofit2:converter-gson:2.0.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.android.support:appcompat-v7:' + rootProject.ext.supportVersion
     implementation 'com.android.support:design:' + rootProject.ext.supportVersion
     implementation 'com.android.support:recyclerview-v7:' + rootProject.ext.supportVersion
